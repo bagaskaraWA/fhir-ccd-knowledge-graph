@@ -1,0 +1,69 @@
+recId,cor,gold_applicable,conditionHint
+CCD-2023:APT:1,1,1,(universal)
+CCD-2023:APT:11,1,0,History of percutaneous coronary intervention
+CCD-2023:APT:12,2a,0,History of percutaneous coronary intervention; Bleeding risk
+CCD-2023:APT:13,2b,0,History of percutaneous coronary intervention
+CCD-2023:APT:14,2b,0,(universal)
+CCD-2023:APT:15,2a,0,Bleeding risk
+CCD-2023:APT:16,2a,1,(universal)
+CCD-2023:APT:2,1,1,(universal)
+CCD-2023:APT:3,2a,0,(universal)
+CCD-2023:APT:4,2b,0,History of myocardial infarction; Bleeding risk
+CCD-2023:APT:5,2b,1,History of myocardial infarction
+CCD-2023:APT:6,2b,1,History of coronary artery bypass grafting
+CCD-2023:ASU:1,1,1,(universal)
+CCD-2023:ASU:2,2a,0,(universal)
+CCD-2023:BB:1,1,0,(universal)
+CCD-2023:BB:2,1,1,(universal)
+CCD-2023:BB:3,2b,0,History of myocardial infarction
+CCD-2023:BPM:1,1,0,Prehypertension
+CCD-2023:BPM:2,1,1,Essential Hypertension
+CCD-2023:BPM:3,1,1,Essential Hypertension
+CCD-2023:COLC:1,2b,1,(universal)
+CCD-2023:CR:1:1,1,1,History of myocardial infarction; History of coronary artery bypass grafting; History of percutaneous coronary intervention
+CCD-2023:CR:1:2,1,0,Transplanted heart present; Stable angina
+CCD-2023:CR:1:3,1,0,"Coronary Artery Dissection, Spontaneous"
+CCD-2023:EE:1,2a,1,(universal)
+CCD-2023:EE:2,2b,1,(universal)
+CCD-2023:IMMU:1,1,1,(universal)
+CCD-2023:IMMU:2,1,1,(universal)
+CCD-2023:IMMU:3,2a,1,(universal)
+CCD-2023:LIPID:1,1,1,(universal)
+CCD-2023:LIPID:10,2b,0,(universal)
+CCD-2023:LIPID:11,2b,0,(universal)
+CCD-2023:LIPID:2,1,0,(universal)
+CCD-2023:LIPID:3,1,1,(universal)
+CCD-2023:LIPID:5,2a,1,"H/O: lower limb amputation; Myocardial Infarction; History of myocardial infarction; History of coronary artery bypass grafting; Chronic kidney disease stage 4; Chronic kidney disease stage 3; Diabetes Mellitus, Non-Insulin-Dependent; Smokes tobacco daily; Essential Hypertension; Chronic congestive heart failure; History of percutaneous coronary intervention; Hypercholesterolemia, Familial; History of claudication; Amputation-previous; History of cerebrovascular accident due to ischemia"
+CCD-2023:LIPID:7,2a,0,"H/O: lower limb amputation; Myocardial Infarction; History of myocardial infarction; History of coronary artery bypass grafting; Chronic kidney disease stage 4; Chronic kidney disease stage 3; Diabetes Mellitus, Non-Insulin-Dependent; Smokes tobacco daily; Essential Hypertension; Chronic congestive heart failure; History of percutaneous coronary intervention; Hypercholesterolemia, Familial; History of claudication; Amputation-previous; History of cerebrovascular accident due to ischemia"
+CCD-2023:LIPID:9,2b,0,Hypertriglyceridemia
+CCD-2023:MHC:1,2a,1,(universal)
+CCD-2023:MHC:2,2a,1,(universal)
+CCD-2023:MRA:1,2b,0,Refractory angina
+CCD-2023:MTRA:1,1,0,Angina Pectoris
+CCD-2023:MTRA:2,1,0,Angina Pectoris
+CCD-2023:MTRA:3,1,0,(universal)
+CCD-2023:MTRA:4,1,0,(universal)
+CCD-2023:NUTRI:1,1,1,(universal)
+CCD-2023:NUTRI:2,2a,1,(universal)
+CCD-2023:NUTRI:3,2a,1,(universal)
+CCD-2023:NUTRI:4,2a,1,(universal)
+CCD-2023:PA:1,1,1,(universal)
+CCD-2023:PA:2,1,1,(universal)
+CCD-2023:PA:3,2a,1,(universal)
+CCD-2023:RAAI:1,1,1,Diabetes; Hypertensive disease; Chronic Kidney Diseases
+CCD-2023:RAAI:2,2b,0,(universal)
+CCD-2023:SGLT2:1,1,1,"Diabetes Mellitus, Non-Insulin-Dependent"
+CCD-2023:SGLT2:4,1,0,Heart failure
+CCD-2023:SGLT2:6,2a,0,Heart failure
+CCD-2023:SHA:1,2a,1,(universal)
+CCD-2023:SHA:2,2a,1,(universal)
+CCD-2023:TP:1,1,1,(universal)
+CCD-2023:TP:2,1,0,Smokes tobacco daily
+CCD-2023:TP:3:1,1,0,Smokes tobacco daily
+CCD-2023:TP:3:2,1,0,Smokes tobacco daily
+CCD-2023:TP:4,2b,0,Smokes tobacco daily
+CCD-2023:TP:5,2b,0,Smokes tobacco daily
+CCD-2023:WM:1,1,1,(universal)
+CCD-2023:WM:2,1,1,Body mass index 30+ - obesity; Body mass index 40+ - severely obese; Overweight
+CCD-2023:WM:3,2a,1,Body mass index 30+ - obesity; Body mass index 40+ - severely obese; Overweight
+CCD-2023:WM:4,2a,0,Body mass index 40+ - severely obese

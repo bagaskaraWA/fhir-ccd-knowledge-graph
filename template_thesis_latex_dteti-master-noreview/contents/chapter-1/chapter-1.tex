@@ -1,0 +1,224 @@
+\chapter{Introduction}
+
+%% NOTE: English draft. main.tex now loads the class in `english' mode, so auto-generated
+%% labels (Chapter, Figure, Table, References) render in English; the INTISARI page is
+%% unaffected because \chapterintisari hardcodes its heading. Citation keys below
+%% (e.g. \cite{virani2023}) are defined in references.bib.
+
+\section{Background}
+
+%% Scope note: population-scale burden is not reported at the CCD level -- CCD is a
+%% clinical-management category introduced by \cite{virani2023}, not a Global Burden of
+%% Disease cause. IHD, of which CCD is the chronic phase, is the closest reportable
+%% level, so the figures below are IHD-specific rather than CVD-wide.
+Chronic coronary disease (CCD), previously referred to as stable ischemic heart disease
+(SIHD), is the chronic phase of ischemic heart disease (IHD), which carries the largest
+single share of the global cardiovascular burden. The Global Burden of Disease Study
+2019 estimated 197~million prevalent cases of IHD and 9.14~million IHD deaths worldwide
+in 2019---out of 18.6~million cardiovascular deaths in total---and that burden continues
+to rise in almost every country outside the high-income group \cite{gbd2019_cvd}.
+Indonesia follows this pattern: between 2000 and 2019 its age-standardised cardiovascular
+mortality rate rose from 356.05 to 412.46 deaths per 100{,}000 among men, while remaining
+essentially unchanged among women \cite{gbd_indonesia_cvd}.
+Patients with established CCD require lifelong secondary prevention,
+and guideline-directed medical therapy (GDMT) has been shown to substantially reduce
+the risk of major adverse cardiovascular events (MACE). To standardise this care, the American Heart Association and American College of Cardiology
+published the 2023 AHA/ACC Guideline for the Management of Patients with Chronic Coronary
+Disease \cite{virani2023}. It consolidates the evidence into a large set of recommendations,
+spanning antiplatelet therapy, lipid and blood-pressure management, beta-blockers,
+renin--angiotensin--aldosterone inhibition, weight and lifestyle management, and the safety
+contraindications of those therapies.
+
+Despite the availability of such guidelines, adherence in routine practice remains
+suboptimal. The INTERASPIRE study, which examined 4{,}548 patients with coronary heart
+disease across 14 countries in all six WHO regions, found that only 1.0\%
+achieved its definition of optimal guideline adherence; just 38.6\% reached a
+blood pressure below 130/80~mmHg, 16.6\% reached an LDL-cholesterol target of
+below 1.4~mmol/L, and 9.0\% attended cardiac rehabilitation
+\cite{adherence_gap}. Clinicians must reconcile a fragmented electronic
+health record (EHR), dozens of coexisting conditions and medications, and a guideline
+containing many conditional, patient-specific recommendations, often under severe time
+pressure. Clinical decision support systems (CDSS) aim to close this gap by matching a
+patient's record against the guideline and surfacing the applicable recommendations.
+However, an effective CDSS for CCD must overcome three persistent challenges. First, it
+must \emph{integrate} three distinct evidence sources---the patient's EHR, the clinical
+guideline, and the supporting biomedical literature---into a single queryable
+structure. Second, it must \emph{bridge heterogeneous clinical terminologies}
+(e.g.\ SNOMED~CT, RxNorm, LOINC) so that a coded record can be matched to
+guideline concepts. Third, when it communicates in natural language, it must be
+\emph{trustworthy}, i.e.\ free of fabricated or unsupported clinical claims.
+
+Two technological developments make a new approach feasible. First, modern EHRs increasingly expose clinical data through the HL7 Fast Healthcare
+Interoperability Resources (FHIR) standard \cite{fhir_r4}. FHIR is a structured,
+resource-oriented format. In it, conditions, procedures, medications, and \emph{numeric
+observations} (laboratory results and vital signs) are first-class, machine-readable data. A \emph{FHIR-native}
+CDSS can therefore consume real structured clinical data directly, rather than relying
+on flattened tabular exports, in which a multi-component observation such as a
+blood-pressure panel is dissolved into independent rows that must be reassembled before
+they can be reasoned over (Section~\ref{sec:flattening}). That reassembly is a cost rather
+than an obstacle; Section~\ref{sec:csv-gating} measures how large a cost. Second, knowledge
+graphs (KGs), realised on property-graph
+databases such as Neo4j, are well suited to fusing the EHR, the guideline, and the
+literature into one graph, with terminology heterogeneity resolved by mapping every
+code to a shared concept space using the Unified Medical Language System (UMLS)
+\cite{umls}.
+
+A complementary opportunity---and risk---arises from large language models (LLMs).
+LLMs can render structured recommendation facts into a fluent, clinician-facing
+briefing, but they are prone to hallucination, which is unacceptable in a clinical
+setting. A design in which \emph{retrieval and reasoning are deterministic} (performed
+by graph queries) and the LLM is restricted to \emph{phrasing} the already-retrieved,
+provenance-carrying facts offers both readability and verifiable faithfulness, in
+contrast to conventional retrieval-augmented generation that retrieves approximate
+text passages via vector similarity \cite{rag_lewis2020}.
+
+This thesis develops a FHIR-native, knowledge-graph-based clinical recommendation
+system (CRS) for CCD. Synthetic but realistic patient records are generated with Synthea
+\cite{synthea} and exported as HL7 FHIR R4 bundles, loaded into a Neo4j knowledge
+graph, and fused with the 2023 AHA/ACC CCD guideline and a PubMed literature corpus
+seeded from the guideline's references, through a UMLS concept layer. The
+FHIR-to-graph transformation is itself routine and available as off-the-shelf,
+web-based tooling \cite{tenasol_viewer}; this
+work's contributions lie in the layers built above it. The central one follows
+directly from the FHIR-native design. Because numeric observations are loaded as graph
+data, the system can gate observation-dependent recommendations on the patient's actual
+measured values. Examples are a beta-blocker recommendation conditioned on
+left-ventricular ejection fraction and a weight-management recommendation conditioned on
+body-mass index. A condition-only, text-based pipeline cannot do this. What produces the gain
+is loading numeric observation values as first-class data, and FHIR is the most direct way to
+obtain them---not the only way. Section~\ref{sec:csv-gating} tests this by rebuilding the same
+gate from a tabular export, and Section~\ref{sec:limitations} states the bound that result puts
+on the claim.
+The system additionally produces a grounded natural-language briefing whose factual
+content is retrieved deterministically from the graph and whose citation-level
+faithfulness is checked automatically. In this way the work investigates how a FHIR-native knowledge
+graph can improve both the precision and the trustworthiness of guideline-concordant
+recommendations for chronic coronary disease.
+
+\section{Problem Statement}
+
+Based on the background above, the problems this research sets out to address are as
+follows:
+
+\begin{enumerate}
+    \item The evidence needed to support a clinical decision in chronic coronary disease
+    is spread across three sources of different shape---the patient record, the clinical
+    practice guideline, and the biomedical literature---and is not available in any single
+    queryable structure. Heterogeneous clinical terminologies compound this: conditions
+    are coded in SNOMED~CT, medications in RxNorm, and observations in LOINC, so a coded
+    record cannot be matched directly against the concepts a guideline refers to.
+
+    \item A decision-support pipeline built on conditions and text alone discards numeric
+    observation values, even though several guideline recommendations are conditioned on a
+    patient's measured values---left-ventricular ejection fraction or body-mass index, for
+    example. Observation-dependent recommendations therefore cannot be gated on what was
+    actually measured, and the resulting guideline concordance is less precise than it
+    could be.
+
+    \item Natural-language output generated by an LLM is prone to hallucination, and
+    conventional retrieval-augmented generation grounds only on approximately retrieved
+    passages. No design is available whose faithfulness can be verified against the source
+    record---a property that is not negotiable in a clinical setting.
+\end{enumerate}
+
+\section{Research Objectives}
+
+In line with the problem statement, the objectives of this research are:
+
+\begin{enumerate}
+    \item To design and implement a FHIR-native pipeline that loads HL7 FHIR R4 bundles
+    into a Neo4j knowledge graph and then fuses it with the 2023 AHA/ACC CCD guideline and
+    a literature corpus seeded from the guideline's references, through a UMLS-based
+    concept bridge. The resulting system is then evaluated end-to-end through guideline
+    concordance against an automated, CRS-independent reference oracle
+    (Section~\ref{sec:oracle}), agreement with a
+    manually labelled gold standard (Cohen's~$\kappa$), contraindication-safety
+    detection, and a clinician review of recommendation appropriateness.
+    \item To implement observation gates that evaluate observation-dependent
+    recommendations against the patient's measured values, and to quantify the
+    resulting change in guideline concordance through an ablation study (with and
+    without observation gating).
+    \item To implement a grounded-briefing pipeline in which recommendation facts are
+    retrieved deterministically from the graph and phrased by an LLM, and to evaluate
+    its faithfulness using an automated verification procedure.
+\end{enumerate}
+
+\section{Research Scope}
+
+To keep the research focused, the following scope and limitations apply:
+
+\begin{enumerate}
+    \item \textbf{Clinical domain.} The system targets chronic coronary disease
+    (stable ischemic heart disease) only, and encodes the 2023 AHA/ACC CCD guideline
+    \cite{virani2023} as its recommendation base.
+    \item \textbf{Data.} Patient data are \emph{synthetic}, generated by Synthea and
+    exported as HL7 FHIR R4 bundles; no real patient data are used. The cohort
+    comprises 5{,}490 patients (see Chapter~III), of which the CCD
+    gate-evaluable subset is used for evaluation.
+    \item \textbf{Terminologies.} Conditions and procedures are coded in SNOMED~CT,
+    medications in RxNorm, and observations in LOINC. ICD-10-CM / ICD-11 codes are not
+    present in the synthetic data; ingesting ICD-coded records in a real deployment
+    would require an additional SNOMED$\leftrightarrow$ICD crosswalk.
+    \item \textbf{Observations.} Only a defined allow-list of clinically relevant LOINC
+    observations (e.g.\ ejection fraction, LDL, BMI, triglycerides, blood pressure,
+    smoking status) is loaded and used for gating.
+    \item \textbf{Role.} The system is a \emph{recommender} and informational tool
+    that surfaces guideline-concordant options; it does not make clinical decisions and
+    is not deployed in live patient care.
+    \item \textbf{Evaluation.} Effectiveness is measured as \emph{guideline
+    concordance} rather than real clinical outcomes. Certain guideline preconditions
+    that cannot be confirmed from structured data (e.g.\ composite risk scores and some
+    negation-defined clauses) are treated as documented limitations.
+\end{enumerate}
+
+\section{Research Significance}
+
+The expected benefits of this research are as follows.
+
+\begin{enumerate}
+    \item \textbf{Academic.}
+    \begin{itemize}
+        \item Demonstrates a reproducible architecture for a FHIR-native,
+        knowledge-graph-based CRS that fuses EHR, guideline, and literature evidence.
+        \item Quantifies the contribution of structured observations (enabled by the
+        FHIR-native EHR) to guideline-concordance precision.
+        \item Introduces a deterministic-retrieval faithfulness framework for LLM
+        output in a clinical setting, in which factual content is verifiable against
+        its source.
+    \end{itemize}
+    \item \textbf{Practical.}
+    \begin{itemize}
+        \item Provides a template for building a guideline-adherent recommender system on
+        standardised FHIR data, portable to other conditions and guidelines.
+        \item Offers a grounded-briefing pattern for trustworthy clinical text
+        generation that can inform, without replacing, clinician judgement.
+    \end{itemize}
+\end{enumerate}
+
+\section{Thesis Structure}
+
+The remainder of this thesis is organised as follows.
+
+\noindent\textbf{Chapter~I (Introduction)} presents the background, problem statement,
+objectives, scope, and significance of the research.
+
+\noindent\textbf{Chapter~II (Literature Review and Theoretical Foundation)} reviews
+related work on clinical decision support, guideline knowledge graphs, and
+retrieval-augmented generation, and establishes the theoretical basis, including HL7
+FHIR, property-graph databases, UMLS-based terminology mapping, and the clinical
+concepts of the CCD guideline.
+
+\noindent\textbf{Chapter~III (Research Methodology)} describes the research design: the
+data source and cohort, the graph construction order, the design of the
+CRS-independent reference oracle, and the evaluation protocol.
+
+\noindent\textbf{Chapter~IV (Results and Discussion)} first summarises the realised
+system---the FHIR-to-Neo4j loader, the UMLS concept bridge, the guideline and literature
+layers, the observation gates, the recommendation query layer, and the
+grounded-briefing pipeline---then reports and discusses the graph construction quality,
+the observation-gate concordance ablation, the manual $\kappa$-validation, the
+safety-detection evaluation, and the briefing faithfulness results.
+
+\noindent\textbf{Chapter~V (Conclusion)} summarises the findings, states the
+conclusions with respect to the research objectives, and outlines directions for future
+work.

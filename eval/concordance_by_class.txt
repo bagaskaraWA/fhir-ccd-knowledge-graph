@@ -1,0 +1,52 @@
+### ARM 1: with observation gates
+arm: with observation gates
+  universal         38 recommendations
+  concept-matched   15 recommendations
+  value-gated        5 recommendations
+  both              10 recommendations
+  ALL               68 recommendations
+
+================================================================================
+CONCORDANCE BY DISCRIMINATION CLASS   (876 patients, with observation gates)
+================================================================================
+class             recs        P       R      F1         tp     fp     fn
+universal           38    0.666   1.000   0.799      22158  11130      0
+concept-matched     15    0.676   0.915   0.777       2018    969    188
+value-gated          5    1.000   1.000   1.000        849      0      0
+both                10    1.000   1.000   1.000       1271      0      0
+ALL                 68    0.685   0.993   0.811      26296  12099    188
+
+macro-averaged over patients:
+class                    P       R      F1
+universal            0.666   1.000   0.799
+concept-matched      0.639   0.798   0.674
+value-gated          0.600   0.600   0.600
+both                 0.707   0.707   0.707
+ALL                  0.684   0.994   0.810
+
+### ARM 2: baseline, OBS_GATES=0
+arm: baseline (no observation gates)
+  universal         38 recommendations
+  concept-matched   15 recommendations
+  value-gated        5 recommendations
+  both              10 recommendations
+  ALL               68 recommendations
+
+================================================================================
+CONCORDANCE BY DISCRIMINATION CLASS   (876 patients, baseline (no observation gates))
+================================================================================
+class             recs        P       R      F1         tp     fp     fn
+universal           38    0.666   1.000   0.799      22158  11130      0
+concept-matched     15    0.676   0.915   0.777       2018    969    188
+value-gated          5    0.194   1.000   0.325        849   3531      0
+both                10    0.038   0.006   0.011          8    205   1263
+ALL                 68    0.613   0.945   0.743      25033  15835   1451
+
+macro-averaged over patients:
+class                    P       R      F1
+universal            0.666   1.000   0.799
+concept-matched      0.639   0.798   0.674
+value-gated          0.194   0.600   0.281
+both                 0.005   0.005   0.005
+ALL                  0.612   0.948   0.743
+BOTH ARMS DONE

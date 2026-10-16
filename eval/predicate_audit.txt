@@ -1,0 +1,50 @@
+==============================================================================
+PREDICATE AUDIT -- where the reference standard shares logic with the system
+==============================================================================
+
+-- 1. how each recommendation is decided on each side ----------------------
+recommendations scored                      : 68
+  decided by graph traversal (independent)  : 53
+  decided by a predicate copied from the
+  reference standard (shared logic)         : 15
+
+shared-predicate recommendations:
+  BB:1, BB:2, BPM:1, LIPID:9, RAAI:1, RAAI:2, SGLT2:4, SGLT2:6, TP:2, TP:3:1, TP:3:2, TP:4, TP:5, WM:2, WM:3
+
+every shared predicate has a matching rule in silver_oracle.RULES : True
+
+-- 2. are those 15 predicates the same function? ---------------------------
+Source inspection shows the gate predicates copied verbatim from the oracle's
+rules. Copied text is weaker evidence than identical behaviour, so both are
+evaluated on the same feature vectors and compared.
+
+real cohort: 876 vectors
+    all 15 predicates agree on every vector
+synthetic:   200000 vectors
+    all 15 predicates agree on every vector
+
+Synthetic vectors are drawn onto the boundaries every predicate tests (bmi_max, dbp, ldl_max, lvef_min, sbp, tg_max),
+including missing values, so a difference in threshold or in comparison
+direction would surface. Total disagreements: 0.
+
+The gate predicate and the reference rule are therefore the SAME FUNCTION for
+these 15 recommendations. Their agreement in the evaluation cannot be evidence
+that the rule is clinically right; it is evidence that the two data paths
+deliver the same values to it.
+
+-- 3. concordance with the shared-predicate recommendations removed --------
+subset                             P       R      F1        tp      fp     fn
+headline (all 68)              0.685   0.993   0.811     26296   12099    188
+shared predicate (15)          1.000   1.000   1.000      2120       0      0
+independent logic (53)         0.666   0.992   0.797     24176   12099    188
+
+removing them moves precision by -0.018 and F1 by -0.013
+share of the headline's true positives that are shared-predicate : 8.1%
+
+The observation-gate ablation is affected differently. Only value-gated and both
+change between the ablation arms (eval_by_class.py), and those are exactly the
+shared-predicate recommendations -- so the whole of the reported ablation gain is
+measured on them. That gain is still a real change in the system's behaviour, but
+the reference standard it is measured against is not an independent judge of the
+rule being applied; it is an independent judge of the values fed to it.
+

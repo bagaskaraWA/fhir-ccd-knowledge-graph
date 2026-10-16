@@ -1,0 +1,515 @@
+\chapter{Tinjauan Pustaka dan Dasar Teori}
+
+%% VERSI BAHASA INDONESIA. Konvensi peristilahan dijelaskan pada kepala chapter-1.tex:
+%% prosa penghubung dalam bahasa Indonesia, istilah teknis dipertahankan dalam bahasa
+%% Inggris (miring) kecuali padanannya benar-benar mapan.
+%%
+%% Setiap klaim mengenai sistem penulis lain telah diperiksa terhadap teks lengkap
+%% sumbernya, dan penanda \fromabstract{} (dagger) sudah dilepas. Tiga klaim tidak lolos
+%% pemeriksaan dan telah ditulis ulang: ke2025 (proses tanpa halusinasi hanya dicapai
+%% GPT-4 atas panduan internasional, bukan kesepuluh model), degroot2024 (sampel "data EHR
+%% nyata" hanya satu pasien), dan kraljevic2021 (8,8 miliar token adalah korpus pelatihan
+%% self-supervised satu rumah sakit, bukan validasi tiga rumah sakit). Dua blok \crosscheck
+%% (Subbab 2.1.2 dan 2.1.4) masih menandai temuan yang MEMBATASI klaim kebaruan pada Bab I
+%% dan IV; zhou2022 dan ali2026 terbukti persis seperti yang dijelaskan, sehingga kedua bab
+%% tersebut tetap perlu direvisi sebelum penyerahan.
+
+\section{Tinjauan Pustaka}
+
+Subbab ini menelaah penelitian terdahulu menurut tema dan menempatkan celah penelitian yang
+dijawab skripsi ini.
+
+\subsection{Pendukung keputusan berbasis panduan klinis}
+Pendukung keputusan terkomputerisasi merupakan jalur yang sudah umum digunakan untuk mempersempit jarak antara panduan klinis dan praktiknya. Dampak dari adanya pendukung keputusan tersebut kini telah terukur dengan baik. Sebuah meta-analisis \cite{kwan2020} atas 122 uji klinis yang mencakup 1.203.053 pasien
+menemukan bahwa pendukung keputusan meningkatkan proporsi pasien yang menerima perawatan
+sesuai rekomendasi sebesar 5,8\% (IK~95\% 4,0---7,6), dengan heterogenitas yang tinggi ($I^2
+= 76\%$). Perbaikan pada luaran klinisnya jauh lebih kecil, dengan median hanya 0,3\%. Nilai guna sistem semacam ini karenanya berdampak, tetapi masih sederhana dan terpusat pada
+pengukuran proses alih-alih pengukuran luarannya. Pola yang sama juga muncul pada konteks
+perioperatif. Di sana, penerapan panduan klinis membaik dan sebagian luaran keselamatan
+turut membaik, tetapi mortalitas pascaoperasi tidak \cite{cai2024}.
+
+Implementasi secara tradisional yang dominan adalah berupa \emph{computer-in\-ter\-pret\-able guideline} (CIG), yaitu
+pengodean logika panduan ke dalam formalisme khusus---Arden Syntax, GLIF, PROforma, Asbru,
+EON, dan kemudian GLARE serta SAGE---yang dieksekusi oleh sebuah mesin terhadap data pasien
+\cite{declercq2004,declercq2008,oliveira2014}. Belum ada satu formalisme pun yang diberlakukan
+sebagai standar \cite{declercq2008} dan Oliveira \textit{et al.}
+mengidentifikasi interoperabilitas antara mesin eksekusi panduan dan model data klinis
+sebagai hambatan yang terus berulang \cite{oliveira2014}---dan hambatan
+itulah yang digarap skripsi ini, dengan mencocokkan konsep panduan terhadap data EHR berkode
+melalui ruang konsep bersama.
+
+Secara empiris, hambatan tersebut belum teratasi. Sebuah tinjauan sistematis atas pendukung
+keputusan berbasis aturan menyaring 1.731 artikel dan hanya menemukan
+15 artikel yang melaporkan evaluasi luaran klinisnya; di antaranya,
+hanya dua yang terintegrasi dengan sistem EHR, enam menggunakan ontologi, dan
+tiga menggunakan standar teknologi kesehatan yang diakui
+\cite{papadopoulos2022}. Hambatan yang dilaporkan pada literatur ini konsisten:
+ketertutupan aturan yang dikodekan, \emph{alert fatigue}, ketidakcocokan dengan alur kerja,
+serta metodologi evaluasi yang lemah
+\cite{papadopoulos2022,bosetti2025,silva2022}. Dari sini, terdapat dua implikasi bagi skripsi
+ini. Pertama, integrasi dengan EHR masih jarang dilakukan, belum menjadi norma---inilah yang
+menjadikan rancangan FHIR-native sebuah kontribusi, bukan sekadar detail implementasi. Kedua,
+langkanya evaluasi yang ketat menjadikan rancangan keselarasan-terhadap-rujukan-independen
+pada Bab~III sebagai kontribusi metodologis tersendiri.
+
+\subsection{\emph{Knowledge graph} untuk pendukung keputusan klinis}
+\label{sec:rw-kg}
+\emph{Knowledge graph} memadukan pengetahuan klinis yang heterogen dan data pasien ke dalam struktur yang dapat dikueri. Literatur kesehatan mengenainya sudah cukup banyak sehingga
+telah beberapa kali ditinjau \cite{abusalih2023,cui_h2023,budhdeo2023}. Sebuah
+\emph{scoping review} atas 255 artikel melaporkan ukuran graf dengan median
+46.983 simpul (IQR 6.415---460.948) dan 906.737
+sisi (IQR 66.272---9.894.909) serta menyimpulkan bahwa
+penerjemahan \emph{knowledge graph} ke dalam praktik klinis masih menjadi
+tantangan \cite{budhdeo2023}. Graf yang dilaporkan pada Bab~IV berada di atas median
+tersebut baik pada simpul maupun pada sisinya, yaitu pada bagian atas dari rentang interkuartil yang dilaporkan.
+
+Sistem terdahulu terbagi menjadi dua kelompok menurut apa yang dihubungkan olehnya. Di satu sisi terdapat graf
+\emph{pasien}: Xiao \textit{et al.} memaparkan repositori OMOP sebagai \emph{knowledge graph}
+FHIR RDF dan memvalidasinya melalui kesesuaian kueri terhadap basis data sumber, tetapi
+tidak mengodekan panduan klinis sehingga tidak menghasilkan rekomendasi
+\cite{xiao2022}; Shang \textit{et al.} membangun graf berorientasi EHR untuk pertimbangan
+kolaboratif antarinstitusi, diterapkan untuk identifikasi penyakit ginjal kronis yang
+pernah terlewat dari penilaian klinisi \cite{shang2024}. Di sisi lain, terdapat graf \emph{pengetahuan}: Cui
+\textit{et al.} membangun graf berbasis panduan klinis untuk obat kardiovaskular di Neo4j, tetapi
+tidak melekatkan rekam medis pasien \cite{cui2025}. Alat bantu keputusan
+berbasis FHIR yang lebih awal, seperti karya Semenov \textit{et al.}, memasangkan lapisan
+interoperabilitas FHIR dengan basis pengetahuan berstruktur graf, tetapi
+bekerja sebagai sistem aturan produksi berbasis panel laboratorium yang terbatas,
+bukan berbasis pada rekam medis longitudinal \cite{semenov2018}. Seneviratne \textit{et al.} paling
+dekat tendensinya dengan penelitian ini karena memodelkan provenans panduan klinis dan kohort
+studi agar rekomendasi dapat membawa bukti pendukungnya \cite{seneviratne2023}.
+
+Satu kelompok perkakas (\emph{tool}) yang sudah lazim juga perlu disebut di sini karena perkakas tersebut yang
+mengakibatkan adanya keterbatasan dari apa yang dapat diklaim oleh skripsi ini. Pemetaan dari FHIR ke \emph{property graph}---
+\emph{resource} menjadi simpul, rujukan menjadi sisi---sudah bersifat mekanis,
+mapan, dan tersedia sebagai perkakas siap pakai: \emph{bundle viewer} berbasis peramban (\emph{web})
+menampilkan sebuah \emph{bundle} unggahan sebagai graf simpul-sisi interaktif tanpa menuntut
+satu pun keputusan pemodelan dari penggunanya \cite{tenasol_viewer}. Karena itu, transformasi FHIR ke \emph{property graph}
+tidak diklaim sebagai kontribusi penelitian ini. Meski begitu, perkakas tersebut hanya bekerja terhadap satu \emph{bundle}
+pada satu waktu dan tidak menyimpannya sehingga tidak ada pertanyaan lintas pasien yang dapat
+diajukan. Perkakas hanya menampilkan setiap \emph{coding} secara \emph{inline} di dalam
+\emph{resource} yang membawanya, alih-alih mengangkat \emph{coding} menjadi simpul bersama
+sehingga tidak ada dua pasien yang tersambung melalui kode yang sama. Perkakas tersebut tidak
+mencocokkan apa pun antara SNOMED~CT, RxNorm, dan LOINC. Perkakas juga tidak memuat
+pengetahuan yang tidak berasal dari \emph{bundle} sehingga tidak ada lapisan panduan klinis maupun
+literatur yang dapat dijadikan sebagai dasar penalaran. Oleh karena itu, sebuah \emph{viewer}---seperti perkakas tersebut---justru
+dituntut \emph{faithful} terhadap masukannya sebab tujuannya adalah inspeksi. Sebaliknya,
+graf yang dibangun pada Bab~III sengaja dibuat \emph{lossy}: graf tersebut membuang
+\emph{resource} penagihan (\emph{billing}) dan provenans serta seluruh kode observasi LOINC
+kecuali sembilan kode yang berada dalam \emph{allow-list}. Alasannya, graf itu dibangun
+untuk menjawab satu pertanyaan klinis, bukan untuk merepresentasikan sebuah dokumen.
+
+Ada satu sistem yang menggabungkan keduanya dan sistem itulah yang membuat klaim
+kebaruan skripsi ini dinyatakan secara lebih sempit. Zhou \textit{et al.} membangun
+\emph{knowledge graph} pengobatan hipertensi dari panduan hipertensi Tiongkok dan
+mengevaluasinya terhadap 124 rekam medis yang dikumpulkan dari seorang dokter
+spesialis di satu rumah sakit, dengan melaporkan \emph{recall} 91\%, hit@3
+83\%, dan MRR 77\% pada tugas rekomendasi kelas obat tunggal \cite{zhou2022}. Dengan
+demikian, lapisan panduan klinis, rekam medis pasien, dan evaluasi rekomendasi sudah berpadu dalam
+satu sistem sehingga gabungan ketiganya \emph{tidak} diklaim sebagai kebaruan di sini. Penelitian ini berbeda dalam cakupan dan evaluasinya, bukan dalam arsitekturnya, dan jaraknya pun lebih sempit daripada yang dilaporkan sistem mereka. Graf mereka mencakup seluruh
+kelas obat antihipertensi dan membawa \emph{compelling level} dari panduan klinis ke dalam
+aturan penskorannya. Baik cakupan lintas kelas maupun kekuatan rekomendasi karenanya tidak
+menjadi pembeda. Pembedanya terletak pada keluasan panduan klinis yang dikodekan: di sini
+panduan itu mencakup antiplatelet, lipid, tekanan darah, penyekat beta,
+renin-angiotensin-aldosteron, gaya hidup, serta kontraindikasi keamanan, alih-alih terapi
+obat untuk satu kondisi saja. Nilai fisiologis
+numerik pun turut masuk ke jalur penalaran mereka: atribut fisik merupakan satu dari empat
+jenis entitas dalam graf mereka dan sebuah indikasi dapat dikualifikasi oleh ambang, seperti
+pada contoh mereka sendiri berupa penyekat kanal kalsium dihidropiridin yang diindikasikan
+untuk angina stabil dan hipertensi pada denyut jantung di bawah 75~bpm. Perbedaan keduanya terletak pada cara nilai tersebut digunakan---diketikkan dokter pada formulir entri pasien
+untuk 124 rekam medis di sana, sedangkan di sini sebagai \emph{resource} FHIR yang membawa satuan
+serta sistem kodenya sendiri, pada skala kohort dan tanpa penyalinan manual. Evaluasi mereka
+melaporkan metrik pemeringkatan dari daftar kandidat yang sesuai, sedangkan keselarasan di sini diukur
+terhadap standar rujukan yang independen dari sistem rekomendasi serta standar emas
+berlabel manual. Terakhir, sistem mereka menyatukan dua sumber, sedangkan di sini lapisan
+literatur disatukan sebagai sumber ketiga.
+
+\subsection{Integrasi terminologi}
+Pencocokan data pasien berkode terhadap konsep dari panduan klinis menuntut rekonsiliasi beberapa
+kosakata---SNOMED~CT, RxNorm, dan LOINC---dan UMLS Metathesaurus merupakan cara baku
+untuk menjembataninya \cite{umls}. Pemetaan ini tidak bebas dari kehilangan informasi: perbandingan
+pemetaan ATC ke RxNorm menemukan 1.949 istilah tidak terpetakan pada UMLS dibanding
+916 istilah pada OHDSI \emph{Standardized Vocabularies} meskipun UMLS mencapai
+cakupan lebih tinggi (96,5\% dibanding 91\%) pada sampel data EHR milik satu pasien,
+sebuah selisih yang bersumber dari dua kelas \emph{multi-ingredient} ATC \cite{degroot2024}.
+Setiap rancangan jembatan konsep karenanya menanggung laju kegagalan pemetaan yang
+seharusnya diukur, bukan diasumsikan.
+
+Untuk menautkan teks bebas ke konsep, MedCAT menyediakan ekstraksi konsep UMLS dan
+SNOMED~CT yang dilatih secara \emph{self-supervised} terhadap sekitar 8,8 miliar token rekam
+medis satu rumah sakit dan tervalidasi di tiga rumah sakit di London, dengan keteralihan
+yang dilaporkan sebesar $F_1 > 0{,}94$ antarlokasi \cite{kraljevic2021}. Penelitian ini
+menggunakan scispaCy \cite{scispacy} atas dasar kesesuaian tugas, bukan kualitas. Keunggulan
+MedCAT terletak pada \emph{disambiguation} berbasis konteks yang dipelajari secara
+\emph{self-supervised} dari korpus narasi klinis. Kedua prasyarat itu tidak terpenuhi di
+sini. Tugas penjembatanan pada Subbab~\ref{sec:kg-construction} bekerja pada kalimat
+deskripsi dari kode tersebut---\texttt{Chronic ischemic heart disease (disorder)}---yang
+tidak membawa kalimat pendukung lain untuk dibaca model semacam itu. Selain itu, ekspor
+FHIR menyajikan data berkode alih-alih naratif sehingga tidak tersedia korpus untuk
+melatihnya. Pustaka scispaCy juga memaparkan basis pengetahuannya sebagai indeks alias yang dapat
+dikueri, bukan semata sebagai penganotasi atas teks. Sifat itulah yang memungkinkan
+penelusuran alias secara persis serta penyaringan tipe semantik yang dipakai di sini.
+Pustaka ini pun tidak menyimpan keadaan hasil pelatihan sehingga untai yang sama
+menghasilkan konsep yang sama pada setiap proses. Skripsi ini bersandar pada sifat tersebut
+ketika menyatakan bahwa penelusurannya deterministik. Untuk catatan klinis
+berupa teks bebas, yang maknanya harus ditentukan dari konteks, MedCAT justru merupakan pilihan
+yang lebih tepat.
+
+\subsection{Model bahasa besar, \emph{retrieval-augmented generation}, dan \emph{faithfulness}}
+Model bahasa besar menghasilkan teks klinis yang fasih, tetapi dapat berhalusinasi;
+\emph{retrieval-augmented generation} (RAG) meredam ini dengan mensyaratkan pembangkitan hanya berdasar pada
+bukti yang ditelusuri \cite{rag_lewis2020}. Sebuah tinjauan sistematis RAG di bidang kesehatan
+menemukan beragam arsitektur yang digunakan, tetapi melaporkan ketiadaan
+kerangka evaluasi yang terbakukan untuk aplikasi berbasis RAG dan bahwa sebagian besar studi
+tidak membahas pertimbangan etis \cite{amugongo2025}. Ketiadaan itulah yang
+menjadikan pemeriksaan \emph{faithfulness} secara mekanis pada Bab~III layak dilaporkan
+sebagai kontribusi.
+
+Sistem RAG khusus panduan klinis kini melaporkan hasil yang kuat. Sebuah sistem RAG atas panduan NICE
+Britania Raya meningkatkan \emph{faithfulness}---yaitu apakah suatu jawaban
+didukung oleh teks sumbernya---sebesar 64,7 poin persentase menjadi
+99,5\% \cite{lewis2025}. Sebuah kerangka untuk interpretasi
+panduan hepatologi meningkatkan akurasi dari 43\% menjadi 99\% melalui
+pemformatan ulang panduan klinis dan rekayasa \emph{prompt} \cite{kresevic2024}. Selain itu,
+evaluasi LLM-RAG pada sepuluh model dengan 3.234 respons melaporkan ketiadaan
+halusinasi pada konfigurasi terbaiknya, yaitu GPT-4 pada panduan klinis internasional, yang
+juga mengungguli jawaban yang dibuat manusia. Adapun laju halusinasi pada model lain
+mencapai 48,6\% \cite{ke2025}.
+
+Penelitian terkait juga memasangkan \emph{knowledge graph} dengan model bahasa untuk
+kemampuan penjelasannya \cite{park2025} sehingga kombinasi graf dan LLM merupakan
+area penelitian yang aktif, bukan area yang belum dijelajahi.
+
+\subsection{Data klinis sintetis dan penelitian berbasis FHIR}
+Synthea menyimulasikan rentang hidup pasien melalui model penyakit modular dan mengekspornya
+sebagai \emph{bundle} HL7 FHIR sehingga memungkinkan penelitian informatika klinis yang
+dapat direproduksi tanpa risiko privasi \cite{walonoski2017}. Synthea kemudian diperluas
+dengan data pencitraan, genomik, dan catatan klinis yang ditautkan melalui FHIR
+\cite{walonoski2022}. Validitasnya telah ditelaah secara langsung dengan
+membandingkan ukuran mutu klinis yang dihitung pada kohort 1,2 juta pasien Massachusetts
+terhadap angka yang dipublikasikan. Di samping itu, Chen \textit{et al.} menyimpulkan bahwa Synthea
+andal dalam memodelkan demografi dan peluang layanan diberikan, tetapi
+kemampuannya memodelkan luaran kesehatan yang heterogen setelah layanan
+diberikan terbatas dan bahwa Synthea tidak memodelkan penyimpangan dalam
+tata laksana \cite{chen2019}. Perlu dicatat, mereka melaporkan bahwa
+tidak ada penduduk Synthea yang tekanan darahnya terkendali setelah diagnosis
+hipertensi, sebanding dengan angka Massachusetts sebesar 74,5\% \cite{chen2019}.
+
+\subsection{Pergeseran peristilahan dan kerangka dari waktu ke waktu}
+Penelusuran literatur ini membutuhkan dua kosakata. Pertama, karya yang terbit sebelum kurang lebih 2015
+menggambarkan arsitektur yang sama dengan istilah \emph{Semantic Web}, yaitu ontologi OWL,
+\emph{description-logic reasoner}, tripel RDF, dan \emph{proof engine}. Contohnya adalah
+pendukung keputusan praoperatif berbasis ontologi milik Bouamrane \textit{et al.}
+\cite{bouamrane2011} dan kerangka eksekusi panduan klinis milik Hussain
+\textit{et al.} \cite{hussain2007}. Kerangka yang disebut terakhir bahkan telah memadukan
+ontologi domain, ontologi panduan klinis, dan ontologi pasien serta membangkitkan
+\emph{justification tree} untuk memaparkan jejak inferensi. Kedua, karya pasca-2020 menggambarkan
+persoalan yang sama dengan kosakata \emph{property graph}---\emph{knowledge graph}, Neo4j,
+Cypher, GraphRAG. Arsitektur yang diusulkan skripsi ini karenanya merupakan wujud kekinian dari
+rancangan yang telah lama mapan dan apabila penelusuran dibatasi hanya pada istilah ``\emph{knowledge
+graph}'' akan berakibat terlewatnya satu dasawarsa preseden yang relevan secara langsung.
+
+\subsection{Ringkasan dan celah penelitian}
+Penelitian terdahulu sebagian besar menggarap tema-tema ini secara terpisah. Sistem berbasis
+aturan dan CIG mengodekan logika panduan klinis, tetapi jarang terintegrasi dengan EHR berstandar
+\cite{papadopoulos2022}. Graf klinis sisi pasien pernah dibangun secara ketat, tetapi
+tidak membawa lapisan panduan klinis \cite{xiao2022}. Graf sisi panduan klinis tidak membawa rekam medis
+pasien \cite{cui2025}. Satu sistem memang membawa keduanya, yaitu graf obat berbasis panduan klinis
+yang dievaluasi terhadap rekam medis nyata \cite{zhou2022}, tetapi terbatas pada terapi obat
+satu kondisi dan dievaluasi dengan metrik pemeringkatan alih-alih terhadap standar rujukan.
+Model bahasa yang dilandaskan pada graf terbukti menurunkan halusinasi
+\cite{ali2026}, tetapi dievaluasi pada akurasi penjawaban pertanyaan---enam puluh
+pertanyaan dalam satu area penyakit, dinilai terhadap jawaban rujukan yang ditarik dari
+literatur---bukan pada keselarasan terhadap panduan klinis terhadap suatu kohort pasien. Kontribusi skripsi ini karenanya lebih sempit dan lebih tepat daripada sekadar ``menyatukan
+data pasien dengan panduan klinis''. Pertama, skripsi ini membangun graf FHIR-native yang di
+dalamnya \emph{observasi terstruktur} tersedia untuk menggerbangi rekomendasi. Kedua, graf
+itu dievaluasi berdasarkan keselarasan panduan klinis terhadap standar rujukan yang
+independen dari sistem rekomendasi. Ketiga, graf itu disertai \emph{grounded briefing} yang
+\emph{faithfulness}-nya pada tingkat sitasi dapat diperiksa secara mekanis karena
+penelusurannya deterministik dan membawa provenans.
+
+\section{Dasar Teori}
+
+\subsection{Penyakit jantung koroner kronis dan panduan AHA/ACC 2023}
+Penyakit jantung koroner kronis (CCD) merupakan fase stabil dari penyakit arteri koroner yang
+memerlukan pencegahan sekunder jangka panjang.
+
+\subsubsection*{Catatan peristilahan: SIHD dan CCD}
+Kedua istilah mengenai jantung koroner kronis yang digunakan dalam skripsi ini berkaitan, tetapi tidak dapat saling menggantikan dan
+pembedaannya penting karena data EHR dan panduan klinis berasal dari sisi yang berbeda. Hingga 2023,
+kondisi ini dibahas dengan sebutan \emph{stable ischemic heart disease} (SIHD), yaitu pasien yang
+penyakit koronernya telah terdiagnosis namun tidak sedang berada dalam fase akut. Panduan AHA/ACC
+2023 \cite{virani2023} menggantikan kerangka tersebut dengan \emph{chronic coronary disease},
+sebuah entitas yang sengaja dibuat lebih luas: selain angina stabil, panduan itu secara
+eksplisit mencakup pasien yang telah lebih dari satu tahun melewati sindrom koroner akut,
+pasien pascarevaskularisasi, pasien dengan kardiomiopati iskemik, dan pasien yang penyakit
+koronernya terdokumentasi tanpa gejala saat ini. SIHD karenanya paling tepat dibaca sebagai
+\emph{subhimpunan} dari CCD---setiap pasien SIHD termasuk CCD, tetapi tidak setiap pasien CCD dapat
+disebut SIHD.
+
+Ketidaksetangkupan ini tampak dalam penelitian ini. Korpus sintetis dibangkitkan dengan modul
+Synthea bernama \texttt{stable\_ischemic\_heart\_disease}, yang kosakatanya mendahului
+penggantian nama pada 2023, sedangkan panduan klinis yang dikodekan adalah panduan CCD. Modul
+tersebut karenanya memasok pasien dari kategori lama yang lebih sempit, sementara
+rekomendasinya ditulis untuk kategori yang lebih luas. Akibatnya, terdapat dua hal. Keanggotaan
+kohort tidak bergantung pada modul pembangkit mana yang digunakan, melainkan
+oleh diagnosis berkode yang benar-benar ada dalam rekam medis (Subbab~\ref{sec:gate})
+sehingga pasien dari proses pembangkitan populasi umum yang mengalami diagnosis penentu tetap
+disertakan atas dasar yang sama. Selain itu, karena CCD merupakan kategori yang lebih luas,
+rekomendasi yang ditujukan pada bagian CCD di luar gambaran SIHD klasik---misalnya yang
+dikaitkan dengan sindrom koroner akut terkini---lebih jarang terpakai oleh korpus ini
+dibandingkan pada populasi CCD nyata. Panduan AHA/ACC CCD 2023 \cite{virani2023}
+menata rekomendasinya menurut \emph{Class of Recommendation} (COR) dan
+\emph{Level of Evidence}. COR terbagi menjadi Kelas~1 (kuat), Kelas~2a (sedang),
+Kelas~2b (lemah), serta Kelas~3 yang terbagi lagi menjadi 3-No-Benefit dan 3-Harm, yakni
+kontraindikasi. Dalam penelitian ini,
+COR menentukan semantik sisi rekomendasi: rekomendasi Kelas~3 menjadi kontraindikasi,
+sedangkan rekomendasi Kelas~1/2a/2b menjadi rekomendasi positif.
+
+\subsection{HL7 FHIR}
+\emph{Fast Healthcare Interoperability Resources} (FHIR) \cite{fhir_r4} adalah standar HL7
+untuk pertukaran data kesehatan dalam bentuk \emph{resource} modular (misalnya
+\texttt{Patient}, \texttt{Condition}, \texttt{Observation}, \texttt{MedicationRequest}, dan
+\texttt{Procedure}). Antar-\emph{resource} saling merujuk dan makna klinis dibawa oleh elemen
+\texttt{CodeableConcept}/\texttt{Coding} yang masing-masing memasangkan URI \texttt{system}
+kode dengan sebuah \texttt{code}. Yang menentukan bagi penelitian ini, hasil numerik merupakan
+\emph{resource} \texttt{Observation} yang memiliki \texttt{valueQuantity} sehingga
+nilai laboratorium dan tanda vital tersedia sebagai data terstruktur. Rilis HL7 FHIR yang digunakan di
+sepanjang skripsi ini adalah FHIR~R4; Subbab~\ref{sec:data-source} mencatat bagaimana hal itu
+dipastikan dari instans yang diekspor.
+
+Karena bagian selanjutnya dari skripsi ini sangat bergantung pada struktur tersebut, sebuah
+contoh ringkas diberikan pada Listing~\ref{lst:fhir}. Contoh itu diambil apa adanya dari
+sebuah \emph{bundle} hasil pembangkitan, dengan elemen yang tidak terpakai dihilangkan.
+
+\begin{lstlisting}[caption={Cuplikan ringkas \emph{resource} FHIR R4 dari \emph{bundle}
+pasien hasil pembangkitan: sebuah diagnosis berkode dan sebuah hasil laboratorium numerik.},
+label={lst:fhir},
+basicstyle=\ttfamily\scriptsize,breaklines=true,frame=single,captionpos=b]
+{ "resourceType": "Condition",
+  "id": "22f599b6-...-8e66-1f64bdc5c863",
+  "code": {                              // APA temuannya
+    "coding": [ { "system":  "http://snomed.info/sct",
+                  "code":    "414545008",
+                  "display": "Ischemic heart disease (disorder)" } ],
+    "text": "Ischemic heart disease (disorder)" },
+  "subject": { "reference": "urn:uuid:22f599b6-...-e586-..." },   // MILIK SIAPA
+  "onsetDateTime": "2013-05-24T09:14:31+07:00" }
+
+{ "resourceType": "Observation",
+  "status": "final",
+  "code": {                              // PENGUKURAN yang mana
+    "coding": [ { "system":  "http://loinc.org",
+                  "code":    "18262-6",
+                  "display": "Cholesterol in LDL [Mass/volume] ..." } ] },
+  "subject": { "reference": "urn:uuid:22f599b6-...-e586-..." },
+  "valueQuantity": {                     // ANGKANYA -- dapat dibandingkan mesin
+    "value": 91.35, "unit": "mg/dL",
+    "system": "http://unitsofmeasure.org", "code": "mg/dL" } }
+\end{lstlisting}
+
+Tiga sifat dari struktur ini penting bagi keseluruhan sistem. Pertama,
+antar-\emph{resource} \emph{ditautkan melalui rujukan}: sebuah \texttt{Condition} tidak
+memuat pasiennya, melainkan menunjuk kepadanya---inilah sebabnya model graf pada Bab~III
+mengubah rujukan menjadi sisi. Kedua, makna klinis dibawa \emph{bukan oleh nama elemen, melainkan oleh kodenya}. Elemen
+\texttt{code} yang sama memuat konsep SNOMED~CT di sini dan akan memuat konsep RxNorm atau
+LOINC di tempat lain. Itulah sebabnya setiap \emph{coding} diangkat ke satu simpul bersama
+dan dijembatani ke ruang konsep yang sama. Ketiga, dan
+menentukan bagi skripsi ini, sebuah hasil laboratorium bukanlah kalimat, melainkan
+\texttt{valueQuantity} yang memuat angka, satuan, dan sistem satuan. Ekspor tabular
+terdatarkan tetap membawa angka-angka tersebut, tetapi mengubah struktur yang menyertainya:
+satu pembacaan berkomponen jamak terpecah ke beberapa baris yang harus dirakit ulang sebelum
+sebuah ambang batas dapat dievaluasi. \emph{Resource} FHIR tetap mempertahankan nilai, satuan, dan keanggotaan panelnya. Sifat itulah yang memungkinkan sebuah rekomendasi yang bergantung pada ambang
+batas diputuskan, bukan sekadar rekomendasi yang bergantung pada ada tidaknya suatu diagnosis
+(Subbab~\ref{sec:flattening}).
+
+\subsection{Terminologi klinis dan UMLS}
+Tipe \emph{resource} yang berbeda dikodekan dalam kosakata yang berbeda: SNOMED~CT untuk
+kondisi temuan dan prosedur klinis \cite{snomedct}, RxNorm untuk obat \cite{rxnorm}, dan LOINC untuk
+observasi laboratorium dan tanda vital \cite{loinc}. \emph{Unified Medical Language System}
+(UMLS) Metathesaurus \cite{umls} memadukan kosakata-kosakata tersebut beserta banyak lainnya
+dan memberikan setiap konsep sebuah \emph{Concept Unique Identifier} (CUI), yang menyediakan
+ruang konsep bersama tempat setiap kode EHR dan setiap target dari panduan klinis dipetakan dalam skripsi
+ini.
+
+\subsection{\emph{Knowledge graph} dan basis data \emph{property graph}}
+\emph{Knowledge graph} merepresentasikan entitas sebagai simpul dan hubungan antarentitas
+sebagai sisi berlabel. Pada basis data \emph{property graph} seperti Neo4j \cite{neo4j},
+simpul dan sisi dapat membawa properti pasangan kunci-nilai (\emph{key-value}); data dikueri dengan bahasa
+deklaratif Cypher \cite{cypher} melalui pencocokan pola. \emph{Property graph} sangat sesuai
+untuk menyatukan sumber yang heterogen karena tipe simpul dan sisi baru dapat ditambahkan
+secara bertahap dan hubungan lintas beberapa lompatan (\emph{multi-hop}) dapat ditelusuri secara langsung.
+
+\subsection{Pemrosesan bahasa alami klinis: NER dan \emph{entity linking}}
+Ekstraksi informasi terstruktur dari teks biomedis tak terstruktur memerlukan
+\emph{named-entity recognition} (NER), yang mengenali segmen teks bermakna klinis, dan
+\emph{entity linking}, yang memetakan segmen tersebut ke suatu basis pengetahuan seperti
+UMLS. Pustaka scispaCy \cite{scispacy} menyediakan model NLP biomedis serta \emph{entity
+linker} UMLS/MeSH yang digunakan dalam penelitian ini untuk memproses korpus literatur dan
+membantu penjembatanan terminologi; model yang dipakai di sini adalah
+\texttt{en\_core\_sci\_md}, yang vektornya dilatih atas OntoNotes~5, Common Crawl, dan
+GENIA~1.0.
+
+\subsection{Kekuatan asosiasi: \emph{pointwise mutual information}}
+\emph{Pointwise mutual information} (PMI) mengukur seberapa jauh dua peristiwa---di sini
+sebuah obat dan sebuah kondisi---muncul bersama lebih sering daripada yang diperkirakan jika
+keduanya saling bebas \cite{pmi}. Untuk dua konsep $x$ dan $y$, PMI didefinisikan sebagai
+
+\begin{equation}
+\mathit{PMI}(x, y) \;=\; \log \frac{P(x, y)}{P(x)\,P(y)} .
+\label{eq:pmi}
+\end{equation}
+
+Peluangnya dihasilkan dari frekuensi dokumen pada korpus abstrak. Dengan $N$ menyatakan
+jumlah abstrak, $\mathit{df}(x)$ jumlah abstrak yang menyebut konsep $x$, dan $c(x,y)$ jumlah
+abstrak yang menyebut keduanya, estimator yang disubstitusikan ke Persamaan~\ref{eq:pmi} adalah
+
+\begin{equation}
+\mathit{PMI}(x, y)
+\;=\; \log_{10} \frac{c(x,y)/N}{\bigl(\mathit{df}(x)/N\bigr)\bigl(\mathit{df}(y)/N\bigr)}
+\;=\; \log_{10} \frac{c(x,y)\;N}{\mathit{df}(x)\,\mathit{df}(y)} .
+\label{eq:pmi-df}
+\end{equation}
+
+Basis~10 digunakan sehingga nilai $1$ menandakan pasangan yang muncul bersama sepuluh kali
+lebih sering daripada perkiraan kebebasan dan nilai $0$ menandakan kebebasan secara penuh;
+nilai negatif menandakan kemunculan bersama yang lebih jarang daripada peluang acak. Bentuk
+ruas kanan Persamaan~\ref{eq:pmi-df} adalah bentuk yang dihitung.
+
+PMI digunakan untuk memeringkat asosiasi antara obat dan kondisi yang ditambang dari literatur. PMI
+diterapkan dengan ambang minimum jumlah artikel: karena $c(x,y)$ berada pada pembilang, sebuah
+pasangan yang hanya muncul pada satu abstrak dapat memperoleh skor tinggi semata-mata karena
+kedua konsepnya langka sehingga pasangan di bawah ambang tersebut dibuang alih-alih
+masuk dalam proses pemeringkatan. Ambangnya adalah tiga artikel: sebuah pasangan obat--kondisi harus disebut
+bersama dalam sekurang-kurangnya tiga abstrak berbeda sebelum diperingkatkan. Ambang
+tersebut diterapkan saat \emph{briefing} dirakit, bukan saat sisi \emph{co-occurence} dibangun,
+sehingga lapisan literatur tetap menyimpan setiap pasangan yang teramati dan ambangnya dapat
+diubah tanpa mewujudkan ulang graf.
+
+\subsection{\emph{Retrieval-augmented generation} dan peringkasan membumi}
+\emph{Retrieval-augmented generation} (RAG) \cite{rag_lewis2020} mengondisikan keluaran model
+bahasa terhadap konteks yang ditelusuri; RAG klasik menelusuri potongan teks tak terstruktur
+melalui kemiripan vektor (\emph{dense}) sehingga menghasilkan konteks yang
+\emph{aproksimatif}. Skripsi ini sebaliknya menggunakan penelusur \emph{knowledge graph} yang
+deterministik menggunakan Cypher sehingga fakta yang ditelusuri bersifat persis dan membawa provenans. Model bahasa hanya melakukan \emph{grounded summarisation}---merumuskan ulang fakta tanpa
+menambahkan informasi. \emph{Faithfulness} menyatakan sifat bahwa setiap pernyataan dalam
+keluaran didukung oleh fakta yang sudah ditelusuri; pelanggarannya disebut halusinasi.
+
+\subsection{Pengukuran kesepakatan: Cohen's kappa}
+Cohen's $\kappa$ \cite{cohen1960} mengukur kesepakatan antara dua penilai---atau antara sebuah
+metode otomatis dan standar emas---dengan koreksi terhadap kesepakatan yang diharapkan terjadi
+secara kebetulan. Nilai di atas~0,8 secara konvensional ditafsirkan sebagai kesepakatan yang
+hampir sempurna, sedangkan nilai 0,21---0,40 ditafsirkan sebagai kesepakatan yang cukup
+(\emph{fair}) \cite{landis1977}. Nilai $\kappa$ juga dipengaruhi prevalensi kategori dan bias
+antarpenilai sehingga indikator keduanya sebaiknya dilaporkan bersama $\kappa$
+\cite{byrt1993}. Statistik ini digunakan dalam penelitian ini untuk memvalidasi standar
+rujukan otomatis terhadap label manual dan untuk mengukur kesepakatan antarklinisi pada
+telaah ketepatan rekomendasi.
+
+\subsection{Data pasien sintetis: Synthea}
+Synthea \cite{synthea} adalah pembangkit sumber terbuka untuk rekam medis pasien yang sintetis
+namun realistis secara statistik, dihasilkan dengan menyimulasikan perjalanan penyakit melalui
+model modular dan dapat diekspor sebagai \emph{bundle} HL7 FHIR maupun berkas CSV. Karena
+datanya sintetis, data tersebut tidak memuat informasi kesehatan yang perlu dilindungi dan mendukung
+penelitian yang sepenuhnya dapat direproduksi.
+
+\section{Analisis Perbandingan Metode}
+
+Pilihan rancangan dalam skripsi ini dijustifikasi melalui perbandingan dengan alternatifnya.
+CDSS yang murni \emph{berbasis aturan} dapat mengodekan logika panduan klinis, tetapi buruk dalam
+berintegrasi dengan data EHR berkode yang heterogen dan rapuh untuk dipelihara; pendekatan
+\emph{knowledge graph} dengan penjembatanan UMLS sebaliknya mencocokkan data pasien berkode
+terhadap konsep panduan klinis melalui ruang konsep bersama dan menelusuri hubungan lintas sumber
+secara langsung. Untuk keluaran bahasa alami, peringkas \emph{murni-LLM} berisiko
+berhalusinasi dan peringkas \emph{RAG-vektor} hanya berlandas pada potongan teks yang
+ditelusuri secara aproksimatif; \emph{penelusuran knowledge graph yang deterministik} diikuti
+perumusan kalimat oleh LLM menghasilkan fakta yang persis dan membawa provenans. Karena itu,
+keluarannya dapat diperiksa terhadap himpunan fakta yang tertutup, hal yang esensial pada
+konteks klinis. Pemeriksaan semacam itu belum mencakup kesetiaan makna setiap kalimat.
+Terakhir, evaluasi pada observasi terstruktur yang \emph{FHIR-native}
+mempertahankan setiap nilai tetap terikat pada satuan, sistem satuan, dan panelnya sehingga
+rekomendasi bergantung-observasi dapat digerbangi menurut nilai terukur tanpa perlu merakit
+ulangnya dari ekspor tabular terdatarkan---mekanisme yang dapat meningkatkan presisi.
+Tabel~\ref{tab:method-comparison} merangkum perbandingan tersebut.
+
+\begin{table}[h]
+\centering
+\caption{Alternatif rancangan sistem pendukung keputusan klinis untuk CCD, dibandingkan
+terhadap kriteria yang melatarbelakangi skripsi ini.}
+\label{tab:method-comparison}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{2.0cm}p{2.28cm}p{2.28cm}p{2.28cm}p{2.28cm}p{2.28cm}}
+\hline
+\textbf{Pendekatan} & \textbf{Integrasi EHR berkode} & \textbf{Penjembatanan terminologi} &
+\textbf{Penggerbangan observasi numerik} & \textbf{Penyatuan lintas sumber} &
+\textbf{\emph{Faithfulness} keluaran} \\
+\hline
+CDSS berbasis aturan/CIG &
+Jarang dalam praktik: 2 dari 15 sistem terevaluasi \cite{papadopoulos2022} &
+Dikodekan manual per aturan &
+Dapat dinyatakan, tetapi manual per aturan &
+Hanya panduan &
+Tidak berlaku (tanpa keluaran bahasa alami) \\
+Basis data relasional dengan SQL &
+Didukung langsung &
+Perlu tabel pemetaan eksplisit &
+Didukung langsung &
+Perlu skema dan migrasi baru per sumber &
+Tidak berlaku (tanpa keluaran bahasa alami) \\
+\emph{RAG-vektor} atas teks panduan &
+Hanya teks; kode tidak digunakan &
+Kemiripan \emph{embedding} &
+Tidak terepresentasi &
+Tingkat korpus, bukan entitas &
+Aproksimatif; berlandas potongan teks tertelusur \\
+\emph{Prompting} murni-LLM &
+Hanya teks \emph{prompt} &
+Implisit dan tak terverifikasi &
+Tidak terepresentasi &
+Tidak ada &
+Tanpa kendala; berisiko halusinasi \\
+\textbf{Skripsi ini} &
+\emph{FHIR-native}, terstruktur &
+Ruang konsep bersama UMLS &
+Digerbangi nilai terukur &
+EHR, panduan, dan literatur dalam satu graf &
+Penelusuran deterministik; terverifikasi otomatis \\
+\hline
+\end{tabular}
+\end{table}
+
+Salah satu baris pada Tabel~\ref{tab:method-comparison} merupakan
+alternatif terdekat dengan rancangan yang dipakai di sini. Basis data relasional atas data FHIR yang sama juga akan menyimpan observasi numerik secara
+langsung. Lintasan inferensi kanonis yang sama pun dapat dinyatakan di sana dalam bentuk
+\emph{join} berganda yang setara. Karena itu, pemilihan graf properti merupakan soal
+\emph{kesesuaian representasi}, bukan soal kemampuan secara mentah. Skripsi ini tidak
+mengklaim bahwa alternatif relasional tidak mampu melakukannya. Meski
+demikian, tiga pertimbangan mendukung penggunaan graf. Pertama, FHIR mendefinisikan lebih dari seratus jenis \emph{resource} \cite{fhir_r4}. Skema
+relasional yang \emph{faithful} memerlukan satu tabel per jenis serta satu migrasi untuk
+setiap jenis baru yang dimuat. Sebaliknya, rancangan label ganda
+\texttt{:Resource:}\textit{Type} pada Bab~III menerima jenis \emph{resource} apa pun melalui
+satu jalur pemuatan tunggal. Kedua, ketiga sumber yang disatukan, yaitu rekam medis pasien,
+sekumpulan rekomendasi bersyarat, dan jaringan kemunculan bersama literatur, memiliki
+sedikit kesamaan struktur. Lapisan tambahan pun dapat dipasang pada graf tanpa mengganggu
+lapisan yang telah ada. Ketiga, dan paling relevan bagi RQ3, penelusuran yang ditulis sebagai rangkaian
+hubungan klinis dapat diaudit sebagai rangkaian penalaran klinis---hal yang penting bagi sistem
+yang keluarannya harus membawa provenans.
+
+\section{Pertanyaan Tugas Akhir}
+
+Setiap masalah yang dirumuskan pada Bab~I diubah menjadi pertanyaan yang dapat dijawab
+secara empiris. Pertanyaan penelitian berikut karenanya berpadanan satu lawan satu dengan
+masalah tersebut dan dipetakan ke tujuan penelitian:
+
+\begin{enumerate}
+    \item[RQ1.] Bagaimana \emph{knowledge graph} FHIR-native terpadu yang menyatukan EHR,
+    panduan klinis, dan literatur dapat dibangun untuk CCD, dengan terminologi klinis dijembatani ke
+    dalam satu ruang konsep bersama? (memetakan ke RO1)
+    \item[RQ2.] Apakah pemuatan observasi terstruktur meningkatkan keselarasan panduan klinis pada
+    sistem rekomendasi dibandingkan \emph{baseline} yang hanya memanfaatkan
+    kondisi/teks saja? (memetakan ke RO2)
+    \item[RQ3.] Seberapa \emph{faithful} \emph{grounded briefing} yang dihasilkan LLM dan
+    sejauh mana penelusuran \emph{knowledge graph} yang deterministik dapat menjamin
+    \emph{faithfulness} tersebut? (memetakan ke RO3)
+\end{enumerate}

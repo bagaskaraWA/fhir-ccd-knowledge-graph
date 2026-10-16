@@ -1,0 +1,49 @@
+\begin{singlespace}
+{\itshape
+
+\indent Chronic coronary disease (CCD) carries the largest single share of the global
+cardiovascular burden, yet guideline adherence in routine practice remains poor: of the
+4{,}548 coronary patients in the INTERASPIRE study, only 1.0\% met its definition of optimal
+adherence. A recommendation system can close that gap only if it solves three problems at
+once---fusing the patient record, the clinical guideline and the biomedical literature into
+one queryable structure, bridging the terminologies in which each is written, and generating
+natural-language output whose faithfulness can actually be checked against the source
+record. This thesis develops a FHIR-native, knowledge-graph-based recommendation system
+for CCD that addresses all three.
+
+Synthetic records for 5{,}490 patients were generated with Synthea, exported as HL7 FHIR~R4
+bundles, loaded into a Neo4j property graph, and fused with the 2023 AHA/ACC CCD guideline
+and 4{,}801 PubMed abstracts through a UMLS concept layer. Because numeric observations are
+loaded as graph data rather than discarded, recommendations conditioned on measured
+values---ejection fraction or body-mass index, for instance---are gated on what the patient
+was actually measured at, which a condition-only pipeline cannot do. The system also
+produces a grounded briefing in which every fact is retrieved deterministically from the
+graph and the language model does nothing but phrase it, after which an automated check
+verifies the result. Evaluation covered 876 CCD patients, scored against a reference
+standard generated independently of the system.
+
+The resulting graph holds 1{,}804{,}379 nodes and 8{,}796{,}425 relationships. An ablation
+shows that observation gating raises guideline concordance $F_1$ from 0.743 to 0.810,
+through precision rising from 0.612 to 0.684 with recall essentially unchanged, and the
+whole gain is confined to the 15 of 68 recommendations that are gated at all. The automated
+reference standard agrees with manual labelling of 30 patients on 99.5\% of cells, Cohen's
+$\kappa = 0.991$ (95\% CI 0.984--0.996, resampling patients). All 30 generated briefings passed the automated faithfulness check, with no
+fabricated recommendation or citation, no omitted required item, and no anticoagulation
+over-claim. A cardiologist judged 77.7\% of 247 recommendations for 15 patients appropriate,
+with the judgements of inappropriateness concentrated on antithrombotic therapy.
+
+Loading numeric observations as first-class data therefore raises the precision of guideline
+concordance measurably. FHIR supplies those observations most directly, but a tabular export
+reproduces the same gate. Deterministic retrieval makes the citation-level faithfulness of
+generated clinical text decidable rather than estimated, but it does not guarantee that every
+sentence is semantically faithful.
+The limits are measured too: the FHIR export carries no medication stop dates, so
+duration-dependent guideline logic can only be partly recovered, and every figure above
+comes from synthetic records.
+
+}
+\end{singlespace}
+
+\vspace{6pt}
+\noindent\textbf{Keywords} : clinical recommendation system, knowledge graph, HL7 FHIR,
+chronic coronary disease, guideline concordance

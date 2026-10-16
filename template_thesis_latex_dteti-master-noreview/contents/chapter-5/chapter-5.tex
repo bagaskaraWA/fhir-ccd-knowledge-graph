@@ -1,0 +1,153 @@
+\chapter{Conclusions and Future Work}
+
+\section{Conclusions}
+
+This thesis set out to build a FHIR-native, knowledge-graph-based clinical recommendation
+system for chronic coronary disease, and to establish by measurement what the FHIR-native
+design actually buys. The system was built, and each of the three research objectives stated
+in Chapter~I can now be answered from the results of Chapter~IV.
+
+\begin{enumerate}
+    \item \textbf{The pipeline was realised and evaluated end to end.} HL7 FHIR~R4 bundles
+    for 5{,}490 patients were loaded into a Neo4j property graph and fused with the 2023
+    AHA/ACC CCD guideline and a guideline-seeded literature corpus through a UMLS concept
+    bridge, yielding a graph of 1{,}804{,}379 nodes and 8{,}796{,}425 relationships over 25
+    labels, 51 relationship types and 26 code systems
+    (Section~\ref{sec:kg-results}). The \texttt{:Patient} count equals the number of patients
+    Synthea reported generating, so the idempotent load neither dropped nor duplicated a
+    record. Against a reference standard generated over a data path separate from the system's,
+    guideline concordance over the 876-patient evaluation cohort reached
+    $F_1 = 0.810$ (Section~\ref{sec:ablation}); with the 15 recommendations whose predicate
+    both sides share removed, the remaining 53 reach $F_1 = 0.797$
+    (Section~\ref{sec:shared-predicate}). That figure rests on a
+    validated reference rather than an assumed one: on the 30 patients labelled
+    manually, the automated standard agrees on 99.5\% of cells
+    (2{,}150 of 2{,}160) with Cohen's $\kappa = 0.991$ (95\% confidence interval
+    0.984--0.996, resampling patients; Section~\ref{sec:kappa-ci}). Thirty patients are enough
+    to support the claim of near-perfect agreement, but they were labelled by a single annotator
+    (Section~\ref{sec:limitations}). The clinician review adds a judgement the reference
+    standard cannot give: a cardiologist judged 77.7\% of 247 recommendations for 15 patients
+    appropriate (Section~\ref{sec:clinician}). Outside the antithrombotic and beta-blocker
+    recommendations, almost every recommendation was judged appropriate. The ratings of
+    inappropriateness and the disagreement between raters ($\kappa = 0.29$) concentrate on
+    antithrombotic recommendations, whose guideline logic depends on time since an acute
+    coronary syndrome, bleeding risk, and the indication for anticoagulation. Objective~1 is
+    therefore met.
+
+    \item \textbf{Observation gating improves guideline concordance, and the ablation
+    localises the improvement exactly.} Gating observation-dependent recommendations on the
+    patient's measured values raises $F_1$ from 0.743 to
+    0.810, a gain of $+0.067$ obtained through precision
+    (0.612 to 0.684) with recall essentially unchanged
+    (Section~\ref{sec:ablation}). The classification of Section~\ref{sec:disc-class} makes a
+    falsifiable prediction about where that gain must live, and it holds exactly: 53 of the
+    68 recommendations are identical in both arms down to the individual true-positive,
+    false-positive and false-negative counts, and the whole of the difference originates in
+    the 15 that are gated. A second and less obvious result is that gating is not one
+    mechanism but two. For the five \emph{value-gated} recommendations it acts on precision, which rises from 0.194
+    to 1.000 because they no longer fire for every cohort member. For the ten in the
+    \emph{both} class it acts overwhelmingly on recall, which rises from 0.006 to 1.000.
+    Their encoded condition targets alone rarely match, so it is the numeric predicate that
+    identifies the patients they apply to (Section~\ref{sec:ablation-class}). Describing the ablation solely as a precision
+    improvement, as the aggregate invites, is therefore wrong for two thirds of the affected
+    recommendations. One qualification attaches to the ablation as a whole. The fifteen gated recommendations are
+    precisely those whose predicate the system and the reference standard share. What the
+    ablation measures is therefore implementation fidelity rather than the clinical validity
+    of the thresholds (Section~\ref{sec:shared-predicate}). Objective~2 is met.
+
+    \item \textbf{Citation-level faithfulness is mechanically decidable, but semantic
+    faithfulness is not guaranteed.} The grounded briefing retrieves every fact
+    deterministically from the graph, carries a recommendation identifier, class of
+    recommendation and PMIDs with each one, and confines the language model to phrasing them.
+    All 30 generated briefings passed the automated check: no fabricated recommendation or
+    PMID, no omitted recommendation, and no anticoagulation over-claim
+    (Section~\ref{sec:faithfulness}). The structural part of this result is that the model
+    sits downstream of retrieval with no path back to the graph, so any recommendation outside
+    what retrieval supplied must be fabricated and will be detected. The check of citable items
+    is therefore decidable, which similarity-based retrieval-augmented generation cannot offer.
+    Deterministic retrieval does not guarantee semantic faithfulness: the model can still
+    phrase correct facts wrongly, and this check catches only one pattern of such error. That
+    pattern was itself corrected after its output was seen. Objective~3 is met within those
+    bounds.
+\end{enumerate}
+
+Beyond the three objectives, one finding emerged that was not anticipated at the outset and
+that bears on any FHIR-based deployment. The two projections of the same synthetic record
+are not comparable in richness. The FHIR export retains a categorical medication status but
+omits stop dates, while the CSV export retains stop dates but carries no status, so neither
+is a superset of the other. The chronic-NSAID rule depends on how long a drug was taken, and
+consequently only two of its four arms can be computed from the graph
+(Section~\ref{sec:chronicity}). The cost is measured rather than hypothetical: the
+chronicity-gated safety variant reaches precision 0.909 at recall
+0.526, missing exactly those patients whose use is chronic only through a
+single long course (Section~\ref{sec:safety-detection}). A system that consumes FHIR alone
+must anticipate this class of information loss wherever a guideline depends on exposure
+duration.
+
+That asymmetry runs in the other direction too, and it narrows a claim this work originally
+made. The precision gain from observation gating was attributed to the FHIR-native design from
+Chapter~I onwards, but the attribution was asserted rather than tested. When the same gate was
+rebuilt reading only the tabular export, not one of the 13{,}140 decisions compared changed, and
+the cohort selected identically (Section~\ref{sec:csv-gating}). The gain itself is real and
+unchanged. Its source was misstated: what produces it is loading numeric observation values as
+first-class data, and FHIR is the most direct way to obtain them rather than the only way. The
+conclusion was reached by testing the work's own claim instead of defending it, and a negative
+result of this kind is worth reporting precisely because attributions of this sort are
+commonly asserted without test in comparable work.
+
+\section{Future Work}
+
+The following directions follow from the limitations set out in
+Section~\ref{sec:limitations} and are ordered by how much each would change the results.
+
+\begin{enumerate}
+    \item \textbf{Widen the cohort gate to a disjunction of concepts.} The CCD gate accepts
+    a single UMLS concept, whereas the guideline defines chronic coronary disease
+    disjunctively. Sixty-seven patients---$7.1\%$ of the clinically defined
+    cohort---whose only CCD evidence is a prior-infarction or prior-revascularization
+    \emph{situation} code are therefore never matched against any recommendation, and in a
+    deployment would receive no output at all (Section~\ref{sec:gate}). This is a small
+    change to one query and is the single largest available gain in coverage.
+
+    \item \textbf{Extend the clinician review and conduct a briefing reader study.} The
+    clinician review here covers 15 patients for one cardiologist, and agreement between
+    raters is only fair (Section~\ref{sec:clinician}). A follow-up review should have several
+    cardiologists rate every patient. The review also points to improvements in the system
+    itself. The briefing's conclusion should name the flagged drugs and the information the
+    antithrombotic and beta-blocker recommendations rest on, such as time since an acute
+    coronary syndrome, ejection fraction, and heart-failure status. Where the record cannot
+    establish that information, as with bleeding risk, the conclusion should say so. Missing
+    information of this kind is what most often prevented a judgement. Separately,
+    faithfulness is a property of the briefing's relation to the record rather than of its
+    value to a reader. A study on the model of Van~Veen \textit{et al.}~\cite{vanveen2023}, in
+    which clinicians score summaries for completeness, correctness and conciseness with
+    inter-rater agreement quantified by Cohen's $\kappa$ \cite{cohen1960}, would close that
+    gap. It would also lift the faithfulness evaluation from an automated check of citable
+    items to a human judgement of semantic faithfulness.
+
+    \item \textbf{Repeat the evaluation on real records.} Synthea patients are generated
+    from disease-progression models, so their comorbidity patterns and laboratory
+    trajectories are internally consistent but not drawn from a real population. The results
+    reported here establish that the pipeline is internally correct; they do not establish
+    that it would achieve the same concordance on records that are noisier, sparser and
+    accompanied by unstructured text. Real records also carry the cardiac symptoms and
+    complaints that Synthea does not, so the six angina-dependent recommendations can only be
+    tested there (Section~\ref{sec:limitations}).
+
+    \item \textbf{Recover duration-dependent guideline logic.} Either a FHIR profile that
+    carries dispense or dosage periods, or the pairing of the graph with an auxiliary
+    source, would make all four arms of the chronic-use rule computable and would remove the
+    recall ceiling measured in Section~\ref{sec:safety-detection}.
+
+    \item \textbf{Give the safety tier a richer representation.} Population-gated matching is perfectly precise but recovers only the minority of
+    contraindications whose population condition is structurally gateable. The misses are
+    the negation-defined and conjunctive contraindications, which a flat schema cannot
+    express (Section~\ref{sec:safety-detection}). Representing those explicitly, rather than
+    choosing between over-flagging and under-recovering, is the way past the trade-off.
+
+    \item \textbf{Port the design to a second guideline or disease.} Only the 2023 AHA/ACC
+    CCD guideline is encoded, and only for chronic coronary disease. The concept-bridge
+    design makes generalisation plausible because nothing in the query layer is specific to
+    cardiology, but this work does not demonstrate it; encoding a second guideline and
+    re-running the same evaluation would.
+\end{enumerate}

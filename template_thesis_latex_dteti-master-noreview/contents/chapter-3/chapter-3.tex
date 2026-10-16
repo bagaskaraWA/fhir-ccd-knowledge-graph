@@ -1,0 +1,1458 @@
+\chapter{Research Methodology}
+
+%% English draft. Uses \crosscheck{...} (defined in main.tex) to flag content that a
+%% human must verify before submission. All \cite{...} keys resolve to references.bib.
+%% Figures are TikZ (tikz/pgfplots are loaded by thesisdtetiugm.cls).
+
+\section{Research Overview}
+
+This research follows \emph{design science research} (DSR), the paradigm for work whose
+contribution is a constructed artifact rather than a tested hypothesis. Where behavioural
+research seeks to explain or predict, design science seeks to extend capability by building
+and evaluating an artifact, and knowledge of the problem is obtained \emph{through} that
+construction \cite{hevner2004}. The specific process model followed is the design science
+research methodology of Peffers \textit{et al.} \cite{peffers2007}, whose six activities are
+problem identification and motivation, definition of objectives for a solution, design and
+development, demonstration, evaluation, and communication.
+
+The artifact here is a FHIR-native, knowledge-graph based clinical recommendation system
+(CRS) for chronic coronary disease (CCD); its evaluation is the concordance, agreement,
+safety, and faithfulness assessment of Section~\ref{sec:eval-method}. The six DSR activities map onto this thesis as follows. Problem identification and
+objectives are Chapter~I. Design and development are the four stages below. Demonstration is
+the grounded briefing produced for individual patients. Evaluation is Chapter~IV, and
+communication is the thesis itself. The
+work is organised into four stages:
+
+\begin{enumerate}
+    \item \textbf{Data generation.} Synthetic patient records are generated with Synthea
+    and exported as HL7 FHIR R4 bundles.
+    \item \textbf{Knowledge-graph construction.} The FHIR bundles are loaded into a Neo4j
+    knowledge graph, which is then fused with the 2023 AHA/ACC CCD guideline and a
+    guideline-seeded biomedical-literature corpus through a UMLS-based concept layer.
+    \item \textbf{Recommendation-system implementation.} A query layer matches each patient to
+    applicable guideline recommendations, gates observation-dependent recommendations on
+    measured values, detects contraindication-safety flags, ranks literature-supported
+    options, and produces a grounded natural-language briefing.
+    \item \textbf{Evaluation.} The system is evaluated for graph construction quality,
+    guideline concordance (with an observation-gate ablation), agreement with a manually
+    labelled gold standard, safety detection, and briefing faithfulness.
+\end{enumerate}
+
+Figure~\ref{fig:research-flow} summarises the flow and the principal artifact produced by
+each stage. Each stage is elaborated in its own section below: stage~1 in
+Section~\ref{sec:data-source}, stage~2 in Section~\ref{sec:kg-construction}, stage~3 in
+Section~\ref{sec:dss-method}, and stage~4 in Section~\ref{sec:eval-method}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance = 7mm and 12mm,
+    stage/.style = {rectangle, rounded corners=2pt, draw, thick,
+                    text width=62mm, align=center, minimum height=11mm,
+                    font=\small},
+    art/.style   = {rectangle, draw, dashed, text width=32mm, align=center,
+                    minimum height=8mm, font=\scriptsize, fill=black!5},
+    ar/.style    = {-latex, thick}
+]
+\node[stage] (s1)
+    {\textbf{1. Data generation}\\[1pt]
+     \scriptsize Synthea $\rightarrow$ HL7 FHIR R4 bundles};
+\node[stage, below=of s1] (s2)
+    {\textbf{2. Knowledge-graph construction}\\[1pt]
+     \scriptsize FHIR $\rightarrow$ Neo4j; UMLS concept bridge;
+     guideline and literature layers};
+\node[stage, below=of s2] (s3)
+    {\textbf{3. Recommendation-system implementation}\\[1pt]
+     \scriptsize applicable set, observation gates, safety flags,
+     literature ranking, grounded briefing};
+\node[stage, below=of s3] (s4)
+    {\textbf{4. Evaluation}\\[1pt]
+     \scriptsize graph structure, guideline concordance and ablation,
+     gold standard, safety, faithfulness};
+
+\node[art, right=of s1] (a1) {FHIR bundles \\ and CSV export};
+\node[art, right=of s2] (a2) {Fused knowledge graph};
+\node[art, right=of s3] (a3) {Recommendations, safety flags, briefing};
+\node[art, right=of s4] (a4) {Evaluation metrics};
+
+\draw[ar] (s1) -- (s2);
+\draw[ar] (s2) -- (s3);
+\draw[ar] (s3) -- (s4);
+\draw[ar, dashed] (s1) -- (a1);
+\draw[ar, dashed] (s2) -- (a2);
+\draw[ar, dashed] (s3) -- (a3);
+\draw[ar, dashed] (s4) -- (a4);
+\end{tikzpicture}
+\caption{Research flow: the four stages of the study and the principal artifact
+produced by each.}
+\label{fig:research-flow}
+\end{figure}
+
+\section{Tools and Materials}
+\label{sec:tools}
+
+The software and materials used in this research are listed below. Versions and minimum
+specifications are stated so that another researcher can reproduce the build on
+comparable hardware.
+
+\begin{itemize}
+    \item \textbf{Synthea} synthetic patient generator \cite{synthea}, build
+    \texttt{aa0772f}, running on Java~26.0.1, producing HL7 FHIR~R4 bundles
+    \cite{fhir_r4}. The generation parameters are recorded in
+    Section~\ref{sec:cohort}.
+    \item \textbf{Neo4j} graph database, Enterprise edition~2026.05.0, as the
+    knowledge-graph store \cite{neo4j}, queried with Cypher \cite{cypher}. The instance runs
+    under Neo4j Desktop~2.2.1 and is configured with a JVM heap of 4~GB initial and 8~GB
+    maximum and a 4~GB page cache; the graph is held in a database named
+    \texttt{sihdfhir}.
+    \item \textbf{Python} for the loader, terminology bridge, recommendation queries, and
+    evaluation scripts, using the official Neo4j driver.
+    Two interpreters are used: Python~3.14.4 for the loader, recommendation-system and
+    evaluation scripts (\texttt{neo4j}~6.2.0, \texttt{anthropic}~0.112.0,
+    \texttt{biopython}~1.87), and Python~3.11.9 for the natural
+    language stack, which \texttt{nmslib} pins below 3.12 (\texttt{scispacy}~0.6.2,
+    \texttt{spacy}~3.7.5, \texttt{numpy}~1.26.4, \texttt{scikit-learn}~1.8.0,
+    \texttt{pandas}~3.0.3).
+    \item \textbf{scispaCy} clinical NLP models (\texttt{en\_core\_sci\_md}) with UMLS
+    \cite{umls} and MeSH entity linkers \cite{scispacy}, used for literature entity
+    extraction and terminology bridging.
+    The model is \texttt{en\_core\_sci\_md}~0.5.4; the linkers are built over the UMLS
+    2022AB subset (semantic categories 0, 1, 2 and 9) and the 2022 MeSH release. Three
+    similarity thresholds are used, tightening with the precision each stage demands:
+    0.80 for literature entity linking, 0.85 for clinical entity linking, and 0.75 for the
+    SNOMED~CT-to-UMLS bridge, where concept names link more reliably than free text.
+    \item \textbf{Large language model(s)} accessed via API, used only to phrase the
+    retrieved recommendation facts into a briefing.
+    The briefing reported here is generated with \texttt{claude-haiku-4-5}; a parallel
+    implementation using \texttt{gpt-4o-mini} produces the same briefing from the same
+    retrieved facts. The choice of model affects only the phrasing: retrieval is
+    deterministic and completes before any model is called, so the facts a briefing may
+    contain are fixed before generation begins.
+    \item \textbf{Hardware.} A workstation capable of holding the graph working set in
+    memory is required; the dominant constraint is the Neo4j page cache during the bulk
+    load rather than CPU.
+    The work reported here ran on a 13th-generation Intel Core i7-1365U at 1.8~GHz with
+    32~GB of RAM under Windows~11 Pro. The database reserves 12~GB on its own: an
+    8~GB maximum heap and a 4~GB page cache. 16~GB is therefore the practical floor for
+    reproducing the build, and below that the page cache thrashes during the bulk load.
+    32~GB leaves room for the load and the evaluation scripts to run together.
+\end{itemize}
+
+\section{Data Source and Study Cohort}
+\label{sec:data-source}
+
+\subsection{Data source}
+The patient data are entirely \emph{synthetic}, generated by Synthea \cite{synthea} and
+exported as HL7 FHIR R4 bundles \cite{fhir_r4}; no real patient data are used, which
+minimises privacy and ethical risk. In the FHIR bundles, conditions and procedures are
+coded in SNOMED~CT \cite{snomedct}, medications in RxNorm \cite{rxnorm}, and observations
+(laboratory results and vital signs) in LOINC \cite{loinc}; ICD-10-CM/ICD-11 codes are not
+present.
+
+A FHIR \texttt{Bundle} carries no \texttt{fhirVersion} element---only a
+\texttt{CapabilityStatement} does, and Synthea emits none---so the release was confirmed
+from the exported instances rather than assumed. Three independent structural
+discriminators agree on R4. First, coded concepts resolve to the
+\texttt{terminology.hl7.org/CodeSystem/} namespace with no occurrence of the pre-R4
+\texttt{hl7.org/fhir/v3/} or \texttt{/v2/} namespaces. Second, claim line items use
+\texttt{productOrService}, the element R4 introduced in place of the STU3
+\texttt{Claim.item.service}. Third, medication orders appear as
+\texttt{MedicationRequest} rather than the DSTU2 \texttt{MedicationOrder}. The exporter's
+output directory (\texttt{fhir/}, as opposed to \texttt{fhir\_stu3/} or
+\texttt{fhir\_dstu2/}) is consistent with this. The bundles additionally carry US~Core
+profile assertions, and US~Core is defined only against R4.
+The same instance-level evidence dates the implementation guide. The profile set includes
+\texttt{us-core-observation-screening-assessment}, introduced in US~Core~6.0.0 to supersede
+the earlier Survey profile, which is itself absent; \texttt{us-core-condition-encounter-diagnosis}
+is present while the pre-5.0.0 single \texttt{us-core-condition} profile is not. Synthea
+offers four US~Core versions---3.1.1, 4.0.0, 5.0.1 and 6.1.0 \cite{synthea_fhir_wiki}---of
+which only 6.1.0 is at or above 6.0.0. The export therefore used US~Core~6.1.0. No
+\texttt{synthea.properties} was retained from the generating build, so this rests on the
+exported instances, on the same footing as the release determination above.
+
+\subsection{Cohort}
+\label{sec:cohort}
+The dataset was produced by two separate Synthea runs, both for the state of Massachusetts
+with ten years of exported history, and combined into a single corpus
+(Table~\ref{tab:generation}). The first run was restricted to the \texttt{stable\_ischemic\_heart\_disease} module so that
+the corpus would contain a sufficient density of patients with the target disease. The
+second ran the full module set (\texttt{*}) to provide a general background population.
+Cohort selection therefore has to discriminate, rather than being trivially satisfied by
+every record. The two runs yield
+$2{,}009 + 3{,}481 = 5{,}490$ patients in total. Each run recorded its random seed, so the
+corpus is exactly regenerable.
+
+\begin{table}[h]
+\centering
+\caption{Synthea generation parameters for the two runs comprising the dataset.}
+\label{tab:generation}
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Disease-enriched run} & \textbf{General run} \\
+\hline
+Modules            & \texttt{stable\_ischemic\_} & \texttt{*} (all) \\
+                   & \texttt{heart\_disease} & \\
+Patients           & 2{,}009 & 3{,}481 \\
+Seed               & 1784186620874 & 1784186859476 \\
+State              & Massachusetts & Massachusetts \\
+Years of history   & 10 & 10 \\
+Synthea build      & \texttt{aa0772f} & \texttt{aa0772f} \\
+\hline
+\multicolumn{3}{l}{\textbf{Total: 5{,}490 patients}} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Why module selection does not determine cohort size}
+\label{sec:module-yield}
+It is tempting to read the 2{,}009 patients of the disease-enriched run as 2{,}009 patients
+with chronic coronary disease. They are not. A Synthea module is a \emph{probabilistic
+state machine}, not a label: enabling
+\texttt{stable\_ischemic\_heart\_disease} means every patient in that run is
+\emph{simulated through} the module, not that every patient reaches its diagnosis state.
+Progression through the module is driven by age, sex, race, and accumulated risk factors such
+as smoking status, diabetes, hypertension, and lipid levels, all of which are themselves
+generated stochastically. Figure~\ref{fig:sihd-module} gives the module's full state machine;
+the mechanism is worth stating precisely, because it explains both why the yield is partial
+and why the diagnosed patients are middle-aged.
+
+The module itself contains no age condition. Its \texttt{Chance\_of\_IHD} state is a one-month
+delay whose transition to onset carries the \texttt{ihd\_risk} attribute as its probability,
+defaulting to zero, and which otherwise loops back on itself. Every simulated month is an
+independent draw, and a patient may loop for an entire lifetime without ever transitioning.
+The age dependence enters through \texttt{ihd\_risk} itself, which Synthea computes as a
+ten-year cardiovascular risk converted to a per-month hazard and multiplied by five. In the
+build used here that risk comes from the ASCVD Pooled Cohort Equations rather than from
+Framingham---the \texttt{useFramingham} flag is \texttt{false}---and
+\texttt{ASCVD.ascvd10Year} returns $-1$ instead of a probability whenever the patient is
+younger than 40 or older than 79. Outside that window no onset can occur. Inside it, age
+enters continuously through $\ln(\mathrm{age})$ and its interaction terms, so the monthly
+hazard climbs across the lifespan.
+
+The corpus bears this out on both counts. Of the 876 recorded onsets the youngest
+is at age 41 and the median at 60, with none below 40 and exactly one
+above 79---the calculator's window reproduced exactly in the data. The age-40 floor is
+therefore not a clinical judgement encoded in the module but an artefact of the risk
+calculator's validated range, and is better read as a limitation of the synthetic cohort than
+as a modelling choice. Yield tells the same story, and can be measured exactly rather than
+bounded. The two runs share no patient identifier, and the disease-enriched run emits no
+tobacco-status observation at all while every patient in the general run carries one, so the
+presence of LOINC \texttt{72166-2} identifies a patient's run of origin unambiguously. On that
+marker the disease-enriched run contributes 249 of the 876 and the general run
+627---yields of 12.4\% ($249/2{,}009$) and 18.0\%
+($627/3{,}481$). The disease-enriched run's own \texttt{conditions.csv} confirms the first
+figure independently: it contains exactly 249 rows carrying \texttt{414545008}.
+
+The run selected \emph{for} the disease therefore produced proportionally \emph{fewer} cases
+than the run that merely enabled every module. Module selection did not simply fail to
+determine cohort size; it moved it in the direction opposite to the one intended. The cause is
+visible in the same export. Across its 2{,}009 patients the disease-enriched run records only
+three distinct condition codes and 606 condition rows in total, with
+no hypertension, diabetes or hyperlipidaemia anywhere, against 285
+codes and 130{,}859 rows in the general run. Onset is driven by the ASCVD risk
+score, and that score integrates precisely those comorbidities: enabling the disease module
+alone starves its own risk model of the risk factors it depends on. Disease prevalence in a
+Synthea corpus is thus an \emph{outcome} of the simulation, to be measured after generation,
+not a parameter that can be set in advance.
+
+One consequence carries into the evaluation, and Chapter~IV takes it up. The 249
+disease-enriched patients in the cohort carry an ischemic-heart-disease diagnosis, an abnormal
+cardiac imaging finding, and in 108 cases a history of bypass grafting---and
+nothing else. They have no comorbidity for any recommendation to match against and, apart from
+ejection fraction, no observation to gate on. Roughly 28\% of the evaluated
+cohort is therefore clinically far sparser than any real patient with chronic coronary disease
+would be.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    node distance = 4.5mm and 10mm,
+    st/.style    = {rectangle, rounded corners=2pt, draw, thick, text width=52mm,
+                    align=center, minimum height=7mm, font=\scriptsize},
+    onset/.style = {st, fill=black!8},
+    side/.style  = {rectangle, rounded corners=2pt, draw, dashed, text width=26mm,
+                    align=center, minimum height=6mm, font=\scriptsize},
+    ar/.style    = {-latex, thick},
+    lb/.style    = {font=\tiny, inner sep=1.5pt}
+]
+\node[onset]                  (init)  {\textbf{Initial}};
+\node[onset, below=of init]   (chance){\textbf{Chance\_of\_IHD} --- \emph{Delay} 1 month};
+\node[onset, below=of chance] (start) {\textbf{IHD\_Start} --- \emph{ConditionOnset}\\
+                                       SNOMED 414545008 \emph{Ischemic heart disease}};
+\node[st, below=of start]     (delay) {\textbf{Delay\_Until\_Symptoms} --- \emph{Delay} 1 month};
+\node[st, below=of delay]     (symp)  {\textbf{Symptoms\_Start} $\rightarrow$
+                                       \textbf{Dyspnea\_Symptom}\\
+                                       chest pain; dyspnoea on exertion};
+\node[st, below=of symp]      (enc)   {\textbf{Diagnosis\_Encounter} --- \emph{Encounter}
+                                       (wellness)};
+\node[st, below=of enc]       (ecg)   {\textbf{ECG / Labs} $\rightarrow$
+                                       \textbf{Stress Test}};
+\node[st, below=of ecg]       (med)   {\textbf{Medical\_Therapy} --- \emph{Delay} 1 week};
+\node[st, below=of med]       (presc) {\textbf{Prescribe\_CHD\_Meds}\\
+                                       date-gated cascade: clopidogrel (1997),
+                                       simvastatin (1991), metoprolol (1978),
+                                       nitroglycerin};
+\node[st, below=of presc]     (cabg)  {\textbf{CABG} --- \emph{CallSubmodule}
+                                       \texttt{heart/cabg\_sequence}};
+\node[st, below=of cabg]      (term)  {\textbf{Terminal}};
+\node[side, right=of delay]   (arrest){\textbf{Cardiac\_Arrest} --- \emph{Death}\\
+                                       SNOMED 410429000};
+
+\draw[ar] (init)   -- (chance);
+\draw[ar] (chance) -- node[lb, right] {$p=\texttt{ihd\_risk}$} (start);
+\draw[ar] (start)  -- (delay);
+\draw[ar] (delay)  -- node[lb, right] {$0.25$} (symp);
+\draw[ar] (symp)   -- (enc);
+\draw[ar] (enc)    -- (ecg);
+\draw[ar] (ecg)    -- node[lb, right] {$0.99$ at each step} (med);
+\draw[ar] (med)    -- (presc);
+\draw[ar] (presc)  -- node[lb, right] {$0.9$ via Symptoms\_Continue} (cabg);
+\draw[ar] (cabg)   -- (term);
+\draw[ar, dashed] (delay)  -- node[lb, above] {$0.0005$} (arrest);
+\draw[ar, dashed] (arrest) |- (term);
+
+\draw[ar] (chance.north west) to[out=180, in=180, looseness=2]
+          node[lb, left] {else} (chance.south west);
+\draw[ar] (delay.north west)  to[out=180, in=180, looseness=2]
+          node[lb, left] {$0.7495$} (delay.south west);
+\draw[ar] (presc.west)        to[out=180, in=180, looseness=1.5]
+          node[lb, left] {$0.1$} (med.west);
+\end{tikzpicture}
+\caption{The \texttt{stable\_ischemic\_heart\_disease} module as a state machine, at Synthea
+commit \texttt{aa0772f}. Only the shaded states determine cohort membership: a patient enters
+\texttt{Chance\_of\_IHD} and draws once per simulated month against \texttt{ihd\_risk}, so most
+patients loop until death without ever reaching \texttt{IHD\_Start}. Everything below the
+shaded region is care pathway, not diagnosis, and runs only for patients who did transition.
+Probabilities are those given literally in the module; \texttt{ihd\_risk} is supplied
+externally by \texttt{CardiovascularDiseaseModule} and is undefined outside ages 40--79. For
+legibility two minor edges are omitted: \texttt{ECG / Labs} and \texttt{Stress Test} each route
+a further $0.01$ straight to \texttt{CABG}, bypassing medical therapy.}
+\label{fig:sihd-module}
+\end{figure}
+
+\subsection{The CCD gate and cohort derivation}
+\label{sec:gate}
+Cohort membership is therefore established by querying the generated data rather than by
+trusting the run configuration. A patient enters the evaluation cohort if the graph contains,
+for that patient, a \texttt{:Condition} whose code bridges to the UMLS concept
+\texttt{C0151744}---which the terminology layer resolves from SNOMED~CT \texttt{414545008},
+\emph{Ischemic heart disease (disorder)}. Concretely, the gate is the traversal
+\texttt{(:Patient)$\leftarrow$[:SUBJECT]$-$(:Condition)$-$[:CODE]$\rightarrow$(:Code)
+$\leftarrow$[:SAME\_CONCEPT]$-$(:Concept)}, and it is the first clause evaluated in the
+applicability query: a patient who fails it is never matched against any recommendation.
+The same gate concept is used by the reference standard against which the system is scored,
+an automatically generated \emph{silver} standard defined and justified in
+Section~\ref{sec:oracle}. Both sides of the concordance evaluation are therefore computed
+over an identical cohort.
+
+Table~\ref{tab:cohort-funnel} traces the resulting derivation.
+
+\begin{table}[h]
+\centering
+\caption{Derivation of the gate-evaluable cohort from the generated corpus.}
+\label{tab:cohort-funnel}
+\begin{tabular}{lrl}
+\hline
+\textbf{Stage} & \textbf{Patients} & \textbf{Determined by} \\
+\hline
+Generated corpus (both runs)      & 5{,}490 & Synthea run configuration \\
+\quad disease-enriched run        & 2{,}009 & \texttt{stable\_ischemic\_heart\_disease} \\
+\quad general run                 & 3{,}481 & all modules (\texttt{*}) \\
+Carrying SNOMED 414545008         &    876  & simulation outcome \\
+\textbf{Gate-evaluable cohort}    & \textbf{876} & \textbf{the CCD gate} \\
+\hline
+\end{tabular}
+\end{table}
+
+The 876 figure is thus not a filter applied on top of a larger set of confirmed cases; it is
+the number of simulated patients who actually developed the gating diagnosis, or
+$16.0\%$ of the corpus.
+
+\subsection{What the gate excludes}
+The gate is deliberately narrow, and the consequence should be stated explicitly. The 2023
+AHA/ACC guideline defines chronic coronary disease \emph{disjunctively}: prior myocardial
+infarction and prior coronary revascularization are CCD-defining alongside a diagnosis of
+ischemic heart disease. The gate implemented here accepts only the last of these. A further
+67 patients in the corpus carry \emph{History of myocardial infarction} (SNOMED
+\texttt{399211009}) or \emph{History of coronary artery bypass grafting} (SNOMED
+\texttt{399261000}) without also carrying \texttt{414545008}; on the guideline's own
+definition these are CCD patients, which would place the clinically defined cohort at 943.
+
+This gap is not a terminology-bridging failure. All three codes resolve correctly to distinct UMLS concepts: \texttt{414545008} to
+\texttt{C0151744}, \texttt{399211009} to \texttt{C1275835}, and \texttt{399261000} to
+\texttt{C1275842}. The distinction is semantically correct, because SNOMED~CT models a
+\emph{situation with explicit context} (``history of'') as a different entity from the
+corresponding \emph{disorder}. The guideline
+layer is likewise not at fault: six recommendations already target the history-of-infarction
+concept. The limitation is narrower and more specific than either---the gate is expressed as
+a \emph{single} concept where the guideline expresses a disjunction, so those six
+recommendations can never be reached for the 67 patients, because the gate is evaluated
+before recommendation matching begins.
+
+The single-concept gate is retained in this study so that the reported concordance,
+agreement, and safety figures all describe one consistently defined cohort. The
+gate-evaluable cohort should therefore be read as a conservative subset of the clinical CCD
+population---$876$ of $943$, or $92.9\%$---and the residual $7.1\%$ is revisited among the
+limitations in Section~\ref{sec:ethics}.
+The 30~patients labelled by hand were not drawn at random. Every one of the 876 was
+scored for how far it would exercise the briefing. The scoring awards two points per discriminating comorbidity, counted
+for at most six of the nine on the allow-list, so contributing at most 12 points. It awards
+one point per safety-relevant drug class, counted for at most three of the six, so
+contributing at most 3 points. The highest attainable score is therefore 15. The score is then penalised for artefacts of the generator. The heaviest
+penalty falls on a left-ventricular ejection fraction outside 20--70\%, which is not
+physiological and would invite a reader to criticise Synthea rather than the system. The 30 highest-scoring patients were taken. The
+procedure is deterministic and needs no seed: ranks~1--18 reach that ceiling and
+ranks~19--30 score 13, with the cut falling inside that tie and settled by identifier order.
+The sample is therefore purposive, weighted towards the cohort's most clinically complex
+records, and the agreement reported in Section~\ref{sec:goldlabel} should be read as
+measured on those cases rather than on an average patient.
+
+\section{Knowledge-Graph Construction Method}
+\label{sec:kg-construction}
+
+The knowledge graph is built \emph{EHR-first}: the concept layer is minted from the EHR codes
+before the literature corpus is loaded. EHR-to-UMLS resolution depends only on the code
+descriptions and the linker's UMLS release, never on which abstracts happen to have been
+retrieved, so the set of concepts reachable from patient data---and with it every
+\texttt{SAME\_CONCEPT} edge---survives any repetition or widening of the literature search
+unchanged. This matters because the CCD gate of Section~\ref{sec:gate} traverses precisely
+those edges. Had the concept layer been minted from the literature instead, a different corpus
+would give a different concept set and therefore a different cohort, making the denominator of
+every reported metric a function of the literature search. Literature-derived concepts are
+merged onto the same \texttt{umlsCui} node key afterwards, enriching the layer without
+redefining it. The construction proceeds as follows.
+
+\begin{enumerate}
+    \item \textbf{FHIR-to-graph loading.} Each FHIR resource becomes a node, each reference
+    becomes a typed relationship, and every terminology code is hoisted into a shared
+    \texttt{:Code} node keyed by (system, code) so that all occurrences of a code refer to
+    one node. Multi-valued observations (e.g.\ blood pressure) are represented as
+    component nodes to avoid data loss. Billing/administrative resources are skipped, and
+    only an allow-list of clinically relevant LOINC observations is loaded.
+    \item \textbf{Terminology bridge (EHR-to-UMLS).} The deduplicated EHR codes are exported
+    from the graph and mapped to UMLS \cite{umls} concept unique identifiers (CUIs) using a
+    three-pass linker (exact alias, candidate generation, and NLP-based disambiguation
+    \cite{scispacy}), producing the
+    concept layer connected to the shared \texttt{:Code} nodes via \texttt{SAME\_CONCEPT}
+    edges.
+    \item \textbf{Guideline layer.} The 2023 AHA/ACC CCD guideline is hand-curated into
+    81 recommendations, each linked to the concepts it recommends,
+    contraindicates, or targets. The edge type is derived from the Class of Recommendation
+    (COR): COR~3 (Harm / No-Benefit) yields a \emph{contraindicates} edge, and COR~1/2a/2b
+    yields a \emph{recommends} edge. Disjunctive-target recommendations are tagged so the
+    query layer joins their targets with OR rather than AND.
+    \item \textbf{Literature layer.} A guideline-seeded PubMed corpus (the guideline's cited
+    trials plus their similar articles) is processed with scispaCy clinical NER to extract
+    entity mentions, which are linked to the same UMLS concepts. Drug--condition
+    associations are materialised between \texttt{:Code} nodes as co-occurrence edges ranked
+    by pointwise mutual information (PMI) \cite{pmi}, with a minimum article-count floor.
+    The corpus comprises 4{,}801 distinct abstracts: the 274 trials the guideline
+    itself cites, together with 4{,}793 similar articles retrieved from them. The two sets
+    overlap heavily---266 of the seeds resurface among their own similar-article results, and
+    each abstract is stored once---so the union is smaller than the sum. A drug--condition pair
+    must be co-mentioned in at least three distinct abstracts before it is eligible for
+    ranking.
+\end{enumerate}
+
+\subsection{Graph data model}
+The loader maps FHIR to the property graph as follows. Each resource becomes a node labelled
+\texttt{:Resource:<ResourceType>}, with its scalar fields flattened onto the node. A field
+containing a reference becomes a typed relationship whose name is derived from the FHIR
+element path; for example, \texttt{Observation.subject} yields a \texttt{SUBJECT} edge. The
+loader resolves the three reference forms Synthea emits: \texttt{urn:uuid:} identifiers,
+conditional references (\texttt{Type?identifier=system\textbar value}), and contained
+(\texttt{\#fragment}) references.
+
+The shared \texttt{:Resource} label is plumbing rather than meaning. It says only
+that a node can be found by its \texttt{uid}; it claims nothing about whether that node is a
+Resource in the FHIR sense. The label exists because of what the loader knows, and when.
+Every reference form collapses to a bare identifier: \texttt{Type/id} drops its prefix, and
+\texttt{urn:uuid:} never had one. By the time an edge is written, the loader therefore has
+the target's identifier but not its type. It therefore needs one label that every possible target
+shares, and this is that label. The same label holds the single \texttt{uid} uniqueness
+constraint, which the database backs with an index, so following a reference costs one index
+lookup instead of a scan.
+
+Two consequences follow, both intentional. Component nodes carry the \texttt{:Resource}
+label even though \texttt{Observation.component} is a BackboneElement in FHIR rather than a
+Resource, because edges must be able to resolve to them by identifier. Conversely,
+\texttt{:Code} nodes are the deliberate exception: they are keyed by
+(\texttt{system}, \texttt{code}) rather than by \texttt{uid}, are never the target of a
+resource reference, and therefore carry no \texttt{:Resource} label. Every terminology coding is hoisted into a shared node
+\texttt{:Code\{system, code, display\}}, keyed by (\texttt{system}, \texttt{code}) under a
+uniqueness constraint, so that every occurrence of a code---across conditions, procedures,
+medications, and observations---refers to a single node; this shared \texttt{:Code} node is
+the anchor to which the UMLS concept layer attaches. A Coding is distinguished from a
+Quantity (both carry a \texttt{system} and a \texttt{code}) by the presence of a
+\texttt{value}, which prevents units of measurement from being promoted to clinical codes.
+Multi-valued observations---notably the blood-pressure panel---are expanded into
+\texttt{:Component} nodes so that the systolic and diastolic values are both preserved. All
+writes use \texttt{MERGE}, which makes the load idempotent and re-runnable; billing and
+provenance resources are skipped, and only the allow-listed LOINC observations are loaded.
+
+\subsubsection*{Why several terminologies coexist}
+\label{sec:multi-vocab}
+The loaded graph contains 26 distinct code systems. This is a property of FHIR
+rather than a quirk of the generator: the specification binds each coded element to a value
+set, and those bindings name particular vocabularies. Synthea declares that conformance
+explicitly---smoking-status observations carry a \texttt{meta.profile} reference to
+\texttt{us-core-smokingstatus}---so the vocabularies are those the US~Core profiles make
+mandatory, not free choices of the generator. Each vocabulary answers one question and
+does not attempt the others. SNOMED~CT \cite{snomedct} carries clinical meaning---conditions,
+procedures, encounter and device types---as a description-logic ontology with computable
+subsumption. RxNorm \cite{rxnorm} carries medications, normalising drug naming across
+proprietary vocabularies at explicit levels of abstraction. LOINC \cite{loinc} carries
+observations, identifying \emph{what was measured} under a formal multi-axis model. CVX
+carries vaccines. A further group of HL7 code systems carries FHIR's own administrative
+values---clinical status, category, encounter class---which are structural metadata rather
+than clinical terminology, and which account for roughly half of the distinct systems present.
+
+The division is directly visible in the loaded graph. Observations reach LOINC through
+\texttt{CODE} edges (242{,}217) but reach SNOMED~CT through \texttt{VALUE} edges
+(47{,}259): LOINC names the question, and SNOMED~CT names the answer wherever the
+answer is itself a coded concept rather than a number. Tobacco smoking status is the clearest
+instance---LOINC \texttt{72166-2} identifies the observation, and its value is a SNOMED~CT
+concept.
+
+Two design consequences follow, and both are load-bearing. First, \texttt{:Code} nodes must be
+keyed by (\texttt{system}, \texttt{code}) rather than by code alone, because bare code strings
+collide across vocabularies. Second, and more consequentially, the vocabularies are disjoint
+namespaces maintained by different organisations on independent release cycles, and no edge
+runs between them in any source terminology. A single guideline recommendation routinely spans
+several at once: statin therapy for a patient with chronic coronary disease names an RxNorm
+ingredient and a SNOMED~CT disorder, and once a lipid threshold is attached, a LOINC
+measurement as well. Nothing in the patient data connects the three. The UMLS concept layer is
+therefore not a convenience but a structural necessity---it is the only artefact that assigns
+them a common identifier, and without it the guideline layer cannot reach the patient layer at
+all.
+
+A third consequence bears specifically on this work's contribution. LOINC separates the
+measurement from its result, leaving the numeric value in \texttt{valueQuantity}. Had ejection
+fraction been recorded the way SNOMED~CT would record it---as a finding such as ``left
+ventricular systolic dysfunction''---there would be no number to compare against a threshold,
+and the observation gates of Section~\ref{sec:dss-method} could not be written at all. The
+observation-gate gain reported in Chapter~IV rests on this property of LOINC specifically, not
+on structured encoding in general. Synthea's tabular export has that property too, since it
+also carries LOINC codes with their numeric values (Section~\ref{sec:csv-gating}).
+
+\subsubsection*{What a flattened tabular export loses}
+\label{sec:flattening}
+Chapter~I motivates the FHIR-native design by contrast with flattened tabular exports. Because
+Synthea emits the same cohort in both formats, that contrast can be shown rather than asserted.
+Table~\ref{tab:flattening} states it for the blood-pressure panel.
+
+\begin{table}[h]
+\centering
+\caption{The blood-pressure panel in the CSV export and in the FHIR graph, same cohort.}
+\label{tab:flattening}
+\begin{tabular}{lrl}
+\hline
+\textbf{LOINC} & \textbf{CSV rows} & \textbf{Graph} \\
+\hline
+85354-9 blood-pressure panel & 0        & one \texttt{:Observation} per reading \\
+8480-6 systolic              & 52{,}583 & \texttt{:Component} of that Observation \\
+8462-4 diastolic             & 52{,}583 & \texttt{:Component} of that Observation \\
+\hline
+\end{tabular}
+\end{table}
+
+The panel does not survive the export: it has no row of its own, and its two members become
+independent rows, so recovering ``this patient's pressure was 121/80'' means reassembling them.
+The graph holds 105{,}166 \texttt{:Component} nodes, which is $2 \times 52{,}583$---every member
+preserved, each still attached to the panel that grouped it.
+
+How expensive that reassembly is, is an empirical question, and Section~\ref{sec:csv-gating}
+answers it by rebuilding the observation gate from the export. The answer belongs here too, so that this contrast is not read as stronger than it is. The
+export carries an \texttt{ENCOUNTER} column populated on every observation row. The two
+members of one reading can therefore be brought back together through an explicit foreign
+key rather than through timestamps assumed to agree. In the
+evaluation cohort, 17{,}177 pairs reassemble completely, leaving no row unpaired. What is lost is
+therefore the panel's identity as a unit, not the recoverability of its values.
+
+A second difference is subtler, and its consequence is latent rather than realised. Smoking
+status appears in the CSV as 47{,}259 rows carrying only a display
+string---35{,}541 \texttt{Never smoked tobacco (finding)}, 11{,}587
+\texttt{Ex-smoker (finding)}, and 131 \texttt{Smokes tobacco daily
+(finding)}---with \texttt{TYPE} recorded as \texttt{text}. The FHIR resource carries the same
+string inside a \texttt{valueCodeableConcept}, but alongside \texttt{system}
+\texttt{http://snomed.info/sct} and \texttt{code} \texttt{266919005}. The export keeps the
+label and drops the code; the graph keeps both.
+
+Three qualifications are owed, because on this corpus the difference is not merely smaller than
+it appears but entirely inert. First, the concept bridge exports codes from conditions, medications, care-plan categories
+and procedures, but not from observation values, so \texttt{266919005} never becomes a
+\texttt{:Concept} node. Second, the smoking gate reads the value node's \texttt{display}
+property rather than its \texttt{code}, so smoking status is matched by string on both
+sides. Third, no patient in the evaluation cohort is a current smoker at all. The five
+smoking-gated recommendations therefore record zero true positives, false positives and
+false negatives, as Section~\ref{sec:ablation-class} reports.
+
+Smoking is therefore a poor example for the claim that codes survive the
+export, and it is not used as one here. It is kept because the \emph{kind} of loss it shows is
+real and general: a flat table has nowhere to record which coding system a particular value
+came from. On this corpus that loss happens to cost nothing. What actually carries the argument
+for FHIR is the blood-pressure panel above, whose component values are read as numbers and do
+change the results.
+
+The vocabularies themselves are not lost, and it is worth being precise about why. Each
+\texttt{CODE} column draws on a vocabulary fixed by the file rather than declared on the row:
+\texttt{conditions.csv} and \texttt{procedures.csv} are SNOMED~CT, \texttt{medications.csv} is
+RxNorm, \texttt{observations.csv} is LOINC, \texttt{immunizations.csv} is CVX, and the data
+dictionary states each of these explicitly \cite{synthea_csv_dict}. A \texttt{SYSTEM} column
+appears in precisely the two files whose documentation hedges the vocabulary as
+\emph{typically} SNOMED~CT, and is absent from the three whose vocabulary the dictionary states
+outright. The asymmetry is therefore principled, and at the level of whole columns the export
+loses nothing.
+
+What a fixed-per-file vocabulary cannot express is a code whose system varies \emph{within} a
+column---which is exactly the observation \texttt{VALUE} case above. That single column holds a
+number for LDL cholesterol and a SNOMED~CT concept for smoking status, so there is no
+consistent system for a companion column to declare, and the code is dropped in favour of the
+display string. FHIR attaches \texttt{system} to each individual coding and so faces no such
+constraint. The loss is a consequence of the tabular shape, not of careless schema design.
+
+One further loss concerns precision rather than structure. The export writes observation values
+to one decimal place, where the FHIR resource keeps them whole. The difference is bounded at
+$0.05$ and can only matter where a value happens to sit right at the edge of a guideline
+threshold. Section~\ref{sec:csv-gating} counts how often that happens on this cohort.
+
+The genuine structural omission is \texttt{status}. No table carries it: the FHIR resource records
+\texttt{"status": "final"} and the CSV has nowhere to put it. That same absence in
+\texttt{medications.csv}, which offers \texttt{START}, \texttt{STOP} and \texttt{DISPENSES} but
+no status, is precisely what Section~\ref{sec:chronicity} must work around.
+Both totals below come entirely from the general run: the disease-enriched run records no
+blood-pressure and no smoking-status observation at all.
+
+\subsubsection*{Why observations are allow-listed}
+Observations are the dominant scale term in a FHIR corpus: they account for roughly
+38\% of all resources, and a single patient in this cohort can carry several
+thousand of them. Loading every one would multiply the graph several-fold with routine
+measurements that no guideline recommendation consults---repeated urinalysis strips, vital
+signs from unrelated encounters, panel members never referenced by the encoded logic. The
+loader therefore applies an allow-list of nine LOINC codes covering exactly the
+values the guideline logic turns on: ejection fraction, body-mass index, LDL and total
+cholesterol, triglycerides, glycated haemoglobin, smoking status, and the blood-pressure
+panel. Systolic and diastolic pressures need no separate entry because they are carried as
+components inside the panel and are captured with it.
+
+This is a decision about \emph{scale}, and it is worth separating from the observation-gating
+mechanism described in Section~\ref{sec:dss-method}, which is a decision about
+\emph{expressiveness}. The allow-list controls which observations exist in the graph at all;
+observation gating controls how a recommendation that depends on a numeric value is decided
+once they are there. Widening the allow-list would enlarge the graph without changing how
+gating works, and narrowing it would starve the gates without altering their logic.
+The allow-list is derived from the encoded guideline logic rather than imposed on it: a
+code is admitted precisely because some recommendation reads it. No recommendation is
+therefore excluded from the evaluation for want of an observation---the list bounds how much
+of the corpus is loaded, not which recommendations can be assessed.
+
+\subsection{Two views of the schema}
+The loaded graph is described here from two complementary angles, because the complete schema
+and the part of it that the recommendation layer actually traverses differ greatly in size.
+The \emph{full} schema is the set of all label--relationship--label triples present in the
+database: 24 node labels---excluding the structural \texttt{:Resource} label, which by
+construction attaches to everything except \texttt{:Code}---joined by 95 distinct triples. It
+is reproduced in Appendix~\ref{app:schema}. The \emph{usable} schema is the subgraph the
+queries traverse: 11 labels and 11 relationship types. Twelve clinical labels are loaded
+faithfully but read by no query reported in this thesis---\texttt{:AllergyIntolerance},
+\texttt{:CarePlan}, \texttt{:CareTeam}, \texttt{:Device}, \texttt{:Encounter},
+\texttt{:ImagingStudy}, \texttt{:Immunization}, \texttt{:Location},
+\texttt{:MedicationAdministration}, \texttt{:Organization}, \texttt{:Practitioner} and
+\texttt{:PractitionerRole}---and they remain available for future work. The thirteenth
+unqueried label, \texttt{:Guideline}, is left out for a different reason: it carries the
+guideline's provenance through
+\texttt{(:Guideline)$-$[:CONTAINS]$\rightarrow$(:Recommendation)}, and the recommendation
+queries enter the guideline layer at \texttt{:Recommendation} itself, so the parent node is
+never needed at query time.
+
+The usable subgraph was not chosen by judgement. It is the set of labels and relationship
+types appearing literally in the recommendation, observation-gate, briefing, and chronicity
+modules, and every edge in Figure~\ref{fig:graph-model} was verified to exist in the loaded
+database rather than inferred from the loader source.
+
+The shared \texttt{:Code} node is
+the pivot of the whole design: every clinical resource type converges on it, and it is the
+single attachment point for the UMLS concept layer, which in turn carries the guideline and
+literature layers. This is what allows a patient to be connected to a recommendation and to
+its supporting evidence by traversal alone, without any string matching at query time. Note
+the direction of the bridge: the edge runs
+\texttt{(:Concept)-[:SAME\_CONCEPT]->(:Code)}, from concept to code, so a traversal starting
+at the patient reaches concepts by following it in reverse.
+
+\begin{figure}[htbp]
+\centering
+% Scaled to the measure: the natural width is a few mm over \textwidth.
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance = 3.5mm and 10mm,
+    res/.style  = {rectangle, rounded corners=2pt, draw, text width=27mm,
+                   align=center, minimum height=7mm, font=\scriptsize},
+    hub/.style  = {rectangle, rounded corners=2pt, draw, very thick, text width=21mm,
+                   align=center, minimum height=9mm, font=\scriptsize, fill=black!12},
+    lay/.style  = {rectangle, rounded corners=2pt, draw, text width=23mm,
+                   align=center, minimum height=9mm, font=\scriptsize},
+    pat/.style  = {rectangle, rounded corners=2pt, draw, very thick, text width=17mm,
+                   align=center, minimum height=9mm, font=\scriptsize, fill=black!6},
+    lbl/.style  = {font=\tiny, inner sep=1pt},
+    ar/.style   = {-latex}
+]
+% EHR resources
+\node[res] (c)  {\texttt{:Condition}};
+\node[res, below=of c] (p)  {\texttt{:Procedure}};
+\node[res, below=of p] (m)  {\texttt{:MedicationRequest}};
+\node[res, below=of m] (md) {\texttt{:Medication}};
+\node[res, below=of md] (o) {\texttt{:Observation}};
+\node[res, below=of o] (cm) {\texttt{:Component}};
+
+% patient anchor
+\node[pat, left=10mm of p, yshift=-8mm] (pt) {\texttt{:Patient}};
+
+% terminology bridge and upper layers
+\node[hub, right=of p, yshift=-10mm] (code) {\texttt{:Code}\\(system, code)};
+\node[lay, right=of code] (con) {\texttt{:Concept}\\(UMLS CUI)};
+\node[lay, above right=6mm and 10mm of con] (rec) {\texttt{:Recommendation}\\(COR)};
+\node[lay, below right=6mm and 10mm of con] (abs) {\texttt{:Abstract}\\(PMID)};
+
+% SUBJECT: clinical resources anchor on the patient
+\draw[ar] (c) -- (pt);
+\draw[ar] (p) -- (pt);
+\draw[ar] (m) -- (pt);
+\draw[ar] (o) -- (pt);
+\node[lbl, above=0.5mm of pt] {\texttt{SUBJECT}};
+
+% CODE / MEDICATION / COMPONENT
+\draw[ar] (c)  -- (code);
+\draw[ar] (p)  -- (code);
+\draw[ar] (o)  -- (code);
+\draw[ar] (cm) -- (code);
+\draw[ar] (md) -- (code);
+\draw[ar] (m)  -- (code);
+\draw[ar] (o)  -- (cm);
+\draw[ar] (m)  -- (md);
+
+% bridge runs Concept -> Code
+\draw[ar] (con) -- node[lbl, above, sloped] {\texttt{SAME\_CONCEPT}} (code);
+\draw[ar] (rec) -- (con);
+\draw[ar] (abs) -- (con);
+\draw[ar] (rec) -- node[lbl, right] {\texttt{CITES}} (abs);
+
+\node[lbl, above=1mm of c]   {EHR layer};
+\node[lbl, above=1mm of rec] {guideline layer};
+\node[lbl, below=1mm of abs] {literature layer};
+\end{tikzpicture}}
+\caption{The \emph{usable} schema: the 11 labels and 11 relationship types traversed by the
+recommendation queries. Clinical resources anchor on \texttt{:Patient} via \texttt{SUBJECT}
+and converge on the shared \texttt{:Code} node; \texttt{:Concept} bridges \emph{to}
+\texttt{:Code} via \texttt{SAME\_CONCEPT}, carrying the guideline and literature layers.
+Medications resolve by two paths---inline to \texttt{:Code}, or by reference through
+\texttt{:Medication}---both of which the queries follow. A
+\texttt{CO\_OCCURS\_IN\_LITERATURE} edge, omitted here for legibility, additionally joins
+\texttt{:Code} to \texttt{:Code}. The complete 95-triple schema is given in
+Appendix~\ref{app:schema}.}
+\label{fig:graph-model}
+\end{figure}
+
+\section{Recommendation Method}
+\label{sec:dss-method}
+
+Given a patient, the recommendation layer performs four deterministic operations against
+the graph:
+
+\begin{enumerate}
+    \item \textbf{Applicable recommendations.} A recommendation is applicable if the patient
+    belongs to the CCD cohort (the baseline gate) \emph{and} the patient matches all of the
+    recommendation's condition targets. Condition targets are the further diagnoses, beyond
+    the cohort gate itself, that a recommendation may require, and they are counted only
+    where they bridge to a code the EHR actually uses. The traversal is gate-plus-AND, with
+    OR for disjunctively tagged recommendations.
+    Section~\ref{sec:disc-class} formalises the term.
+    \item \textbf{Observation gating.} Recommendations whose preconditions depend on numeric
+    observations (e.g.\ ejection fraction, LDL, BMI, triglycerides, blood pressure, smoking
+    status) are decided by evaluating the guideline predicate on the patient's measured
+    values read from the graph, using the same thresholds as the reference oracle
+    (Section~\ref{sec:oracle}). This is the mechanism through which the FHIR-native
+    observations improve precision.
+    \item \textbf{Contraindication safety.} The patient's medications are checked against
+    the recommendations that contraindicate them, in three variants. The unary variant flags
+    if the patient is on the drug. The population-gated variant flags only if the patient
+    also meets the contraindication's population condition. The chronicity-gated variant,
+    used for the chronic-NSAID recommendation, flags only if the drug qualifies as chronic
+    use. The chronicity gate used inside the recommendation layer is computed from the graph alone.
+    It reads \texttt{MedicationRequest.status}, which FHIR records as a category
+    (\texttt{active} or \texttt{completed}) rather than as a date, together with the count
+    of separate prescribing episodes. It therefore exercises only the subset of the
+    chronicity definition that survives the FHIR export. Because no stop date is exported, the two arms
+    of that definition expressed as durations cannot be evaluated from the graph at all;
+    Section~\ref{sec:chronicity} sets out the asymmetry in full.
+    \item \textbf{Literature support and briefing.} Drug options linked to the patient's
+    conditions in the literature layer are ranked by PMI, and all of the above facts are
+    assembled into a structured payload that a large language model phrases into a
+    clinician-facing briefing. The model never queries the graph and never makes a clinical
+    decision; it only re-words the retrieved, provenance-carrying facts.
+\end{enumerate}
+
+\subsection{Query design and the observation-gate procedure}
+Applicability is evaluated by a single traversal. Starting from the patient, the query first
+requires membership in the CCD cohort (the baseline gate concept). For each candidate
+recommendation, it then requires that the patient match \emph{all} of the recommendation's
+non-anchor condition targets that bridge to the EHR. This is implemented as a logical AND:
+the number of matched targets must equal the number of bridgeable targets. Recommendations
+tagged as disjunctive take an OR branch instead, so one matched target suffices. Because the
+medication choice type in FHIR may be expressed either inline or by reference, both
+medication paths (the inline \texttt{:Code} and the \texttt{:Medication}$\to$\texttt{:Code}
+reference) are resolved wherever medications are matched, so that referenced drugs are not
+silently dropped.
+
+\subsubsection*{How a recommendation discriminates}
+\label{sec:disc-class}
+Not every recommendation narrows the cohort. Once a patient has passed the CCD gate, some recommendations apply to that patient
+automatically, with nothing further to test. Others apply only to patients who meet a
+further condition. Which of the two a recommendation is, and by what mechanism it selects,
+governs how the results of Chapter~IV should be read. Two mechanisms are available for
+narrowing, and they are independent. A recommendation may carry a \emph{condition target}
+beyond the gate concept that bridges to the EHR, in which case the traversal can exclude
+patients who do not match it. Separately, it may carry a \emph{numeric precondition} over an
+observation, in which case the observation gate can exclude patients whose measured value
+fails the predicate. Crossing the two yields four classes, summarised in
+Table~\ref{tab:disc-class}.
+
+\begin{table}[h]
+\centering
+\caption{Classification of the non-contraindication recommendations by the mechanism
+available for narrowing the cohort.}
+\label{tab:disc-class}
+\begin{tabular}{lccl}
+\hline
+\textbf{Class} & \textbf{Target?} & \textbf{Gated?} & \textbf{Recommendations} \\
+\hline
+Universal        & no  & no  & 38 \quad (NUTRI, PA, WM:1, APT:1--2 \ldots) \\
+Value-gated      & no  & yes & \phantom{0}5 \quad (BB:1, BB:2, BPM:1, RAAI:1, RAAI:2) \\
+Concept-matched  & yes & no  & 15 \quad (APT:11--13, APT:4--5 \ldots) \\
+Both             & yes & yes & 10 \quad (LIPID:9, SGLT2:4, SGLT2:6, TP:2 \ldots) \\
+\hline
+\textbf{Total}   &     &     & \textbf{68} \\
+\hline
+\end{tabular}
+\end{table}
+
+The \emph{universal} class is the largest. The nutrition, physical-activity and
+weight-management recommendations belong to it because the guideline directs them at every
+patient with CCD; a system that fires them for every cohort member is behaving correctly.
+\emph{Concept-matched} recommendations discriminate by traversal---those addressing patients
+who also require oral anticoagulation apply only where that indication is coded.
+\emph{Value-gated} recommendations discriminate only by predicate. \texttt{BB:1} and
+\texttt{BB:2}, for instance, turn on ejection fraction, which is a measured number and not a
+diagnosis. No traversal can therefore separate the patients they apply to. The \emph{both} class is subject to
+each mechanism in turn.
+
+Two consequences follow, and the first is easy to state incorrectly. It is tempting to say
+that a universal recommendation cannot lower precision, on the grounds that it applies to
+every cohort member by definition. That is false, and Section~\ref{sec:ablation-class}
+measures how false: the universal class generates the large majority of the system's false
+positives. The reason is that ``universal'' here is a statement about the \emph{encoding},
+not about the guideline. It means the recommendation carries no condition target that both
+was encoded and bridges to an EHR code---not that the guideline text imposes no
+precondition. Where the guideline does impose one that was never represented in the
+knowledge layer, the system has no means of withholding the recommendation, and the
+reference standard, which reads the guideline logic from the raw record, marks the
+difference as a false positive. The dominant limit on precision is therefore the
+\emph{coverage of the encoded guideline}, not the quality of the matching applied to it.
+
+Second, and this one is sharper. The observation-gate ablation of
+Section~\ref{sec:eval-method} can only touch the 15 recommendations that are gated at all:
+the five value-gated ones and the ten in the \emph{both} class. The other 53 are scored
+exactly the same way whether gating is switched on or off. So whatever difference the ablation
+shows has to come from those 15, and from nowhere else. That is a prediction rather than an
+assumption, which is why Chapter~IV reports concordance class by class---so that it can be
+checked. It holds exactly: for the ungated classes, the two arms agree down to the individual
+counts.
+
+\subsubsection*{Why observation gating is a separate mechanism}
+Observation-dependent recommendations cannot be resolved by the traversal just described, for
+a reason of expressiveness rather than of scale. The gate-plus-AND query matches
+\emph{concepts}: it asks whether a patient's record contains a code that bridges to the
+concept a recommendation targets. But a precondition such as ``LDL-C below 70~mg/dL'' or
+``ejection fraction at or below 40\%'' is not a concept---it is a predicate over a
+\emph{value}. No pattern over nodes and edges evaluates it, because what must be compared is
+a number carried as a property, against a threshold stated in the guideline text and not
+present in the graph at all.
+
+Observation-dependent recommendations are therefore decided separately: the observation-gate
+module reads the patient's aggregated observation features from the graph (worst-ever
+laboratory values, most-recent blood pressure and smoking status) and evaluates the guideline
+predicate for each such recommendation using the same thresholds as the reference standard.
+The final applicable set is assembled from two halves. Recommendations without an
+observation gate keep whatever the graph's gate-plus-AND traversal decided. Gated ones are
+decided by their predicate instead, and that decision \emph{replaces} the graph's rather than
+being intersected with it. The difference shows up wherever the guideline states a precondition
+as a list of alternatives. One recommendation applies if the patient has hypertension, diabetes, chronic kidney
+disease, \emph{or} a reduced ejection fraction. Matching all four at once would drop every
+patient who has only one of them. Letting the predicate decide brings those patients back.
+
+The grounded briefing is produced in four stages. Stage~(i) is deterministic retrieval of
+the patient snapshot, applicable recommendations, safety flags, and literature support via
+the queries above. Stage~(ii) assembles these into a structured facts payload in which every
+item carries its provenance: a recommendation identifier, a class of recommendation, and
+PMIDs. Stage~(iii) is a single language-model call that phrases the facts; it must justify
+each recommendation only from its retrieved trigger condition, and it may not assert
+preconditions the data do not support. Stage~(iv) outputs the facts and the briefing as
+separate artifacts so that their citation-level faithfulness can be checked mechanically. Listing~\ref{lst:applicable-core} gives the core of that query; the full text is
+reproduced in Appendix~\ref{app:queries}.
+\begin{lstlisting}[caption={Core of the applicable-recommendation query: the CCD gate, then
+target matching under the recommendation's own conjunction/disjunction flag.},
+label={lst:applicable-core}]
+MATCH (p:Patient {uid:$pid})
+WHERE EXISTS { (p)<-[:SUBJECT]-(:Condition)-[:CODE]->(:Code)
+                 <-[:SAME_CONCEPT]-(:Concept {umlsCui:$gate}) }
+MATCH (rec:Recommendation) WHERE NOT rec.cor STARTS WITH '3'
+/* ... collect each recommendation's non-anchor targets as extraConds,
+   and those the patient actually meets as matched ... */
+WHERE size(extraConds) = 0
+   OR (coalesce(rec.targetLogic,'AND') = 'OR'  AND size(matched) >= 1)
+   OR (coalesce(rec.targetLogic,'AND') = 'AND' AND size(matched) = size(extraConds))
+RETURN rec.recommendationId AS recId
+\end{lstlisting}
+
+Figure~\ref{fig:briefing-pipeline} shows this arrangement. The essential property is that
+the language model sits \emph{downstream} of retrieval and has no path back to the graph.
+It has no way to obtain a recommendation outside what retrieval supplied, so any
+recommendation outside that set must be fabricated. That is precisely what makes the check of
+citable items decidable. The arrangement does not guarantee that every sentence the model
+writes is semantically faithful (Section~\ref{sec:faithfulness}).
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+   node distance = 8mm,
+   box/.style = {rectangle, rounded corners=2pt, draw, text width=24mm, align=center,
+                 minimum height=13mm, font=\scriptsize},
+   ar/.style  = {-latex, thick}
+]
+\node[box] (g) {Knowledge graph\\[1pt]\emph{deterministic Cypher retrieval}};
+\node[box, right=of g] (f) {Facts payload\\[1pt]\emph{recId, COR, PMIDs}};
+\node[box, right=of f] (l) {Language model\\[1pt]\emph{phrasing only}};
+\node[box, right=of l] (b) {Briefing\\[1pt]\emph{main + details}};
+\node[box, below=10mm of l, fill=black!8] (chk) {Faithfulness check};
+
+\draw[ar] (g) -- (f);
+\draw[ar] (f) -- (l);
+\draw[ar] (l) -- (b);
+\draw[ar] (f) |- (chk);
+\draw[ar] (b) |- (chk);
+\end{tikzpicture}
+\caption{Grounded-briefing pipeline. Retrieval is deterministic; the language model only
+phrases the retrieved facts, and the faithfulness check compares its output back against
+the same facts payload.}
+\label{fig:briefing-pipeline}
+\end{figure}
+
+\subsection{Medication chronicity: FHIR status versus CSV durations}
+\label{sec:chronicity}
+One recommendation---avoid chronic NSAID use in chronic coronary disease---depends not on
+\emph{whether} a drug was prescribed but on \emph{how long} it was taken, and it exposes an
+asymmetry between the two faces of the same synthetic record. The FHIR \texttt{MedicationRequest} carries an \texttt{authoredOn} date and a categorical
+\texttt{status} (\texttt{active} versus \texttt{completed}) but \emph{no} stop date. The
+paired Synthea CSV export, conversely, carries explicit \texttt{START} and \texttt{STOP}
+dates but \emph{no} status field. The two encode the same underlying fact through different
+projections: an empty CSV \texttt{STOP} (the course is still running) corresponds one-to-one
+to a FHIR \texttt{status} of \texttt{active}. Neither projection is a superset of the other.
+
+\subsubsection*{Operationalising ``chronic''}
+The guideline does not define the term it turns on. Recommendation
+\texttt{CCD-2023:APT:10} (COR~3-Harm, LOE~B-R) reads in full: \emph{``In patients with CCD,
+chronic nonsteroidal anti-inflammatory drugs should not be used because of increased
+cardiovascular and bleeding complications.''} It specifies no duration, no number of
+courses, and no dosing pattern. Any implementation must therefore supply an operational
+definition of its own, and that definition is a research decision to be declared rather
+than a fact to be cited. This is itself a finding: a recommendation that is unambiguous to
+a human reader is not directly executable, and the gap must be closed by the implementer.
+
+No single published definition covers the case, but the published thresholds are not
+arbitrary either: they cluster. At the short end, a systematic review of short-term NSAID
+safety adopts ``ten days or fewer'' and notes that the United States Food and Drug
+Administration advises clinician consultation when use extends beyond ten days
+\cite{aminoshariae2016}, and an osteoarthritis expert review describes usual initial courses
+as seven to ten days with reassessment by about three weeks
+\cite{magni2021}. Beyond that, explicit thresholds appear at three points. A
+pharmacovigilance study treats more than 21 consecutive days of NSAID
+exposure as potentially inappropriate or overexposed use \cite{ussai2015}. A
+population study counts NSAID use from self-reported consumption for at least
+30 days \cite{hessami2025}. A cross-sectional study of
+prescribing in the elderly states directly that a patient may be considered a chronic NSAID
+user on consuming NSAIDs for at least three months
+\cite{abdu2020}. Others avoid a day count altogether, classifying chronic use
+by medication possession ratio \cite{campbell2022} or by percentage of days
+supplied \cite{kikuchi2021}.
+
+The definition adopted in this work has four arms. Two of its thresholds sit inside the
+published cluster just described and are chosen for that reason; the remaining one is a
+declared parameter with no direct precedent:
+
+\begin{enumerate}
+    \item[(i)] an ongoing (active) course;
+    \item[(ii)] cumulative exposure exceeding 90~days;
+    \item[(iii)] three or more separate courses;
+    \item[(iv)] a single course exceeding 30~days.
+\end{enumerate}
+
+Arm~(ii), cumulative exposure beyond 90~days, corresponds to the three-month cutoff stated
+explicitly as chronic use by Abdu \textit{et al.} \cite{abdu2020}, the
+clearest single threshold in this literature. Arm~(iv), a single course beyond 30~days, sits
+between the two nearest published boundaries. The first is the 21 consecutive days
+that Ussai \textit{et al.} treat as already inappropriate
+\cite{ussai2015}. That is the only threshold in the group expressed in
+\emph{consecutive} days, and therefore the closest in construction to a single continuous
+course. The second is the 30-day mark used by Hessami \textit{et al.}
+\cite{hessami2025}. Arm~(iii), three or more separate courses, has no direct
+precedent; the coverage-ratio methods \cite{campbell2022}\cite{kikuchi2021}
+capture the same intuition of repeated rather than one-off use, but not in a form that
+transfers to a count of prescription episodes. It is declared here as a parameter of this
+study.
+
+Two qualifications belong with this. The first is that what agrees with the
+published work is the \emph{size} of the numbers, not the way they were arrived at. Hessami
+\textit{et al.} measure what patients report having taken over time, and Abdu \textit{et al.}
+classify patients rather than courses, while the arms here are computed from the
+\texttt{START} and \texttt{STOP} dates on prescriptions. The published thresholds justify the
+numbers chosen; they do not show that the same thing is being counted.
+
+The second is that the rule is deliberately cautious, and it is better to say so than to call
+it accurate. It is \emph{specific rather than sensitive}: it would sooner miss a chronic user
+than flag someone who is not one. A patient at fifteen days is not caught, even though fifteen
+days is already past the point where unsupervised short-term use is discouraged
+\cite{aminoshariae2016} and is approaching the threshold Ussai \textit{et al.} would flag. For
+a COR~3 (Harm) recommendation, missing cases is the failure accepted here, so that every flag
+the system does raise is beyond argument. The graph-side gate described below makes the same
+trade, so this recommendation is treated the same way throughout.
+
+Critically, the \emph{finding} reported in this thesis does not depend on these numbers.
+Whatever thresholds are chosen, arms~(ii) and~(iv) are expressed in durations and arms~(i)
+and~(iii) are not. The claim that the FHIR projection supports arms~(i) and~(iii) but not
+arms~(ii) and~(iv) is a statement about what the export preserves. It says nothing about
+where the cutoffs fall. Only the
+numeric recall reported in Chapter~IV would move if the thresholds were changed.
+
+Of the four arms, only~(i) and~(iii) are computable from
+the graph---arm~(i) from the categorical \texttt{status}, and arm~(iii) from the count of
+NSAID \texttt{:MedicationRequest} nodes. The duration-based arms~(ii) and~(iv) require stop
+dates and are therefore invisible to a purely FHIR-native reader. The reference standard
+(Section~\ref{sec:oracle}) evaluates all four arms from the CSV export, which is still raw
+synthetic data and never the CRS output. The graph-side gate embedded in the recommendation
+and briefing layers, by contrast, evaluates only arms~(i) and~(iii). The gap between the two is not an
+implementation shortcut but a direct consequence of what the FHIR export preserves; its cost
+in safety-flag recall is quantified in Chapter~IV. Figure~\ref{fig:chronicity} sets out the
+four arms and marks the two that survive the FHIR projection. The rule is implemented in
+\texttt{silver\_oracle.py} over eight NSAID ingredients---ibuprofen, naproxen, celecoxib,
+diclofenac, meloxicam, indomethacin, ketorolac and piroxicam---matched on the medication
+description.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  node distance = 3mm,
+  arm/.style = {rectangle, rounded corners=2pt, draw, text width=95mm, align=left,
+                minimum height=8mm, font=\scriptsize, inner sep=4pt},
+  hit/.style = {arm, fill=black!12, very thick},
+  miss/.style= {arm, dashed}
+]
+\node[hit]  (a1) {(i)~~Ongoing course \hfill computable: \texttt{status = active}};
+\node[miss, below=of a1] (a2)
+    {(ii)~~Cumulative exposure $>$ 90 days \hfill needs stop dates};
+\node[hit,  below=of a2] (a3)
+    {(iii)~~Three or more separate courses \hfill computable: request count};
+\node[miss, below=of a3] (a4)
+    {(iv)~~Single course $>$ 30 days \hfill needs stop dates};
+
+% legend
+\node[draw, very thick, fill=black!12, minimum width=5mm, minimum height=2.5mm,
+      inner sep=0pt, anchor=west] (k1) at ([yshift=-7mm] a4.west) {};
+\node[font=\scriptsize, right=1mm of k1] (k1t) {computable from the FHIR graph};
+\node[draw, dashed, minimum width=5mm, minimum height=2.5mm,
+      inner sep=0pt, right=6mm of k1t] (k2) {};
+\node[font=\scriptsize, right=1mm of k2] {requires the CSV export};
+\end{tikzpicture}
+\caption{The four arms of the chronic-NSAID rule. Only arms (i) and (iii) are computable
+from the FHIR graph; the duration-based arms require stop dates that the FHIR export does
+not carry.}
+\label{fig:chronicity}
+\end{figure}
+
+\section{Evaluation Method}
+\label{sec:eval-method}
+
+The evaluation combines an intrinsic assessment of the graph artifact with an extrinsic
+assessment of the recommendation output.
+
+\subsection{Reference standard: a silver standard validated against gold}
+\label{sec:oracle}
+
+The evaluation uses two reference sets, and the distinction between them is the one drawn
+in the biomedical text-mining literature. A \emph{gold standard} is a reference that has
+been \emph{manually} curated; a \emph{silver standard} is one that has been generated
+\emph{automatically}. The terms were introduced together by Rebholz-Schuhmann
+\textit{et al.} \cite{rebholz2010,rebholz2011}, who contrast a ``manually annotated gold
+standard corpus'' with a corpus produced automatically, and who motivate the latter on the
+grounds that preparing the former is ``time-consuming and costly'' and therefore does not
+scale beyond a few thousand items.
+
+That motivation applies directly here. Labelling every patient in the gate-evaluable
+cohort by hand would require a human to adjudicate 876 patients against
+81 recommendations---on the order of seventy thousand individual judgements,
+which is not feasible for a single investigator. The evaluation therefore adopts the two-tier design used in electronic-health-record
+phenotyping. In that design, automatically derived silver labels are produced at scale and
+then validated against a small, manually curated gold set \cite{nogues2022}. Here, a silver
+standard labels the whole cohort, as described in the remainder of this section. A manually
+labelled sample then serves as the gold standard against which that silver standard is
+checked (Section~\ref{sec:goldlabel}).
+
+One qualification on the terminology. In the corpus work that introduced it, a silver
+standard is built by \emph{harmonising the outputs of several independent automatic
+systems}, so that agreement between systems substitutes for human judgement. The silver
+standard used here is not a consensus artifact of that kind: it is a single, deterministic
+rule-based encoding of the guideline. The term is therefore used in its broader and now
+common sense---an automatically generated reference standard---which is how it is applied
+in the clinical phenotyping literature \cite{nogues2022}, rather than in the specific
+harmonisation sense of the original CALBC corpora.
+The term \emph{oracle}, used throughout this thesis, refers to the implementation of that
+silver standard. The oracle is the component that computes a label for every
+patient--recommendation pair by applying the guideline logic to the raw record, along a path
+separate from the system under test. Oracle, silver standard and automated reference standard
+therefore name the same component.
+
+\subsubsection*{Construction and two tiers of independence}
+The silver standard encodes the guideline logic directly and labels
+each patient by reading the \emph{raw FHIR bundle}---never the graph or the CRS output.
+That independence has to be stated in two tiers, because not every recommendation gets it to
+the same degree, and calling it a single property would claim more than holds.
+
+For the 53 recommendations that are not observation-gated, the two sides differ in both logic
+and data path. The system decides by graph traversal---the gate and a conjunction over codes
+bridged through UMLS concepts---while the oracle decides by substring matching over condition
+names read from the bundle. They disagree often, and that disagreement is what makes precision
+and recall informative there.
+
+For the 15 observation-gated recommendations, the independence is of the data path only. The
+oracle's numeric thresholds and aggregations---worst-ever laboratory values, most-recent blood
+pressure---are used verbatim by the observation gates, so the predicates on the two sides are
+not merely similar but the same function. This was checked rather than assumed. Both were evaluated on the same feature vectors: the
+876 real cohort vectors and 200{,}000 synthetic ones aimed deliberately at every threshold
+they test. Not one disagreement was found (Appendix~\ref{app:modules},
+\texttt{predicate\_audit.py}).
+
+The consequence should be stated plainly. For those fifteen, agreement between the system and
+the reference standard cannot be evidence that the threshold is clinically right, because both
+sides apply the same threshold. What it does establish is that the loader carries patient
+values from the bundle into the graph unchanged---a claim about the data path, not about the
+rule. An independent test of the rule itself requires the judgement of practising clinicians.
+The clinician review (Section~\ref{sec:clinician-method}) provides such a test, but only for
+three of those fifteen recommendations; the rest is recorded as a limitation in
+Section~\ref{sec:limitations}.
+Section~\ref{sec:shared-predicate} reports how much of the concordance figure rests on those
+fifteen.
+
+One further documented exception is the chronic-NSAID recommendation, whose duration-based chronicity
+arms are read from the Synthea CSV export---still raw synthetic data, never the CRS
+output---because the FHIR export omits medication stop dates; this asymmetry and its
+consequences are detailed in Section~\ref{sec:chronicity}.
+The implementing module is named \texttt{silver\_oracle.py} and writes
+\texttt{eval/silver\_oracle\_labels.csv}, while the manually curated labels stay in
+\texttt{eval/gold\_labels.csv}; the two filenames therefore carry the same distinction the
+text draws. Appendix~\ref{app:modules} lists the modules and what each produces.
+
+\subsection{Guideline-concordance evaluation and the observation-gate ablation}
+The primary metric is guideline concordance: the CRS's applicable-recommendation set is
+compared with the oracle's labels over the gate-evaluable cohort, reported as precision,
+recall, and $F_1$. The central experiment is an \emph{ablation} that runs the system with
+and without observation gating; the difference isolates the contribution of observation
+gating itself, not that of the container (Section~\ref{sec:csv-gating}). Each recommendation is additionally classified by how
+discriminating it is (whether its targets are encoded and bridge to the EHR), which
+explains the sources of residual false positives.
+
+\subsection{Manual gold labelling and silver--gold agreement}
+\label{sec:goldlabel}
+To validate the silver standard, a sample of 30 patients is labelled manually
+against the guideline text and the full patient record, producing the \emph{gold standard}.
+The silver standard is then compared against this gold set using Cohen's $\kappa$
+\cite{cohen1960}, a chance-corrected agreement statistic that has also been used to
+benchmark language-model outputs against reference labels in clinical settings
+\cite{shah2024}. The uncertainty of $\kappa$ is estimated with a bootstrap \cite{efron1994}
+that resamples \emph{patients}, not cells. Cells from one patient are not independent, because
+the same record determines all of its labels, and resampling by cluster preserves that
+dependence \cite{field2007}. Because $\kappa$ is also affected by label prevalence and by bias
+between raters, the prevalence index, the bias index and PABAK are reported alongside it
+\cite{byrt1993}. High silver--gold agreement is what licenses the use of the silver
+standard across the full cohort. It establishes that the automatically generated labels
+reproduce human judgement on the sample where both are available. The concordance
+figures computed over all 876 patients therefore rest on a validated reference rather
+than an assumed one.
+The labelling was performed by the author, reading the guideline text against each
+patient's full record. Four decisions recur often enough to have been fixed in advance.
+An anticoagulation indication is atrial fibrillation, a mechanical or prosthetic valve,
+venous thromboembolism, or an existing warfarin prescription. Dual antiplatelet therapy
+is aspirin together with clopidogrel, ticagrelor or prasugrel. An acute coronary syndrome
+is STEMI, NSTEMI or preinfarction syndrome. Statin intensity follows the guideline's own bands. Atorvastatin~40--80~mg and
+rosuvastatin~20~mg count as high-intensity. Atorvastatin~10--20~mg, rosuvastatin~5--10~mg,
+simvastatin~20--40~mg, pravastatin~40--80~mg and ezetimibe/simvastatin~40~mg count as
+moderate. Simvastatin~10~mg, pravastatin~20~mg and lovastatin~10~mg count as low. The number of recommendations labelled is not uniform across patients: it
+ranges from 71 to 73, for 2{,}160 cells in total. Three contraindication recommendations
+(\texttt{APT:7}, \texttt{APT:9} and \texttt{APT:10}) are labelled only for patients
+actually on the drug concerned, since for anyone else the recommendation has no subject to
+judge. A single annotator
+means no inter-rater reliability can be reported for the gold standard itself, which is
+revisited among the limitations in Section~\ref{sec:limitations}.
+
+\subsection{Safety-detection evaluation}
+Contraindication-safety detection is evaluated on the manually labelled safety flags. The
+unary and population-gated variants are each scored for precision and recall. Together the
+two scores illustrate the trade-off between over-flagging in the unary variant and missing
+structurally un-gateable contraindications in the population-gated one. The chronic-NSAID recommendation is scored separately
+under its chronicity-gated variant, which quantifies the recall cost of relying on the FHIR
+categorical medication status once the duration-based chronicity arms are unavailable
+(Section~\ref{sec:chronicity}).
+
+\subsection{Briefing faithfulness evaluation}
+The grounded briefing is evaluated for faithfulness by an automated procedure that compares
+the generated text against the retrieved facts. The procedure flags any fabricated
+recommendation identifier or PMID, any omitted applicable recommendation or safety flag, and
+one over-claim pattern: stating that the patient requires oral anticoagulation when no
+anticoagulant is on the medication list. A briefing passes when all four counts are zero. The
+procedure does not check whether every other sentence is supported by the facts, since that
+requires a human reading.
+
+\subsection{Clinician review of recommendation appropriateness}
+\label{sec:clinician-method}
+The tiers above test the system against rules derived from the guideline. The clinician
+review tests what those rules cannot: whether the recommendations the system outputs are,
+in a clinician's judgement, appropriate for the patient in question. What is judged is the
+system's output, not the gold-standard labels.
+
+\subsubsection*{Review sheet}
+The review sheet covers 20 patients, the 20 highest-scoring of the 30 gold-standard sample
+patients under that sample's selection rule (Section~\ref{sec:goldlabel}). Each patient
+occupies one page with a short identification, the conclusion of the grounded briefing, and
+a table of recommendations. The conclusion is the only basis for judgement. The clinical
+vignette and the full medication list are deliberately not shown, so that raters judge what
+the system actually conveys rather than the record behind it.
+
+The conclusions were translated into Indonesian. The translation was checked mechanically:
+citations, blood-pressure targets, body-mass-index thresholds, stages, recommendation classes,
+and drug names had to carry over. The author then edited 12 of the 20 translations. The edits
+removed bracketed citations and class markers, removed the phrase ``yang sudah tegak''
+(``established''), restored a few terms to their English form, and rephrased a few phrases.
+Raters therefore judged edited text, not the model's output as generated.
+
+The table lists every safety flag for the patient and every applicable recommendation
+triggered by the patient's own conditions. Standard CCD care that applies equally to every
+patient is not listed. In all there are 327 rows covering 21 recommendation types in three
+groups: check/stop of a current medication (107 rows), non-drug management (77 rows), and
+drug therapy (143 rows). Recommendation codes and classes are not shown; both are kept in a
+key file that was not sent to raters. Each row is judged with one of three options:
+``Tepat'' (appropriate), ``Belum tepat'' (not yet appropriate), or ``Tidak dapat dinilai''
+(cannot be judged). The rating guide states that the third option is a valid answer, because
+the conclusion does not always carry all the information needed. Raters were asked to write
+a comment on every row they did not judge appropriate.
+
+\subsubsection*{Raters and coverage}
+Three clinicians rated independently and were asked not to confer before finishing. Raters~A and~C are
+cardiologists (\emph{spesialis jantung dan pembuluh darah}, SpJP), C the more senior. Rater~B
+is a general practitioner enrolled in a doctoral programme. None completed the whole sheet.
+Rater~A rated patients 1--15, rater~B patients 1--10, and rater~C patient~1 only. Within
+that coverage, raters~A and~B each skipped one row. The rows rated are therefore 247 for
+rater~A, 160 for rater~B, and 16 for rater~C.
+
+\subsubsection*{Analysis}
+The proportion of each option is computed per rater. A 95\% confidence interval for the
+proportion rated appropriate is estimated by a 10{,}000-replicate bootstrap that resamples
+patients, for the same reason as for the silver-gold $\kappa$
+(Section~\ref{sec:goldlabel}). Agreement between raters~A and~B is measured on the rows both
+rated, as observed agreement, three-category Cohen's $\kappa$ \cite{cohen1960}, and PABAK
+\cite{byrt1993}, with per-patient bootstrap intervals. Rater~C covers a single patient and is
+reported descriptively. Comments are read and grouped by recommendation. All figures are
+computed by \texttt{baca\_hasil.py} and \texttt{analisis\_hasil.py}
+(Appendix~\ref{app:modules}).
+
+\subsection{Graph structural evaluation}
+\label{sec:structural}
+The evaluation so far is \emph{extrinsic}: it judges the graph by the quality of the
+decisions taken over it. The graph is also assessed \emph{intrinsically}, as an artifact in
+its own right, because a recommendation output says nothing about whether the underlying
+representation is heterogeneous, broad, or deeply connected enough to be reused.
+
+This assessment adopts the framing established for ontology evaluation by Gangemi \textit{et
+al.} \cite{gangemi2006}. They distinguish three kinds of measure. \emph{Structural} measures
+treat the ontology as a graph. Functional measures concern its fitness for an intended use,
+and usability-profiling measures concern its annotation. The tier described here is
+structural in that sense, whereas the concordance, safety, faithfulness, and clinician-review
+tiers above are functional. Structural metrics of this family have been evaluated empirically over
+public ontology repositories and none was found to produce an unstable clustering of them: across 119 OBO~Foundry
+and 78 AgroPortal ontologies, the classification each metric induces survives bootstrap
+resampling of the corpus, which is the sense in which these metrics are stable
+\cite{franco2020}.
+The same argument this thesis makes---that scale counts alone do not
+characterise a knowledge graph---motivates the structural metric sets proposed for
+cross-domain knowledge graphs \cite{seo2022}.
+
+Three dimensions are reported. \textbf{Richness} captures schema and vocabulary
+heterogeneity: the number of node labels, relationship types, and code systems, and the
+number of fused semantic layers. This follows the notion of richness introduced by OntoQA
+\cite{tartir2005}, which characterises an ontology through the variety of relationships and
+classes actually used rather than through raw size. OntoQA states that notion as a
+ratio---its relationship richness is $P/(SC+P)$, the share of non-inheritance relations
+among all connections between classes---which this graph cannot form, having no subsumption
+hierarchy and therefore no $SC$ to divide by. What is reported here is the variety itself,
+as counts. \textbf{Width} captures breadth of
+coverage: node and edge cardinality, cohort size, average conditions per patient, and the
+proportion of the guideline that is represented. Width in this sense corresponds to the
+\emph{completeness} dimension of knowledge-graph quality, for which a substantial
+methodological literature exists \cite{issa2021,xue2023}. \textbf{Depth} captures how far a
+conclusion can be traced: the length of the canonical
+patient-to-recommendation-to-evidence inference path, and the degree to which shared
+\texttt{:Code} nodes act as hubs.
+
+Two departures from the source literature must be stated, because the terms are shared but
+the quantities are not. First, \emph{depth} in the ontology-evaluation literature normally
+means the depth of the subsumption hierarchy---how many \texttt{is-a} levels a class tree
+has. The graph built here is a property graph with no subsumption hierarchy to measure, so
+depth is redefined as the length of an inference path across the fused layers. Second,
+ontology \emph{breadth} normally means the number of sibling classes at a level, whereas
+width here is cardinality and cohort coverage. What is borrowed is therefore the
+\emph{classification} of measures rather than the formulas: Gangemi's separation of structural
+from functional evaluation \cite{gangemi2006}, and OntoQA's principle of characterising a graph
+by the variety of its relationships rather than by its size \cite{tartir2005}. The three
+quantities reported in Chapter~IV are defined by this thesis, and should not be compared
+numerically against values published elsewhere under the same names.
+
+Cohen's $\kappa$ and the concordance metrics are computed directly from the
+$2\times2$ agreement table by the evaluation scripts themselves, without a statistics
+library, so reproducing them requires no dependency beyond the Python standard library.
+
+\section{Research Ethics, Problems, and Limitations}
+\label{sec:ethics}
+
+\subsection{Ethical considerations}
+The patient data used in this research are entirely synthetic. Synthea generates
+statistically plausible but fictitious individuals \cite{synthea}, so no protected health
+information is processed, no patient consent is required, and there is no risk of
+re-identification. This is a deliberate design choice rather than a convenience. It allows the full record,
+including medication histories and laboratory trajectories, to be published alongside the
+code for reproduction. That would be impossible with real records, which are mostly still
+unstructured narrative text.
+
+One component of this research involves people: the clinician review
+(Section~\ref{sec:clinician-method}). The clinicians act as expert raters of the system's
+output, not as research subjects. What is collected is their judgement of recommendations for
+synthetic patients, not data about themselves. Participation was voluntary, and raters are
+identified only by code in the thesis and in any released data. Ethical clearance for
+human-subject research is therefore not required. The remaining evaluation tiers are
+automated: the reference oracle is generated programmatically, the gold standard is labelled
+by the author from synthetic records, and briefing faithfulness is checked by an automated
+verification procedure. The consequence for the strength of the evidence is stated
+explicitly as a limitation in Section~\ref{sec:limitations}.
+
+A third consideration is the intended role of the system. It is designed as a
+decision-\emph{support} tool that surfaces guideline recommendations and contraindication
+flags for a clinician to judge; it does not prescribe, and it is not validated for
+autonomous use. The grounded briefing is explicitly constrained to phrase retrieved facts
+rather than to reason clinically, and every statement it makes carries its recommendation
+identifier and class of recommendation so that a reader can audit it against the source
+guideline.
+
+\subsection{Problems and limitations}
+\label{sec:limitations}
+The following limitations are inherent to the design and constrain how the results should
+be read:
+
+\begin{enumerate}
+    \item \textbf{Synthetic data.} Synthea patients are generated from disease-progression
+    models, so their comorbidity patterns and laboratory trajectories are internally
+    consistent but not drawn from a real population. Performance measured here therefore
+    establishes that the pipeline is \emph{internally} correct, not that it would achieve
+    the same concordance on real records, which are noisier, sparser, and contain
+    unstructured text.
+    \item \textbf{No cardiac symptom data.} Synthea records carry some patient-reported
+    measures: a pain score, and questionnaires on depression, anxiety, substance use and social
+    needs. They carry no description of cardiac symptoms. Across the 30 sample patients, each
+    patient's chief-complaint list never changes over 8{,}067 clinical notes. Only one patient
+    lists a cardiac symptom, chest pressure and shortness of breath, and there is no angina
+    grade, angina frequency or exercise capacity anywhere. An NYHA functional class is recorded
+    once for five patients, but it lies outside the observation allow-list. None of the 876
+    cohort patients carries a coded angina diagnosis. As a result, the six recommendations that
+    depend on angina (\texttt{CR:1:2}, \texttt{MTRA:1}--\texttt{MTRA:4} and \texttt{MRA:1})
+    are never positive, so this part of the guideline goes entirely untested. In real records
+    such symptoms are usually recorded as free text, and capturing them requires structured
+    encoding that this design does not cover.
+    \item \textbf{Information loss in the FHIR projection.} As set out in
+    Section~\ref{sec:chronicity}, the FHIR export carries a categorical medication status
+    but no stop dates, so duration-dependent guideline logic cannot be evaluated from the
+    graph alone. This is a property of the export, not of the implementation, and it is
+    quantified rather than hidden.
+    \item \textbf{Shared predicate on the observation-gated recommendations.} For 15 of the 68
+    recommendations, the system's predicate and the reference standard's rule are the same
+    function (Section~\ref{sec:oracle}). Perfect agreement in the two gated classes therefore
+    tests the data path, not the correctness of the rule. The part scored by a genuinely
+    independent judge covers 53 recommendations and reaches precision $0.666$ and $F_1$
+    $0.797$, against $0.685$ and $0.811$ for the headline
+    (Section~\ref{sec:shared-predicate}). The whole of the ablation gain is measured on those
+    fifteen shared-predicate recommendations, so what it measures is implementation fidelity
+    rather than clinical validity. The clinician review tests the rule for only three of the
+    fifteen, \texttt{WM:2}, \texttt{WM:3}, and \texttt{SGLT2:4}; all 50 judgements of them by
+    raters~A and~B are ``appropriate'' (Section~\ref{sec:clinician}).
+    \item \textbf{Single gold-standard annotator.} All 2{,}160 gold-standard cells were
+    labelled by one person, the author, who also encoded the silver standard's rules. No
+    inter-rater reliability can therefore be reported for the gold standard. High agreement may
+    also partly reflect a shared reading of the guideline text, not only the correctness of the
+    rules. The confidence interval in Section~\ref{sec:kappa-ci} addresses the uncertainty due
+    to sample size but not this limitation, since resampling cannot produce a second rater.
+    Relabelling by a second annotator independent of the author is the only way to close it.
+    \item \textbf{FHIR is not a precondition for the observation gate.} The precision gain
+    reported in Section~\ref{sec:ablation} comes from gating on numeric observation values, not
+    from the FHIR container specifically. The same gate can be rebuilt from Synthea's tabular
+    export and returns identical decisions on all 13{,}140 decisions compared
+    (Section~\ref{sec:csv-gating}). The distinction bounds what the FHIR-native design may
+    claim: directness and convenience, not feasibility. It should be added that this result
+    holds for Synthea's export, which carries an \texttt{ENCOUNTER} foreign key on every
+    observation row; a tabular export without one need not fare the same way.
+    \item \textbf{Single guideline, single disease.} Only the 2023 AHA/ACC CCD guideline is
+    encoded, and only for chronic coronary disease. Generalisation to other guidelines or
+    conditions is plausible given the concept-bridge design but is not demonstrated.
+    \item \textbf{Single-concept cohort gate.} As set out in Section~\ref{sec:gate}, the CCD
+    gate accepts one UMLS concept, whereas the guideline defines chronic coronary disease
+    disjunctively. Sixty-seven patients ($7.1\%$ of the clinically defined cohort) whose only
+    CCD evidence is a prior-infarction or prior-revascularization \emph{situation} code are
+    consequently never matched against any recommendation. This bounds the reported results
+    to a conservative subset and would, in a deployment, cause those patients to receive no
+    output at all. Widening the gate to a disjunction of concepts is a small change to the
+    query and is the first item of future work.
+    \item \textbf{No prospective or outcome validation.} Concordance is measured against an
+    automatically generated silver standard and a manually curated gold standard, not
+    against patient outcomes. Nothing here establishes that following the system's
+    recommendations improves care.
+    \item \textbf{Stochastic phrasing.} The briefing's wording is produced by a language
+    model and varies between runs, so faithfulness is verified per run rather than proved
+    once. Retrieval, by contrast, is deterministic and reproducible.
+    \item \textbf{Scope of the faithfulness check.} The automated check covers 30 briefings
+    and tests citable items, recommendation completeness, and one over-claim pattern. The
+    semantic faithfulness of every sentence is not tested. What is supported, therefore, is
+    that the briefings neither fabricate recommendations or citations nor omit
+    recommendations, not that every sentence is faithful to the facts. The over-claim test
+    itself was corrected after its output was seen (Section~\ref{sec:faithfulness}). Thirty
+    briefings are also still too few to estimate an error rate precisely.
+    \item \textbf{A limited clinician review.} The reference oracle, the safety-detection
+    check, and the faithfulness verification test the system against \emph{rules derived
+    from the guideline}. Only the clinician review (Section~\ref{sec:clinician}) tests it
+    against clinical judgement, and its coverage is limited. Rater~A, the only cardiologist
+    to rate more than one patient, covered 15 of the 20 patients. Rater~B, a general
+    practitioner, covered 10, and rater~C a single patient. Agreement between raters~A and~B
+    is fair ($\kappa = 0.29$), so the proportion judged appropriate depends on who rates.
+    Raters also read only the conclusion and the recommendation table, not the full record.
+    Some ``not yet appropriate'' and ``cannot be judged'' ratings name information that was
+    not shown, such as ejection fraction, heart-failure status, bleeding risk, and the
+    medication list. The conclusion the raters read was, moreover, a translation edited by
+    the author. The review therefore locates the system's weak points but does not yet
+    estimate, in general, the gap between guideline concordance and clinical
+    appropriateness. It also judges the appropriateness of recommendations, not the quality
+    of the summary. A reader study on the model of Van Veen \textit{et al.}~\cite{vanveen2023},
+    in which clinicians score summaries for completeness, correctness, and conciseness, with
+    inter-rater agreement quantified by Cohen's $\kappa$ \cite{cohen1960}, is still left to
+    future work.
+\end{enumerate}

@@ -1,0 +1,1064 @@
+@article{ferdiana2012agile,
+	title={Agile Software Engineering Framework for Evaluating Mobile Application Development},
+	author={Ferdiana, Ridi},
+	journal={International Journal of Scientific \& Engineering Research},
+	volume={3},
+	number={12},
+	pages={89--93},
+	year={2012}
+}
+
+% =====================================================================
+%  THESIS REFERENCES (drafted by the FHIR-native CCD CRS work).
+%  VERIFY every entry against the original source before submission,
+%  especially DOIs, volumes, issues, and page ranges. Expand any
+%  "and others" to the full author list required by your citation style.
+%  No PLACEHOLDER entries remain: every reference below points to a real
+%  located source. You must still READ each one before defending it, and
+%  confirm that the figures quoted in Chapter IV match the published text.
+% =====================================================================
+
+% ---- Clinical guideline ----
+@article{virani2023,
+  author  = {Virani, Salim S. and Newby, L. Kristin and Arnold, Suzanne V. and others},
+  title   = {2023 {AHA/ACC/ACCP/ASPC/NLA/PCNA} Guideline for the Management of Patients With Chronic Coronary Disease},
+  journal = {Circulation},
+  volume  = {148},
+  number  = {9},
+  pages   = {e9--e119},
+  year    = {2023},
+  doi     = {10.1161/CIR.0000000000001168}
+}
+
+% ---- Epidemiology (background) ----
+@misc{who_cvd,
+  author       = {{World Health Organization}},
+  title        = {Cardiovascular Diseases ({CVDs})},
+  howpublished = {Fact sheet},
+  year         = {2021},
+  note         = {\url{https://www.who.int/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)}}
+}
+% NOTE: who_cvd is currently uncited. It reports CVD-wide figures, two levels above CCD
+% in the disease hierarchy (CVD > coronary artery disease > CCD), so it cannot support a
+% CCD-specific claim. Kept here in case a CVD-level framing is wanted later.
+
+% GBD is the tightest population-scale source available: it has no `chronic coronary
+% disease' cause -- CCD is a clinical-management category from virani2023, not a GBD
+% cause -- so ischaemic heart disease (IHD), of which CCD is the chronic phase, is the
+% closest reportable level. Figures below verified against the PubMed abstracts
+% (PMID 33309175 and PMID 38100501).
+@article{gbd2019_cvd,
+  author  = {Roth, Gregory A. and Mensah, George A. and Johnson, Catherine O. and others},
+  title   = {Global Burden of Cardiovascular Diseases and Risk Factors, 1990--2019:
+             Update From the {GBD} 2019 Study},
+  journal = {Journal of the American College of Cardiology},
+  volume  = {76},
+  number  = {25},
+  pages   = {2982--3021},
+  year    = {2020},
+  doi     = {10.1016/j.jacc.2020.11.010}
+}
+
+@article{gbd_indonesia_cvd,
+  author  = {Harmadha, Wigaviola Socha Purnamaasri and Muharram, Farizal Rizky and
+             Gaspar, Renato Simoes and others},
+  title   = {Explaining the Increase of Incidence and Mortality From Cardiovascular
+             Disease in {Indonesia}: A Global Burden of Disease Study Analysis
+             (2000--2019)},
+  journal = {PLOS ONE},
+  volume  = {18},
+  number  = {12},
+  pages   = {e0294128},
+  year    = {2023},
+  doi     = {10.1371/journal.pone.0294128}
+}
+
+% ---- Statin intensity categories --------------------------------------------
+% The canonical dose->intensity table (high / moderate / low). silver_oracle.py's
+% HIGH_INTENSITY_STATIN = atorvastatin 40-80 mg, rosuvastatin 20 mg follows it.
+% Verified via PubMed: PMID 30586774 / PMID 24222016.
+@article{grundy2018,
+  author  = {Grundy, Scott M. and Stone, Neil J. and Bailey, Alison L. and others},
+  title   = {2018 {AHA/ACC/AACVPR/AAPA/ABC/ACPM/ADA/AGS/APhA/ASPC/NLA/PCNA}
+             Guideline on the Management of Blood Cholesterol},
+  journal = {Circulation},
+  volume  = {139},
+  number  = {25},
+  pages   = {e1082--e1143},
+  year    = {2018},
+  doi     = {10.1161/CIR.0000000000000625}
+}
+
+@article{stone2013,
+  author  = {Stone, Neil J. and Robinson, Jennifer G. and Lichtenstein, Alice H. and others},
+  title   = {2013 {ACC/AHA} Guideline on the Treatment of Blood Cholesterol to Reduce
+             Atherosclerotic Cardiovascular Risk in Adults},
+  journal = {Circulation},
+  volume  = {129},
+  number  = {25 Suppl 2},
+  pages   = {S1--S45},
+  year    = {2013},
+  doi     = {10.1161/01.cir.0000437738.63853.7a}
+}
+
+% ---- Guideline-adherence gap ----
+% INTERASPIRE: 4,548 CHD patients, 14 countries, all 6 WHO regions. Only 1.0% achieved
+% optimal guideline adherence; 38.6% reached BP <130/80; 16.6% reached LDL-C <1.4 mmol/L;
+% 9.0% attended cardiac rehabilitation.
+% Figures cited in Ch I verified against the PubMed abstract (PMID 39212219): 4,548
+% patients, 14 countries, 6 WHO regions, 1.0% optimal adherence, 38.6% BP <130/80,
+% 16.6% LDL-C <1.4 mmol/L, 9.0% cardiac rehabilitation.
+@article{adherence_gap,
+  author  = {McEvoy, John William and Jennings, Catriona and Kotseva, Kornelia and others},
+  title   = {Variation in Secondary Prevention of Coronary Heart Disease:
+             The {INTERASPIRE} Study},
+  journal = {European Heart Journal},
+  volume  = {45},
+  number  = {39},
+  pages   = {4184--4196},
+  year    = {2024},
+  doi     = {10.1093/eurheartj/ehae558}
+}
+
+% ---- HL7 FHIR ----
+@misc{fhir_r4,
+  author = {{HL7 International}},
+  title  = {{HL7 FHIR} Release 4},
+  year   = {2019},
+  note   = {\url{http://hl7.org/fhir/R4/}}
+}
+
+% ---- FHIR-to-graph commodity tooling ----
+% Cited to BOUND the novelty claim, not to support it: this is an existence proof that
+% the resource->node / reference->edge mapping is off-the-shelf. See sec:rw-kg.
+@misc{tenasol_viewer,
+  author       = {{Tenasol}},
+  title        = {Tenasol {FHIR} Viewer},
+  howpublished = {Web application},
+  note         = {\url{https://fhir.tenasol.com/}, accessed 31 July 2026}
+}
+
+% Documents the exporter's FHIR options, including the four selectable US Core
+% versions (3.1.1 / 4.0.0 / 5.0.1 / 6.1.0) and exporter.fhir.us_core_version.
+@misc{synthea_fhir_wiki,
+  author       = {{Synthetic Health}},
+  title        = {Synthea Wiki: {HL7 FHIR}},
+  howpublished = {Project wiki},
+  note         = {\url{https://github.com/synthetichealth/synthea/wiki/HL7-FHIR}, accessed 28 August 2026}
+}
+
+@misc{synthea_csv_dict,
+  author       = {{The MITRE Corporation}},
+  title        = {Synthea {CSV} File Data Dictionary},
+  howpublished = {Project wiki},
+  note         = {\url{https://github.com/synthetichealth/synthea/wiki/CSV-File-Data-Dictionary}, accessed 8 August 2026}
+}
+
+% ---- UMLS ----
+@article{umls,
+  author  = {Bodenreider, Olivier},
+  title   = {The {Unified Medical Language System} ({UMLS}): integrating biomedical terminology},
+  journal = {Nucleic Acids Research},
+  volume  = {32},
+  number  = {Database issue},
+  pages   = {D267--D270},
+  year    = {2004},
+  doi     = {10.1093/nar/gkh061}
+}
+
+% ---- Retrieval-Augmented Generation ----
+@inproceedings{rag_lewis2020,
+  author    = {Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and others},
+  title     = {Retrieval-Augmented Generation for Knowledge-Intensive {NLP} Tasks},
+  booktitle = {Advances in Neural Information Processing Systems ({NeurIPS})},
+  volume    = {33},
+  pages     = {9459--9474},
+  year      = {2020}
+}
+
+% ---- Synthea ----
+@article{synthea,
+  author  = {Walonoski, Jason and Kramer, Mark and Nichols, Joseph and others},
+  title   = {Synthea: An approach, method, and software mechanism for generating synthetic patients and the synthetic electronic health care record},
+  journal = {Journal of the American Medical Informatics Association ({JAMIA})},
+  volume  = {25},
+  number  = {3},
+  pages   = {230--238},
+  year    = {2018},
+  doi     = {10.1093/jamia/ocx079}
+}
+
+% ---- CDSS overview (confirm you read it, else replace) ----
+@article{cdss_review,
+  author  = {Sutton, Reed T. and Pincock, David and Baumgart, Daniel C. and Sadowski, Daniel C. and Fedorak, Richard N. and Kroeker, Karen I.},
+  title   = {An overview of clinical decision support systems: benefits, risks, and strategies for success},
+  journal = {npj Digital Medicine},
+  volume  = {3},
+  pages   = {17},
+  year    = {2020},
+  doi     = {10.1038/s41746-020-0221-y}
+}
+
+% =====================================================================
+%  RESEARCH METHODOLOGY (Chapter III, design science research)
+% =====================================================================
+
+% The design-science paradigm: knowledge of a problem is obtained by building and
+% applying an artifact, as opposed to the behavioural-science paradigm.
+@article{hevner2004,
+  author  = {Hevner, Alan R. and March, Salvatore T. and Park, Jinsoo and Ram, Sudha},
+  title   = {Design Science in Information Systems Research},
+  journal = {MIS Quarterly},
+  volume  = {28},
+  number  = {1},
+  pages   = {75--105},
+  year    = {2004},
+  url     = {https://www.jstor.org/stable/25148625}
+}
+
+% DSRM: six activities -- problem identification and motivation, objectives for a
+% solution, design and development, demonstration, evaluation, communication.
+@article{peffers2007,
+  author  = {Peffers, Ken and Tuunanen, Tuure and Rothenberger, Marcus A. and
+             Chatterjee, Samir},
+  title   = {A Design Science Research Methodology for Information Systems Research},
+  journal = {Journal of Management Information Systems},
+  volume  = {24},
+  number  = {3},
+  pages   = {45--77},
+  year    = {2007},
+  doi     = {10.2753/mis0742-1222240302}
+}
+
+% =====================================================================
+%  CHAPTER II RELATED WORK (literature review, 11 searches, 32 papers seen)
+%  ALL details below come from ABSTRACTS returned by search -- no full text
+%  was read. Verify every entry, and read zhou2022 and ali2026 in full before
+%  defending the novelty claim: both bear directly on it.
+% =====================================================================
+
+% -- Guideline-based CDSS: effect size and implementation reality --------------
+% 108 studies / 122 trials / 1,203,053 patients: +5.8% process, +0.3% endpoints.
+@article{kwan2020,
+  author  = {Kwan, Janice L. and Lo, Lisha and Ferguson, Jacob and Goldberg, Hanna
+             and Diaz-Martinez, Juan P. and Tomlinson, George and Grimshaw, Jeremy M.
+             and Shojania, Kaveh G.},
+  title   = {Computerised Clinical Decision Support Systems and Absolute Improvements
+             in Care: Meta-analysis of Controlled Clinical Trials},
+  journal = {BMJ},
+  volume  = {370},
+  pages   = {m3216},
+  year    = {2020},
+  doi     = {10.1136/bmj.m3216}
+}
+@article{cai2024,
+  author  = {Cai, Jianwen and Li, Peiyi and Li, Weimin and Zhu, Tao},
+  title   = {Outcomes of Clinical Decision Support Systems in Real-World Perioperative
+             Care: A Systematic Review and Meta-analysis},
+  journal = {International Journal of Surgery},
+  volume  = {110},
+  number  = {12},
+  pages   = {8057--8072},
+  year    = {2024},
+  doi     = {10.1097/JS9.0000000000001821}
+}
+% 1,731 papers screened -> 15 with outcome evaluation; only 2 EHR-integrated.
+@article{papadopoulos2022,
+  author  = {Papadopoulos, Pericles and Soflano, Mario and Chaudy, Yaelle and
+             Adejo, Wilson and Connolly, Thomas M.},
+  title   = {A Systematic Review of Technologies and Standards Used in the Development
+             of Rule-Based Clinical Decision Support Systems},
+  journal = {Health and Technology},
+  volume  = {12},
+  number  = {4},
+  pages   = {713--727},
+  year    = {2022},
+  doi     = {10.1007/s12553-022-00672-9}
+}
+% Verified against the full text. Funnel: 1,731 search results -> 341 relevant -> 15
+% selected; evaluating clinical outcomes was an INCLUSION criterion, so the 15 are the
+% whole study population. Section 4.2.4 (RQ3): "only 2 of the selected papers were
+% integrated with an EHR". Caveat for the Ch II claim: n=15, rule-based CDSS only.
+@article{bosetti2025,
+  author  = {Bosetti, Davide and others},
+  title   = {Computerized Decision Support for Antimicrobial Prescribing: What Every
+             Antibiotic Steward Should Know},
+  journal = {Antimicrobial Stewardship and Healthcare Epidemiology},
+  year    = {2025},
+  volume  = {5},
+  number  = {1},
+  doi     = {10.1017/ash.2025.10091}
+}
+@inproceedings{silva2022,
+  author    = {Silva, Sarah Tifany and others},
+  title     = {Rule-Based Clinical Decision Support System Using the {OpenEHR} Standard},
+  booktitle = {Proceedings (venue to be confirmed)},
+  year      = {2022},
+  volume  = {201},
+  pages   = {726--731},
+  doi     = {10.1016/j.procs.2022.03.098}
+}
+
+% -- Computer-interpretable guideline formalisms --------------------------------
+@article{declercq2004,
+  author  = {de Clercq, Paul A. and Blom, Johannes A. and Korsten, Hendrikus H. M.
+             and Hasman, Arie},
+  title   = {Approaches for Creating Computer-Interpretable Guidelines that Facilitate
+             Decision Support},
+  journal = {Artificial Intelligence in Medicine},
+  volume  = {31},
+  number  = {1},
+  pages   = {1--27},
+  year    = {2004},
+  doi     = {10.1016/j.artmed.2004.02.003}
+}
+@article{declercq2008,
+  author  = {de Clercq, Paul and Kaiser, Katharina and Hasman, Arie},
+  title   = {Computer-Interpretable Guideline Formalisms},
+  journal = {Studies in Health Technology and Informatics},
+  volume  = {139},
+  pages   = {22--43},
+  year    = {2008},
+  doi     = {10.3233/978-1-58603-873-1-22}
+}
+@article{oliveira2014,
+  author  = {Oliveira, Tiago and Novais, Paulo and Neves, Jos\'{e}},
+  title   = {Development and Implementation of Clinical Guidelines: An Artificial
+             Intelligence Perspective},
+  journal = {Artificial Intelligence Review},
+  volume  = {42},
+  number  = {4},
+  pages   = {999--1027},
+  year    = {2014},
+  doi     = {10.1007/s10462-013-9402-2}
+}
+
+% -- Knowledge graphs for CDSS --------------------------------------------------
+% CRITICAL: guideline KG + patient records + evaluation, all three. Read in full.
+@article{zhou2022,
+  author  = {Zhou, Gengxian and {E}, Haihong and Kuang, Zemin and Tan, Ling and
+             Xie, Xiaoxuan and Li, Jundi and Luo, Haoran},
+  title   = {Clinical Decision Support System for Hypertension Medication Based on
+             Knowledge Graph},
+  journal = {Computer Methods and Programs in Biomedicine},
+  volume  = {227},
+  pages   = {107220},
+  year    = {2022},
+  doi     = {10.1016/j.cmpb.2022.107220}
+}
+@article{shang2024,
+  author  = {Shang, Yong and Tian, Yu and Lyu, Kewei and Zhou, Tianshu and Zhang, Ping
+             and Chen, Jianghua and Li, Jingsong},
+  title   = {Electronic Health Record-Oriented Knowledge Graph System for Collaborative
+             Clinical Decision Support Using Multicenter Fragmented Medical Data},
+  journal = {Journal of Medical Internet Research},
+  year    = {2024},
+  volume  = {26},
+  pages   = {e54263},
+  doi     = {10.2196/54263}
+}
+@article{seneviratne2023,
+  author  = {Seneviratne, Oshani and others},
+  title   = {Semantically Enabling Clinical Decision Support Recommendations},
+  journal = {Journal of Biomedical Semantics},
+  year    = {2023},
+  volume  = {14},
+  number  = {1},
+  doi     = {10.1186/s13326-023-00285-9}
+}
+
+% -- Healthcare knowledge-graph reviews -----------------------------------------
+@article{abusalih2023,
+  author  = {Abu-Salih, Bilal and others},
+  title   = {Healthcare Knowledge Graph Construction: A Systematic Review of the
+             State-of-the-Art, Open Issues, and Opportunities},
+  journal = {Journal of Big Data},
+  year    = {2023},
+  volume  = {10},
+  number  = {1},
+  doi     = {10.1186/s40537-023-00774-9}
+}
+% NOTE: Hejie Cui -- a DIFFERENT author from Hongzhen Cui (cui2025). Do not merge.
+@article{cui_h2023,
+  author  = {Cui, Hejie and others},
+  title   = {A Review on Knowledge Graphs for Healthcare: Resources, Applications,
+             and Promises},
+  journal = {Journal of Biomedical Informatics},
+  year    = {2025},
+  volume  = {169},
+  pages   = {104861},
+  doi     = {10.1016/j.jbi.2025.104861}
+}
+% Median KG size across 255 articles: 46,983 nodes / 906,737 edges.
+@article{budhdeo2023,
+  author  = {Budhdeo, Sanjay and others},
+  title   = {Scoping Review of Knowledge Graph Applications in Biomedical and
+             Healthcare Sciences},
+  journal = {medRxiv},
+  year    = {2023},
+  doi     = {10.1101/2023.12.13.23299844},
+  note    = {Preprint, posted 14 December 2023}
+}
+
+% -- Terminology integration ----------------------------------------------------
+@article{degroot2024,
+  author  = {de Groot, Rachel and others},
+  title   = {{ATC}-to-{RxNorm} Mappings: A Comparison Between {OHDSI} Standardized
+             Vocabularies and {UMLS} Metathesaurus},
+  journal = {International Journal of Medical Informatics},
+  year    = {2025},
+  volume  = {195},
+  pages   = {105777},
+  doi     = {10.1016/j.ijmedinf.2024.105777}
+}
+@article{kraljevic2021,
+  author  = {Kraljevic, Zeljko and Searle, Thomas and Shek, Anthony and Roguski, Lukasz
+             and Noor, Kawsar and Bean, Daniel and others},
+  title   = {Multi-domain Clinical Natural Language Processing with {MedCAT}:
+             The Medical Concept Annotation Toolkit},
+  journal = {Artificial Intelligence in Medicine},
+  volume  = {117},
+  pages   = {102083},
+  year    = {2021},
+  doi     = {10.1016/j.artmed.2021.102083}
+}
+
+% -- RAG in healthcare and faithfulness -----------------------------------------
+@article{amugongo2025,
+  author  = {Amugongo, Lameck Mbangula and others},
+  title   = {Retrieval Augmented Generation for Large Language Models in Healthcare:
+             A Systematic Review},
+  journal = {PLOS Digital Health},
+  year    = {2025},
+  volume  = {4},
+  number  = {6},
+  pages   = {e0000877},
+  doi     = {10.1371/journal.pdig.0000877}
+}
+@article{lewis2025,
+  author  = {Lewis, Matthew and others},
+  title   = {Grounding Large Language Models in Clinical Evidence: A Retrieval-Augmented
+             Generation System for Querying {UK NICE} Clinical Guidelines},
+  journal = {arXiv preprint arXiv:2510.02967},
+  year    = {2025}
+}
+@article{ke2025,
+  author  = {Ke, Yuhe and others},
+  title   = {Retrieval Augmented Generation for 10 Large Language Models and its
+             Generalizability in Assessing Medical Fitness},
+  journal = {npj Digital Medicine},
+  year    = {2025},
+  volume  = {8},
+  number  = {1},
+  doi     = {10.1038/s41746-025-01519-z}
+}
+@article{kresevic2024,
+  author  = {Kresevic, Simone and others},
+  title   = {Optimization of Hepatological Clinical Guidelines Interpretation by Large
+             Language Models: A Retrieval Augmented Generation-Based Framework},
+  journal = {npj Digital Medicine},
+  year    = {2024},
+  volume  = {7},
+  number  = {1},
+  doi     = {10.1038/s41746-024-01091-y}
+}
+% CRITICAL: GraphRAG, hallucination 63% -> 1.7%. Read in full.
+@article{ali2026,
+  author  = {Ali, Mohamed and others},
+  title   = {Ontology-Grounded Knowledge Graphs for Mitigating Hallucinations in Large
+             Language Models for Clinical Question Answering},
+  journal = {Journal of Biomedical Informatics},
+  year    = {2026},
+  volume  = {175},
+  pages   = {104993},
+  doi     = {10.1016/j.jbi.2026.104993}
+}
+@article{park2025,
+  author  = {Park, Chaelim and others},
+  title   = {Synergistic Joint Model of Knowledge Graph and {LLM} for Enhancing
+             {XAI}-Based Clinical Decision Support Systems},
+  journal = {Mathematics},
+  year    = {2025},
+  volume  = {13},
+  number  = {6},
+  pages   = {949},
+  doi     = {10.3390/math13060949}
+}
+
+% -- Synthetic data validity ----------------------------------------------------
+% The primary Synthea reference. Check whether the existing `synthea` key already
+% points here; if so, merge the two rather than citing both.
+@article{walonoski2017,
+  author  = {Walonoski, Jason and Kramer, Mark and Nichols, Joseph and Quina, Andre
+             and Moesel, Chris and Hall, Dylan and others},
+  title   = {Synthea: An Approach, Method, and Software Mechanism for Generating
+             Synthetic Patients and the Synthetic Electronic Health Care Record},
+  journal = {Journal of the American Medical Informatics Association},
+  year    = {2018},
+  volume  = {25},
+  number  = {3},
+  pages   = {230--238},
+  doi     = {10.1093/jamia/ocx079}
+}
+% Synthea validity: reliable for demographics, NOT for post-service outcomes;
+% notably reports zero BP control after hypertension diagnosis.
+@article{chen2019,
+  author  = {Chen, Junqiao and Chun, David and Patel, Michael and Chiang, Epson
+             and James, Jesse},
+  title   = {The Validity of Synthetic Clinical Data: A Validation Study of a Leading
+             Synthetic Data Generator (Synthea) Using Clinical Quality Measures},
+  journal = {BMC Medical Informatics and Decision Making},
+  year    = {2019},
+  volume  = {19},
+  number  = {1},
+  doi     = {10.1186/s12911-019-0793-0}
+}
+@article{walonoski2022,
+  author  = {Walonoski, Jason and others},
+  title   = {The ``Coherent Data Set'': Combining Patient Data and Imaging in a
+             Comprehensive, Synthetic Health Record},
+  journal = {Electronics},
+  year    = {2022},
+  volume  = {11},
+  number  = {8},
+  pages   = {1199},
+  doi     = {10.3390/electronics11081199}
+}
+
+% -- Pre-2015 Semantic Web era (terminology predecessor of "knowledge graph") ----
+@article{bouamrane2011,
+  author  = {Bouamrane, Matt-Mouley and Rector, Alan and Hurrell, Martin},
+  title   = {Using {OWL} Ontologies for Adaptive Patient Information Modelling and
+             Preoperative Clinical Decision Support},
+  journal = {Knowledge and Information Systems},
+  year    = {2011},
+  volume  = {29},
+  number  = {2},
+  pages   = {405--418},
+  doi     = {10.1007/s10115-010-0351-7}
+}
+@inproceedings{hussain2007,
+  author    = {Hussain, Sajjad and Abidi, Syed Sibte Raza and Abidi, Samina Raza},
+  title     = {Semantic Web Framework for Knowledge-Centric Clinical Decision
+               Support Systems},
+  booktitle = {Artificial Intelligence in Medicine (AIME 2007)},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {4594},
+  year      = {2007},
+  pages   = {451--455},
+  doi     = {10.1007/978-3-540-73599-1_60}
+}
+
+% =====================================================================
+%  GRAPH STRUCTURAL EVALUATION (Chapter III, richness / width / depth)
+%
+%  IMPORTANT: these ground the FRAMING, not the instruments. Gangemi's
+%  "depth" is depth of the SUBSUMPTION HIERARCHY; the depth reported in this
+%  thesis is the hop-count of an inference path across layers. Likewise
+%  ontology "breadth" is siblings-per-node, whereas "width" here is node/edge
+%  cardinality and cohort coverage. Cite for the family of measures; state
+%  explicitly where the operationalisation departs from the source.
+% =====================================================================
+
+% The canonical three-way split of ontology evaluation into structural,
+% functional, and usability-profiling measures. "Structural measures" is the
+% family this thesis's graph-quality tier belongs to.
+@inproceedings{gangemi2006,
+  author    = {Gangemi, Aldo and Catenacci, Carola and Ciaramita, Massimiliano and
+               Lehmann, Jos},
+  title     = {Modelling Ontology Evaluation and Validation},
+  booktitle = {Proceedings of the European Semantic Web Conference (ESWC)},
+  year      = {2006},
+  pages   = {140--154},
+  doi     = {10.1007/11762256_13}
+}
+
+% Metric-based ontology quality analysis; source of the "richness" family
+% (relationship richness, class richness, attribute richness).
+@inproceedings{tartir2005,
+  author    = {Tartir, Samir and Arpinar, I. Budak and Moore, Michael and
+               Sheth, Amit P. and Aleman-Meza, Boanerges},
+  title     = {{OntoQA}: Metric-Based Ontology Quality Analysis},
+  booktitle = {Proceedings of the IEEE ICDM Workshop on Knowledge Acquisition from
+               Distributed, Autonomous, Semantically Heterogeneous Data and
+               Knowledge Sources},
+  address   = {Houston, TX, USA},
+  month     = nov,
+  year      = {2005}
+}
+% Venue, place and date confirmed 2026-09-27 against two institutional repository records:
+% Wright State CORE Scholar (knoesis/660: "Presented at the IEEE ICDM Workshop on Knowledge
+% Acquisition from Distributed, Autonomous, Semantically Heterogeneous Data and Knowledge
+% Sources, Houston, TX, November 27, 2005") and USC Scholar Commons (aii_fac_pub/294).
+% Neither record, nor OpenAlex, gives page numbers -- the workshop proceedings appear to be
+% unpaginated -- so none are cited. The richness definitions were checked earlier against
+% the paper itself: OntoQA states them as ratios, and Section sec:structural says so.
+
+% Empirical evaluation of ontology structural metrics over public repositories
+% (OBO Foundry, AgroPortal) -- establishes the family as measured, not merely proposed.
+@article{franco2020,
+  author  = {Franco, Manuel and Vivo, Juana Maria and Quesada-Martinez, Manuel and
+             Duque-Ramos, Astrid and Fernandez-Breis, Jesualdo Tomas},
+  title   = {Evaluation of Ontology Structural Metrics Based on Public Repository Data},
+  journal = {Briefings in Bioinformatics},
+  year    = {2020},
+  volume  = {21},
+  number  = {2},
+  pages   = {473--485},
+  doi     = {10.1093/bib/bbz009}
+}
+
+% Systematic review of knowledge-graph completeness; the dimension that the
+% "width" metrics of this thesis actually belong to.
+@article{issa2021,
+  author  = {Issa, Subhi and Adekunle, Onaopepo and Hamdi, Fayçal and
+             Cherfi, Samira Si-Said and Dumontier, Michel and Zaveri, Amrapali},
+  title   = {Knowledge Graph Completeness: A Systematic Literature Review},
+  journal = {IEEE Access},
+  year    = {2021},
+  volume  = {9},
+  pages   = {31322--31339},
+  doi     = {10.1109/access.2021.3056622}
+}
+
+% Comprehensive survey of knowledge-graph quality dimensions and metrics.
+@article{xue2023,
+  author  = {Xue, Bingcong and Zou, Lei},
+  title   = {Knowledge Graph Quality Management: A Comprehensive Survey},
+  journal = {IEEE Transactions on Knowledge and Data Engineering},
+  year    = {2023},
+  volume  = {35},
+  number  = {5},
+  pages   = {4969--4988},
+  doi     = {10.1109/tkde.2022.3150080}
+}
+
+% Six structural quality metrics applied to cross-domain knowledge graphs
+% (Wikidata, DBpedia, YAGO, Freebase); argues that scale counts alone are
+% insufficient -- the same argument made in Chapter IV.
+@article{seo2022,
+  author  = {Seo, Sumin and Cheon, Heeseon and Kim, Hyunho and Hyun, Dongseok},
+  title   = {Structural Quality Metrics to Evaluate Knowledge Graphs},
+  journal = {arXiv preprint arXiv:2211.10011},
+  year    = {2022},
+  doi     = {10.48550/arXiv.2211.10011}
+}
+% Preprint only. As of 2026-09-27, arXiv (no journal reference), Crossref and OpenAlex show no
+% peer-reviewed version; latest arXiv version v2, 2022-12-09.
+
+% =====================================================================
+%  NSAID EXPOSURE DEFINITIONS (Chapter III, chronicity operationalisation)
+%  Context only. NEITHER source defines the four-arm rule used in this work;
+%  the thresholds are declared parameters, not values taken from literature.
+% =====================================================================
+
+% Cited for the SHORT-TERM boundary: FDA advises consultation beyond 10 days,
+% and this review adopts "10 days or fewer" as its definition of short-term use.
+@article{aminoshariae2016,
+  author  = {Aminoshariae, Anita and Kulild, James C. and Donaldson, Mark and
+             Hersh, Elliot V.},
+  title   = {Short-term Use of Nonsteroidal Anti-inflammatory Drugs and Adverse
+             Effects: An Updated Systematic Review},
+  journal = {Journal of the American Dental Association},
+  year    = {2016},
+  volume  = {147},
+  number  = {2},
+  pages   = {98--110},
+  doi     = {10.1016/j.adaj.2015.07.020}
+}
+
+% --- Published chronic-NSAID thresholds -------------------------------------
+% These five were surfaced by a literature synthesis, NOT read in full. Their DOIs
+% are taken from that synthesis and must be resolved before submission. They
+% justify the MAGNITUDE of the thresholds adopted in Chapter III, not the
+% operationalisation: each measures a different quantity (self-report, patient-level
+% classification, possession ratio) from the prescription-interval computation used
+% here. Do not present them as identical definitions.
+
+% ">21 consecutive days" -- the only threshold expressed in CONSECUTIVE days, and so
+% the closest in construction to the single-course arm.
+@article{ussai2015,
+  author  = {Ussai, Silvia and Miceli, Luca and Pisa, Federica E. and Bednarova, Rym
+             and Petelin, Roberto and Della Rocca, Giorgio and Giordano, Antonio},
+  title   = {Impact of Potential Inappropriate {NSAID}s Use in Chronic Pain},
+  journal = {Drug Design, Development and Therapy},
+  volume  = {9},
+  pages   = {2073--2077},
+  year    = {2015},
+  doi     = {10.2147/dddt.s80686}
+}
+
+% "at least 3 months" -- the clearest explicit statement of chronic NSAID use.
+@article{abdu2020,
+  author  = {Abdu, Nuru and Mosazghi, Asmerom and Teweldemedhin, Saleh and
+             Asfaha, Liwam and Teshale, Merhawi and Kibreab, Micheal and
+             Anand, Iman S. and Tesfamariam, Eyasu H. and Russom, Mulugeta},
+  title   = {Non-Steroidal Anti-Inflammatory Drugs ({NSAID}s): Usage and
+             Co-prescription with Other Potentially Interacting Drugs in Elderly:
+             A Cross-sectional Study},
+  journal = {PLOS ONE},
+  volume  = {15},
+  year    = {2020},
+  doi     = {10.1371/journal.pone.0238868},
+  number  = {10},
+  pages   = {e0238868}
+}
+
+% ">=30 days" -- self-reported cumulative consumption, population cohort.
+@article{hessami2025,
+  author  = {Hessami, Amirhossein and Pourali, Ali and Saeedi, Morteza and
+             Ghara, Abolfazl A. N. and Kheradmand, Motahareh and Moosazadeh, Mahmood},
+  title   = {A Study of Demographic and Clinical Characteristics of Consumers of
+             Non-steroidal Anti-inflammatory Drugs: A Large Population-Based Study
+             Utilizing Enrollment Phase Data from the Tabari Cohort},
+  journal = {BMC Public Health},
+  volume  = {25},
+  year    = {2025},
+  doi     = {10.1186/s12889-025-24005-3},
+  number  = {1}
+}
+
+% MPR >= 0.75 -- prescription-pattern definition, VA data.
+@article{campbell2022,
+  author  = {Campbell, Heather and Murata, Allison and Conner, Todd A. and
+             Fotieo, Gregory},
+  title   = {Chronic Use of Non-steroidal Anti-inflammatory Drugs ({NSAID}s) or
+             Acetaminophen and Relationship with Mortality Among United States
+             Veterans After Testing Positive for {COVID-19}},
+  journal = {PLOS ONE},
+  volume  = {17},
+  year    = {2022},
+  doi     = {10.1371/journal.pone.0267462},
+  number  = {5},
+  pages   = {e0267462}
+}
+
+% 7-10 day initial courses, reassessment by ~3 weeks -- the short-term end.
+@article{magni2021,
+  author  = {Magni, Alberto and Agostoni, Piergiuseppe and Bonezzi, Cesare and
+             Massazza, Giuseppe and Men{\`e}, Paolo and Savarino, Vincenzo and
+             Fornasari, Diego},
+  title   = {Management of Osteoarthritis: Expert Opinion on {NSAID}s},
+  journal = {Pain and Therapy},
+  volume  = {10},
+  pages   = {783--808},
+  year    = {2021},
+  doi     = {10.1007/s40122-021-00260-1},
+  number  = {2}
+}
+
+% Cited to show that pharmacoepidemiology operationalises sustained NSAID use by
+% coverage ratio (percentage of days supplied >= 70%) rather than by a day count.
+@article{kikuchi2021,
+  author  = {Kikuchi, Shinichi and others},
+  title   = {A Retrospective Database Study of Gastrointestinal Events and Medical
+             Costs Associated with Nonsteroidal Anti-inflammatory Drugs in Japanese
+             Patients of Working Age with Osteoarthritis and Chronic Low Back Pain},
+  journal = {Pain Medicine},
+  year    = {2021},
+  volume  = {22},
+  number  = {5},
+  pages   = {1029--1038},
+  doi     = {10.1093/pm/pnaa421}
+}
+
+% =====================================================================
+%  GOLD vs SILVER STANDARD TERMINOLOGY (Chapter III, evaluation method)
+% =====================================================================
+
+% Defines BOTH halves of the distinction in one passage:
+%   gold   = "a manually annotated gold standard corpus (GSC)"
+%   silver = produced "through the harmonisation of annotations from automatic
+%            text mining solutions"
+%   motive = "The preparation of the GSC is time-consuming and costly"
+% Bibliographic details verified against PubMed (PMID 22166494) -- authors,
+% volume, pages, and DOI confirmed, not taken from a search snippet.
+@article{rebholz2011,
+  author  = {Rebholz-Schuhmann, Dietrich and Jimeno Yepes, Antonio and Li, Chen and
+             Kafkas, Senay and Lewin, Ian and Kang, Ning and others},
+  title   = {Assessment of {NER} Solutions Against the First and Second {CALBC}
+             Silver Standard Corpus},
+  journal = {Journal of Biomedical Semantics},
+  volume  = {2},
+  number  = {Suppl 5},
+  pages   = {S11},
+  year    = {2011},
+  doi     = {10.1186/2041-1480-2-S5-S11},
+  note    = {PMID: 22166494}
+}
+
+% Origin of the term "silver standard corpus".
+@inproceedings{rebholz2010,
+  author    = {Rebholz-Schuhmann, Dietrich and Jimeno Yepes, Antonio and
+               van Mulligen, Erik and Kang, Ning and Kors, Jan and others},
+  title     = {The {CALBC} Silver Standard Corpus for Biomedical Named Entities:
+               A Study in Harmonizing the Contributions from Four Independent
+               Named Entity Taggers},
+  booktitle = {Proceedings of the International Conference on Language Resources
+               and Evaluation (LREC)},
+  year      = {2010},
+  doi     = {10.63317/5onnezpwaswh}
+}
+
+% Clinical/EHR analogue: silver standard labels generated automatically, then a
+% final model fitted against a small number of manually curated gold labels.
+@article{nogues2022,
+  author  = {Nogues, Isabelle-Emmanuella and others},
+  title   = {Weakly Semi-supervised Phenotyping Using Electronic Health Records},
+  journal = {Journal of Biomedical Informatics},
+  year    = {2022},
+  volume  = {134},
+  pages   = {104175},
+  doi     = {10.1016/j.jbi.2022.104175}
+}
+
+% =====================================================================
+%  PRIOR-WORK COMPARISON (Chapter IV, Section "Comparison with Prior Work")
+%  All entries below were located via literature search and their reported
+%  figures are quoted in the comparison tables. Verify bibliographic
+%  details (volume, pages, DOI) against the publisher record.
+% =====================================================================
+
+% ---- Clinical knowledge graphs from FHIR / OMOP ----
+% MIMIC-III derived virtual CKG: 46,520 Patients, 716,595 Conditions,
+% 1,063,525 Procedures, 24,934,751 MedicationStatements. No guideline layer.
+@article{xiao2022,
+  author  = {Xiao, Guohui and others},
+  title   = {{FHIR-Ontop-OMOP}: Building Clinical Knowledge Graphs in {FHIR RDF}
+             with the {OMOP} Common Data Model},
+  journal = {Journal of Biomedical Informatics},
+  year    = {2022},
+  volume  = {134},
+  pages   = {104201},
+  doi     = {10.1016/j.jbi.2022.104201}
+}
+
+% Closest architectural comparable: FHIR engine + graph-structured knowledge base.
+% 365 test-component nodes, 5,084 inference-rule nodes, 49,932 connections.
+% Figures cited in Ch IV verified against the PubMed abstract (PMID 30066031):
+% 365 test-component nodes, 5,084 rule nodes, 49,932 connections. "Connections" is the
+% authors' own word, so Ch IV keeps it rather than substituting "relationships".
+@article{semenov2018,
+  author  = {Semenov, Ilia and Kopanitsa, Georgy and Denisov, Dmitry and others},
+  title   = {Patients Decision Aid System Based on {FHIR} Profiles},
+  journal = {Journal of Medical Systems},
+  volume  = {42},
+  number  = {9},
+  pages   = {166},
+  year    = {2018},
+  doi     = {10.1007/s10916-018-1016-4}
+}
+
+% Cardiovascular medication guideline KG in Neo4j: 22,475 medication entities,
+% 2,027 entity categories, 3,304 relationships. No patient records.
+@article{cui2025,
+  author  = {Cui, Hongzhen and Zhu, ... and Peng, ...},
+  title   = {From Knowledge Silos to Integrated Insights: Building a Cardiovascular
+             Medication Knowledge Graph for Enhanced Medication Knowledge Retrieval,
+             Relationship Discovery, and Reasoning},
+  journal = {Frontiers in Cardiovascular Medicine},
+  year    = {2025},
+  volume  = {12},
+  doi     = {10.3389/fcvm.2025.1526247}
+}
+
+% LLM over FHIR via Model Context Protocol, synthetic SMART Health IT sandbox data.
+@inproceedings{ehtesham2025,
+  author    = {Ehtesham, Abul and others},
+  title     = {Enhancing Clinical Decision Support and {EHR} Insights through {LLMs}
+               and the Model Context Protocol: An Open-Source {MCP-FHIR} Framework},
+  booktitle = {2025 IEEE World AI IoT Congress (AIIoT)},
+  year      = {2025},
+  pages   = {0205--0211},
+  doi     = {10.1109/aiiot65859.2025.11105280}
+}
+
+% ---- Ungrounded LLM decision support in the same clinical domain ----
+% GPT-4 vs multidisciplinary heart team: accuracy 0.82, kappa 0.59 (GPT-3.5 kappa 0.12).
+@article{sudri2024,
+  author  = {Sudri, Karin and others},
+  title   = {Enhancing Coronary Revascularization Decisions: The Promising Role of
+             Large Language Models as a Decision-Support Tool for Multidisciplinary
+             Heart Team},
+  journal = {Circulation: Cardiovascular Interventions},
+  year    = {2024},
+  volume  = {17},
+  number  = {11},
+  doi     = {10.1161/circinterventions.124.014201}
+}
+
+% ---- LLM faithfulness / hallucination benchmarks ----
+% 12,999 clinician-annotated sentences: 1.47% hallucination, 3.45% omission.
+@article{asgari2025,
+  author  = {Asgari, Elham and others},
+  title   = {A Framework to Assess Clinical Safety and Hallucination Rates of {LLMs}
+             for Medical Text Summarisation},
+  journal = {npj Digital Medicine},
+  year    = {2025},
+  volume  = {8},
+  number  = {1},
+  doi     = {10.1038/s41746-025-01670-7}
+}
+
+% Reader study with 10 physicians: completeness, correctness, conciseness.
+@article{vanveen2023,
+  author  = {Van Veen, Dave and others},
+  title   = {Adapted Large Language Models Can Outperform Medical Experts in
+             Clinical Text Summarization},
+  journal = {Nature Medicine},
+  year    = {2024},
+  volume  = {30},
+  number  = {4},
+  pages   = {1134--1142},
+  doi     = {10.1038/s41591-024-02855-5}
+}
+
+% Cohen's kappa applied to LLM-vs-reference agreement on clinical notes.
+@article{shah2024,
+  author  = {Shah, Savyasachi V.},
+  title   = {Accuracy, Consistency, and Hallucination of Large Language Models When
+             Analyzing Unstructured Clinical Notes in Electronic Medical Records},
+  journal = {JAMA Network Open},
+  year    = {2024},
+  volume  = {7},
+  number  = {8},
+  pages   = {e2425953},
+  doi     = {10.1001/jamanetworkopen.2024.25953}
+}
+
+% Domain-adjacent: KG analysis of drug stress echocardiography in coronary disease.
+@article{wu2023,
+  author  = {Wu, Hongyi and others},
+  title   = {A Knowledge Graph-Based Analytical Model for Mining Clinical Value of
+             Drug Stress Echocardiography for Diagnosis, Risk Stratification and
+             Prognostic Evaluation of Coronary Artery Disease},
+  journal = {International Journal of Cardiology},
+  year    = {2023},
+  volume  = {387},
+  pages   = {131107},
+  doi     = {10.1016/j.ijcard.2023.05.057}
+}
+
+% ---- SNOMED CT ----
+@misc{snomedct,
+  author = {{SNOMED International}},
+  title  = {{SNOMED CT}},
+  note   = {\url{https://www.snomed.org/}}
+}
+% Alt.: Donnelly K. SNOMED-CT: The advanced terminology and coding system for eHealth. Stud Health Technol Inform. 2006;121:279-290.
+
+% ---- RxNorm ----
+@article{rxnorm,
+  author  = {Nelson, Stuart J. and Zeng, Kelly and Kilbourne, John and Powell, Tammy and Moore, Robin},
+  title   = {Normalized names for clinical drugs: {RxNorm} at 6 years},
+  journal = {Journal of the American Medical Informatics Association ({JAMIA})},
+  volume  = {18},
+  number  = {4},
+  pages   = {441--448},
+  year    = {2011},
+  doi     = {10.1136/amiajnl-2011-000116}
+}
+
+% ---- LOINC ----
+@article{loinc,
+  author  = {McDonald, Clement J. and Huff, Stanley M. and Suico, Jeffrey G. and others},
+  title   = {{LOINC}, a universal standard for identifying laboratory observations: a 5-year update},
+  journal = {Clinical Chemistry},
+  volume  = {49},
+  number  = {4},
+  pages   = {624--633},
+  year    = {2003},
+  doi     = {10.1373/49.4.624}
+}
+
+% ---- Neo4j ----
+@misc{neo4j,
+  author = {{Neo4j, Inc.}},
+  title  = {{Neo4j} Graph Database},
+  note   = {\url{https://neo4j.com/}}
+}
+% Alt.: Robinson I, Webber J, Eifrem E. Graph Databases. 2nd ed. O'Reilly; 2015.
+
+% ---- Cypher ----
+@inproceedings{cypher,
+  author    = {Francis, Nadime and Green, Alastair and Guagliardo, Paolo and others},
+  title     = {Cypher: An Evolving Query Language for Property Graphs},
+  booktitle = {Proceedings of the 2018 International Conference on Management of Data ({SIGMOD})},
+  pages     = {1433--1445},
+  year      = {2018},
+  doi       = {10.1145/3183713.3190657}
+}
+
+% ---- scispaCy ----
+@inproceedings{scispacy,
+  author    = {Neumann, Mark and King, Daniel and Beltagy, Iz and Ammar, Waleed},
+  title     = {{ScispaCy}: Fast and Robust Models for Biomedical Natural Language Processing},
+  booktitle = {Proceedings of the 18th {BioNLP} Workshop and Shared Task},
+  pages     = {319--327},
+  year      = {2019},
+  doi       = {10.18653/v1/W19-5034}
+}
+
+% ---- Pointwise mutual information ----
+@article{pmi,
+  author  = {Church, Kenneth Ward and Hanks, Patrick},
+  title   = {Word association norms, mutual information, and lexicography},
+  journal = {Computational Linguistics},
+  volume  = {16},
+  number  = {1},
+  pages   = {22--29},
+  year    = {1990}
+}
+
+% ---- Cohen's kappa ----
+@article{cohen1960,
+  author  = {Cohen, Jacob},
+  title   = {A Coefficient of Agreement for Nominal Scales},
+  journal = {Educational and Psychological Measurement},
+  volume  = {20},
+  number  = {1},
+  pages   = {37--46},
+  year    = {1960},
+  doi     = {10.1177/001316446002000104}
+}
+
+@article{landis1977,
+  author  = {Landis, J. Richard and Koch, Gary G.},
+  title   = {The Measurement of Observer Agreement for Categorical Data},
+  journal = {Biometrics},
+  volume  = {33},
+  number  = {1},
+  pages   = {159--174},
+  year    = {1977},
+  doi     = {10.2307/2529310}
+}
+
+@article{byrt1993,
+  author  = {Byrt, T. and Bishop, J. and Carlin, J. B.},
+  title   = {Bias, Prevalence and Kappa},
+  journal = {Journal of Clinical Epidemiology},
+  volume  = {46},
+  number  = {5},
+  pages   = {423--429},
+  year    = {1993},
+  doi     = {10.1016/0895-4356(93)90018-V}
+}
+
+@article{field2007,
+  author  = {Field, C. A. and Welsh, A. H.},
+  title   = {Bootstrapping Clustered Data},
+  journal = {Journal of the Royal Statistical Society Series B: Statistical Methodology},
+  volume  = {69},
+  number  = {3},
+  pages   = {369--390},
+  year    = {2007},
+  doi     = {10.1111/j.1467-9868.2007.00593.x}
+}
+
+@book{efron1994,
+  author    = {Efron, Bradley and Tibshirani, R. J.},
+  title     = {An Introduction to the Bootstrap},
+  publisher = {Chapman and Hall/CRC},
+  year      = {1994},
+  doi       = {10.1201/9780429246593}
+}

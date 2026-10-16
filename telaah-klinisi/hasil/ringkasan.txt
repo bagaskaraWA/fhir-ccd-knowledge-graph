@@ -1,0 +1,209 @@
+============================================================================================
+TELAAH KLINISI -- ringkasan hasil (dari hasil/penilaian.csv)
+============================================================================================
+
+-- 1. sebaran penilaian per penilai --------------------------------------------------------
+A       SpJP                             pasien 1-15, 247 baris
+        Tepat 192 (77.7%)  Belum tepat 52 (21.1%)  Tidak dapat dinilai 3 (1.2%)   Tepat 95% CI per pasien 74.4%--81.1%
+        dari baris yang dapat dinilai (244): Tepat 78.7%
+B       dokter umum, mahasiswa program doktor pasien 1-10, 160 baris
+        Tepat 97 (60.6%)  Belum tepat 33 (20.6%)  Tidak dapat dinilai 30 (18.8%)   Tepat 95% CI per pasien 56.1%--67.3%
+        dari baris yang dapat dinilai (130): Tepat 74.6%
+C       SpJP senior                      pasien 1-1, 16 baris
+        Tepat 6 (37.5%)  Belum tepat 5 (31.2%)  Tidak dapat dinilai 5 (31.2%)
+        dari baris yang dapat dinilai (11): Tepat 54.5%
+
+-- 2a. menurut kelompok baris --------------------------------------------------------------
+A       Cek/stop penggunaan    n= 79  Tepat  54  Belum tepat  25  Tidak dapat dinilai   0
+A       Tatalaksana yang disarankan n= 58  Tepat  57  Belum tepat   1  Tidak dapat dinilai   0
+A       Terapi medikamentosa yang disarankan n=110  Tepat  81  Belum tepat  26  Tidak dapat dinilai   3
+B       Cek/stop penggunaan    n= 50  Tepat  26  Belum tepat   9  Tidak dapat dinilai  15
+B       Tatalaksana yang disarankan n= 37  Tepat  36  Belum tepat   0  Tidak dapat dinilai   1
+B       Terapi medikamentosa yang disarankan n= 73  Tepat  35  Belum tepat  24  Tidak dapat dinilai  14
+C       Cek/stop penggunaan    n=  5  Tepat   1  Belum tepat   2  Tidak dapat dinilai   2
+C       Tatalaksana yang disarankan n=  4  Tepat   3  Belum tepat   1  Tidak dapat dinilai   0
+C       Terapi medikamentosa yang disarankan n=  7  Tepat   2  Belum tepat   2  Tidak dapat dinilai   3
+
+-- 2b. menurut rekomendasi (T/B/X = Tepat/Belum tepat/Tidak dapat dinilai) ----------------
+recId      COR                          A               B               C
+APT:10     3-Harm                   5/0/0           2/0/0               -
+APT:11     1                       11/1/0           0/8/0           0/0/1
+APT:12     2a                       9/3/0           0/8/0           0/0/1
+APT:13     2b                       4/7/0           1/7/0           0/0/1
+APT:4      2b                       7/6/0           1/0/7           0/1/0
+APT:5      2b                       1/9/3           0/1/7           0/1/0
+APT:6      2b                       9/0/0           7/0/0               -
+APT:7      3-NoBenefit             2/13/0           6/5/0           0/0/1
+APT:9      3-Harm                   4/7/0           2/3/1           1/0/0
+BB:3       2b                      13/0/0           7/0/1           0/1/0
+BB:4       3-NoBenefit             22/5/0          2/1/14           0/2/0
+BPM:2      1                       14/0/0           9/0/0           1/0/0
+BPM:3      1                       14/0/0           9/0/0           1/0/0
+CR:1:1     1                       15/0/0          10/0/0           1/0/0
+SGLT2:1    1                       10/0/0           6/0/0               -
+SGLT2:4    1                        2/0/0           2/0/0               -
+SHA:3      3-Harm                  21/0/0          14/0/0           0/0/1
+WM:2       1                       14/0/0           9/0/0           1/0/0
+WM:3       2a                      14/0/0           9/0/0           1/0/0
+WM:4       2a                       1/1/0           1/0/0               -
+
+-- 3. kesepakatan antarpenilai pada baris yang dinilai keduanya ----------------------------
+A vs B: 159 baris dari 10 pasien
+    kesepakatan teramati 0.654   Cohen's kappa 0.291   PABAK 0.481
+    95% CI per pasien: kappa 0.180--0.407, kesepakatan 0.588--0.739
+    dua kategori (Tepat vs lainnya): kesepakatan 0.723
+    matriks (baris A, kolom B):
+                                           Tepat           Belum tepat   Tidak dapat dinilai
+    Tepat                                     87                    18                    16
+    Belum tepat                               10                    14                    11
+    Tidak dapat dinilai                        0                     0                     3
+A vs C: 16 baris dari 1 pasien
+    kesepakatan teramati 0.375   Cohen's kappa 0.030   PABAK 0.062
+    dua kategori (Tepat vs lainnya): kesepakatan 0.562
+    matriks (baris A, kolom C):
+                                           Tepat           Belum tepat   Tidak dapat dinilai
+    Tepat                                      5                     3                     3
+    Belum tepat                                1                     1                     2
+    Tidak dapat dinilai                        0                     1                     0
+B vs C: 16 baris dari 1 pasien
+    kesepakatan teramati 0.375   Cohen's kappa 0.036   PABAK 0.062
+    dua kategori (Tepat vs lainnya): kesepakatan 0.750
+    matriks (baris B, kolom C):
+                                           Tepat           Belum tepat   Tidak dapat dinilai
+    Tepat                                      6                     1                     3
+    Belum tepat                                0                     0                     2
+    Tidak dapat dinilai                        0                     4                     0
+ketiganya: 16 baris dinilai ketiga penilai, 5 sepakat penuh
+
+-- 4. saran pada baris yang tidak dinilai Tepat --------------------------------------------
+A (55 baris, 0 bersaran):
+    P12 APT:11   Belum tepat         -
+    P2  APT:12   Belum tepat         -
+    P6  APT:12   Belum tepat         -
+    P10 APT:12   Belum tepat         -
+    P1  APT:13   Belum tepat         -
+    P2  APT:13   Belum tepat         -
+    P4  APT:13   Belum tepat         -
+    P5  APT:13   Belum tepat         -
+    P7  APT:13   Belum tepat         -
+    P14 APT:13   Belum tepat         -
+    P15 APT:13   Belum tepat         -
+    P1  APT:4    Belum tepat         -
+    P2  APT:4    Belum tepat         -
+    P4  APT:4    Belum tepat         -
+    P5  APT:4    Belum tepat         -
+    P6  APT:4    Belum tepat         -
+    P7  APT:4    Belum tepat         -
+    P1  APT:5    Tidak dapat dinilai -
+    P2  APT:5    Belum tepat         -
+    P4  APT:5    Tidak dapat dinilai -
+    P5  APT:5    Belum tepat         -
+    P6  APT:5    Tidak dapat dinilai -
+    P7  APT:5    Belum tepat         -
+    P8  APT:5    Belum tepat         -
+    P10 APT:5    Belum tepat         -
+    P11 APT:5    Belum tepat         -
+    P12 APT:5    Belum tepat         -
+    P13 APT:5    Belum tepat         -
+    P15 APT:5    Belum tepat         -
+    P1  APT:7    Belum tepat         -
+    P2  APT:7    Belum tepat         -
+    P3  APT:7    Belum tepat         -
+    P4  APT:7    Belum tepat         -
+    P5  APT:7    Belum tepat         -
+    P6  APT:7    Belum tepat         -
+    P7  APT:7    Belum tepat         -
+    P8  APT:7    Belum tepat         -
+    P9  APT:7    Belum tepat         -
+    P10 APT:7    Belum tepat         -
+    P12 APT:7    Belum tepat         -
+    P14 APT:7    Belum tepat         -
+    P15 APT:7    Belum tepat         -
+    P1  APT:9    Belum tepat         -
+    P4  APT:9    Belum tepat         -
+    P10 APT:9    Belum tepat         -
+    P11 APT:9    Belum tepat         -
+    P12 APT:9    Belum tepat         -
+    P13 APT:9    Belum tepat         -
+    P14 APT:9    Belum tepat         -
+    P6  BB:4     Belum tepat         -
+    P8  BB:4     Belum tepat         -
+    P11 BB:4     Belum tepat         -
+    P13 BB:4     Belum tepat         -
+    P15 BB:4     Belum tepat         -
+    P2  WM:4     Belum tepat         -
+B (63 baris, 60 bersaran):
+    P1  APT:11   Belum tepat         DOAC-clopidogrel satu tahun
+    P2  APT:11   Belum tepat         Triple therapy 1 minggu – DOAC clopidogrel hingga 1 tahun – DOAC long term
+    P4  APT:11   Belum tepat         Triple therapy 1 minggu – DOAC clopidogrel hingga 1 tahun – DOAC long term
+    P5  APT:11   Belum tepat         Triple therapy 1 minggu – DOAC clopidogrel hingga 1 tahun – DOAC long term
+    P6  APT:11   Belum tepat         Triple therapy 1 minggu – DOAC dan clopidogrel hingga 1 tahun – DOAC long term
+    P7  APT:11   Belum tepat         Triple therapy 1 minggu – DOAC dan clopidogrel hingga 1 tahun – DOAC long term
+    P8  APT:11   Belum tepat         Triple therapy 1 minggu – DOAC dan clopidogrel hingga 1 tahun – DOAC long term
+    P10 APT:11   Belum tepat         Triple therapy 1 minggu – DOAC dan clopidogrel hingga 1 tahun – DOAC long term
+    P1  APT:12   Belum tepat         Triple therapy 1 minggu – DOAC clopidogrel hingga 1 tahun – DOAC long term
+    P2  APT:12   Belum tepat         Triple therapy 1 minggu
+    P4  APT:12   Belum tepat         Triple therapy 1 minggu – DOAC clopidogrel hingga 1 tahun – DOAC long term
+    P5  APT:12   Belum tepat         Triple therapy 1 minggu – DOAC clopidogrel hingga 1 tahun – DOAC long term
+    P6  APT:12   Belum tepat         Triple therapy 1 minggu – DOAC dan clopidogrel hingga 1 tahun – DOAC long term
+    P7  APT:12   Belum tepat         -
+    P8  APT:12   Belum tepat         Triple therapy 1 minggu – DOAC dan clopidogrel hingga 1 tahun – DOAC long term
+    P10 APT:12   Belum tepat         Triple therapy 1 minggu – DOAC dan clopidogrel hingga 1 tahun – DOAC long term
+    P2  APT:13   Belum tepat         Triple therapy 1 minggu – DOAC clopidogrel hingga 1 tahun – DOAC long term
+    P4  APT:13   Belum tepat         Triple therapy 1 minggu – DOAC clopidogrel hingga 1 tahun – DOAC long term
+    P5  APT:13   Belum tepat         Triple therapy 1 minggu – DOAC clopidogrel hingga 1 tahun – DOAC long term
+    P6  APT:13   Belum tepat         Triple therapy 1 minggu – DOAC dan clopidogrel hingga 1 tahun – DOAC long term
+    P7  APT:13   Belum tepat         -
+    P8  APT:13   Belum tepat         Triple therapy 1 minggu – DOAC dan clopidogrel hingga 1 tahun – DOAC long term
+    P10 APT:13   Belum tepat         Triple therapy 1 minggu – DOAC dan clopidogrel hingga 1 tahun – DOAC long term
+    P1  APT:4    Tidak dapat dinilai Bleeding risk?
+    P2  APT:4    Tidak dapat dinilai Bleeding risk
+    P4  APT:4    Tidak dapat dinilai Bleeding risk
+    P6  APT:4    Tidak dapat dinilai Bleeding risk?
+    P7  APT:4    Tidak dapat dinilai Bleeding risk
+    P8  APT:4    Tidak dapat dinilai Bleeding risk?
+    P10 APT:4    Tidak dapat dinilai Bleeding risk?
+    P1  APT:5    Tidak dapat dinilai Bleeding risk?
+    P2  APT:5    Tidak dapat dinilai Bleeding risk
+    P4  APT:5    Tidak dapat dinilai Bleeding risk
+    P5  APT:5    Tidak dapat dinilai Bleeding risk?
+    P6  APT:5    Tidak dapat dinilai Bleeding risk?
+    P7  APT:5    Tidak dapat dinilai Bleeding risk
+    P8  APT:5    Tidak dapat dinilai Bleeding risk?
+    P10 APT:5    Belum tepat         Bleeding risk?
+    P2  APT:7    Belum tepat         P2Y12 inhibitor bersama DAPT harus diberikan pada pasien post STEMI hingga 1 tahun
+    P3  APT:7    Belum tepat         P2Y12 inhibitor bersama DAPT harus diberikan pada pasien post STEMI hingga 1 tahun
+    P4  APT:7    Belum tepat         Jika bleeding risk tinggi, pada tahap ini lebih baik SAPT dengan clopidogrel
+    P5  APT:7    Belum tepat         Jika bleeding risk tinggi, pada tahap ini lebih baik SAPT dengan clopidogrel
+    P9  APT:7    Belum tepat         Pasien CCD post MI dan CABG harus memperoleh DAPT
+    P5  APT:9    Belum tepat         Jika bleeding risk tinggi, pada tahap ini lebih baik SAPT dengan clopidogrel
+    P6  APT:9    Tidak dapat dinilai Bergantung pada rencanca early invasive strategy
+    P8  APT:9    Belum tepat         Jika perdarahan, tukar clopidogrel. Jadi pilih salah satu.
+    P10 APT:9    Belum tepat         Harus ada DAPT (aspirin + P2Y12 inhibitor)
+    P2  BB:3     Tidak dapat dinilai LVEF?
+    P1  BB:4     Tidak dapat dinilai Tidak ada informasi LVEF dan hemodinamik
+    P1  BB:4     Tidak dapat dinilai Tidak ada informasi LVEF dan hemodinamik
+    P4  BB:4     Tidak dapat dinilai Jika LVEF <35%, metoprolol lebih baik dilanjutkan dibandingkan memilih propanolol
+    P4  BB:4     Tidak dapat dinilai Jika LVEF <35%, metoprolol lebih baik dilanjutkan dibandingkan memilih propanolol
+    P5  BB:4     Tidak dapat dinilai Jika LVEF <35%, metoprolol lebih baik dilanjutkan dibandingkan memilih propanolol
+    P5  BB:4     Tidak dapat dinilai Jika LVEF <35%, metoprolol lebih baik dilanjutkan dibandingkan memilih propanolol
+    P6  BB:4     Tidak dapat dinilai Beta blocker umumnya tidak boleh diinisiasi jika hemodinamik stabil, apalagi jika LVEF rendah
+    P6  BB:4     Tidak dapat dinilai -
+    P7  BB:4     Tidak dapat dinilai Beta blocker umumnya tidak boleh diinisiasi jika hemodinamik stabil, apalagi jika LVEF rendah
+    P7  BB:4     Tidak dapat dinilai Beta blocker umumnya tidak boleh diinisiasi jika hemodinamik stabil, apalagi jika LVEF rendah
+    P8  BB:4     Tidak dapat dinilai LVEF?
+    P8  BB:4     Tidak dapat dinilai LVEF?
+    P9  BB:4     Belum tepat         Jika ada gagal jantung iskemik, beta blocker masih dibutuhkan, apalagi jika LVEF<30-40%
+    P10 BB:4     Tidak dapat dinilai HF? LVEF?
+    P10 BB:4     Tidak dapat dinilai HF? LVEF?
+C (10 baris, 10 bersaran):
+    P1  APT:11   Tidak dapat dinilai tdk ada riw./indikasi DOAC.
+    P1  APT:12   Tidak dapat dinilai tidak ada rw. Indikasi anti koagulan.
+    P1  APT:13   Tidak dapat dinilai tdk ada riw/indikasi DOAC.
+    P1  APT:4    Belum tepat         tergantung klinis pasien.
+    P1  APT:5    Belum tepat         Tidak ada indikasi.
+    P1  APT:7    Tidak dapat dinilai tidak ada riw penggunaan CPG.
+    P1  BB:3     Belum tepat         tergantung klinis pasien
+    P1  BB:4     Belum tepat         pasien butuh/indikasi Beta blocker
+    P1  BB:4     Belum tepat         pasien indikasi beta blocker.
+    P1  SHA:3    Tidak dapat dinilai tdk ada riw. penggunaan.

@@ -1,0 +1,32 @@
+# Pasien yang ditampilkan pada lembar telaah klinisi -- 20 dari 30 pada pasien.txt.
+#
+# Aturan pemilihan: 20 teratas menurut pick_review_patients.py, yaitu aturan yang sama yang
+# menghasilkan ke-30 pasien sampel standar emas (20 teratas = keluaran --top 20). Delapan
+# belas pasien memperoleh skor maksimum 15 dan terpilih atas skornya sendiri. Dua kursi
+# terakhir berasal dari 12 pasien yang seri pada skor 13; seri itu dipecah oleh kunci urut
+# skrip tersebut, yaitu urutan pengenal pasien, yang acak terhadap isi klinisnya. Tidak ada
+# pasien yang dipilih atau disingkirkan dengan membaca ringkasan maupun kinerja sistem.
+#
+# Ke-21 jenis rekomendasi tetap terwakili, termasuk tiga yang hanya muncul pada dua pasien
+# (SGLT2:4, SGLT2:6, WM:4). Urutan berikut mengikuti pasien.txt.
+
+01dc6d0f-e251-16f2-a97b-13660332e887
+0333a5c9-4abc-e246-512e-82a4791741fe
+03b03863-a8ad-aadf-2909-17e22608f1a3
+07f42172-a1da-9535-929a-3e7bf2cf9c46
+093d7bf0-2858-229a-cb38-c1d60f7bc08d
+1db4196c-6fab-b290-a4a7-fe3573725cef
+20713969-316d-c884-4264-fb9752c392b2
+227e76d8-eef1-d5c9-cd5f-3e74b1dca54e
+3756b42c-c677-8c67-e01a-31bfadf4e7fa
+3875c68d-c8e7-bef8-d96f-cb513c6cf29f
+51648be0-0bf2-9b49-b51c-5abb68f15a46
+6595b70f-9dfc-853e-c953-cedd172792e1
+6b38af11-ad07-35b0-8a1d-29f397840681
+75409e1a-2f61-de0c-56bc-0f289c8510f1
+86d84b1c-8b51-4569-84c1-7fddc1e79082
+8bb750c8-b42b-9c0c-0185-ce8c3d670ab8
+cbf432fc-b48c-b1a1-1310-997701930249
+d7748b62-dc27-216a-8241-7c925d2db621
+d8d734c3-08a4-b0e9-2a71-f8c0cc2920e6
+e15faae0-66bb-6f7d-f9e3-7184bf706d81

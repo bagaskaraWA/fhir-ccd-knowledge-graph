@@ -1,0 +1,10 @@
+# Normalize line endings: store text as LF in the repo, check out native on each OS.
+# Settles the CRLF-vs-LF churn on Windows working trees.
+* text=auto
+
+# Treat these as binary (never munge line endings / never diff as text).
+*.pdf  binary
+*.jpg  binary
+*.jpeg binary
+*.png  binary
+*.gz   binary

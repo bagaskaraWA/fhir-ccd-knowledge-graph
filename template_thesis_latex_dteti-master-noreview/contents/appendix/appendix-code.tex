@@ -1,0 +1,431 @@
+\chapter*{LAMPIRAN}
+
+\section{Complete Knowledge-Graph Schema}
+\label{app:schema}
+
+Table~\ref{tab:full-schema} lists every label--relationship--label triple present in the
+loaded \texttt{sihdfhir} database, as reported by the database's own schema sampling. The
+structural \texttt{:Resource} label is omitted throughout: it attaches to every node except
+\texttt{:Code}, so including it would add a duplicate of almost every row without conveying
+information (see Section~\ref{sec:kg-construction}). Twenty-four labels and 95 triples
+remain. Triples whose labels and relationship types are traversed by the recommendation
+queries---the \emph{usable} subgraph of Figure~\ref{fig:graph-model}---are a subset of this
+table.
+
+\begin{longtable}{@{}p{46mm}p{52mm}p{40mm}@{}}
+\caption{Complete schema of the loaded knowledge graph (\texttt{:Resource} omitted). Every
+entry in the \emph{From} and \emph{To} columns is a node label and every entry in
+\emph{Relationship} a relationship type, so labels are written here without the leading colon
+that marks them in the running text.}
+\label{tab:full-schema} \\
+\hline
+\textbf{From} & \textbf{Relationship} & \textbf{To} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l}{\small\itshape Table \thetable\ continued from previous page} \\
+\hline
+\textbf{From} & \textbf{Relationship} & \textbf{To} \\
+\hline
+\endhead
+\hline
+\multicolumn{3}{r}{\small\itshape continued on next page} \\
+\endfoot
+\hline
+\endlastfoot
+\texttt{Abstract} & \texttt{MENTIONS} & \texttt{Concept} \\
+\texttt{AllergyIntolerance} & \texttt{CLINICAL\_STATUS} & \texttt{Code} \\
+\texttt{AllergyIntolerance} & \texttt{CODE} & \texttt{Code} \\
+\texttt{AllergyIntolerance} & \texttt{PATIENT} & \texttt{Patient} \\
+\texttt{AllergyIntolerance} & \texttt{REACTION\_MANIFESTATION} & \texttt{Code} \\
+\texttt{AllergyIntolerance} & \texttt{VERIFICATION\_STATUS} & \texttt{Code} \\
+\texttt{CarePlan} & \texttt{ACTIVITY\_DETAIL\_CODE} & \texttt{Code} \\
+\texttt{CarePlan} & \texttt{ACTIVITY\_DETAIL\_REASON} & \texttt{Condition} \\
+\texttt{CarePlan} & \texttt{ACTIVITY\_DETAIL\_REASON\_CODE} & \texttt{Code} \\
+\texttt{CarePlan} & \texttt{ADDRESSES} & \texttt{Condition} \\
+\texttt{CarePlan} & \texttt{CARE\_TEAM} & \texttt{CareTeam} \\
+\texttt{CarePlan} & \texttt{CATEGORY} & \texttt{Code} \\
+\texttt{CarePlan} & \texttt{ENCOUNTER} & \texttt{Encounter} \\
+\texttt{CarePlan} & \texttt{SUBJECT} & \texttt{Patient} \\
+\texttt{CareTeam} & \texttt{ENCOUNTER} & \texttt{Encounter} \\
+\texttt{CareTeam} & \texttt{MANAGING\_ORGANIZATION} & \texttt{Organization} \\
+\texttt{CareTeam} & \texttt{PARTICIPANT\_MEMBER} & \texttt{Organization} \\
+\texttt{CareTeam} & \texttt{PARTICIPANT\_MEMBER} & \texttt{Patient} \\
+\texttt{CareTeam} & \texttt{PARTICIPANT\_MEMBER} & \texttt{Practitioner} \\
+\texttt{CareTeam} & \texttt{PARTICIPANT\_ROLE} & \texttt{Code} \\
+\texttt{CareTeam} & \texttt{REASON\_CODE} & \texttt{Code} \\
+\texttt{CareTeam} & \texttt{SUBJECT} & \texttt{Patient} \\
+\texttt{Code} & \texttt{CO\_OCCURS\_IN\_LITERATURE} & \texttt{Code} \\
+\texttt{Component} & \texttt{CODE} & \texttt{Code} \\
+\texttt{Concept} & \texttt{SAME\_CONCEPT} & \texttt{Code} \\
+\texttt{Condition} & \texttt{CATEGORY} & \texttt{Code} \\
+\texttt{Condition} & \texttt{CLINICAL\_STATUS} & \texttt{Code} \\
+\texttt{Condition} & \texttt{CODE} & \texttt{Code} \\
+\texttt{Condition} & \texttt{ENCOUNTER} & \texttt{Encounter} \\
+\texttt{Condition} & \texttt{SUBJECT} & \texttt{Patient} \\
+\texttt{Condition} & \texttt{VERIFICATION\_STATUS} & \texttt{Code} \\
+\texttt{Device} & \texttt{PATIENT} & \texttt{Patient} \\
+\texttt{Device} & \texttt{TYPE} & \texttt{Code} \\
+\texttt{Encounter} & \texttt{CLASS} & \texttt{Code} \\
+\texttt{Encounter} & \texttt{HOSPITALIZATION\_DISCHARGE\_DISPOSITION} & \texttt{Code} \\
+\texttt{Encounter} & \texttt{LOCATION} & \texttt{Location} \\
+\texttt{Encounter} & \texttt{PARTICIPANT\_INDIVIDUAL} & \texttt{Practitioner} \\
+\texttt{Encounter} & \texttt{PARTICIPANT\_TYPE} & \texttt{Code} \\
+\texttt{Encounter} & \texttt{REASON\_CODE} & \texttt{Code} \\
+\texttt{Encounter} & \texttt{SERVICE\_PROVIDER} & \texttt{Organization} \\
+\texttt{Encounter} & \texttt{SUBJECT} & \texttt{Patient} \\
+\texttt{Encounter} & \texttt{TYPE} & \texttt{Code} \\
+\texttt{Guideline} & \texttt{CONTAINS} & \texttt{Recommendation} \\
+\texttt{ImagingStudy} & \texttt{ENCOUNTER} & \texttt{Encounter} \\
+\texttt{ImagingStudy} & \texttt{LOCATION} & \texttt{Location} \\
+\texttt{ImagingStudy} & \texttt{PROCEDURE\_CODE} & \texttt{Code} \\
+\texttt{ImagingStudy} & \texttt{SERIES\_BODY\_SITE} & \texttt{Code} \\
+\texttt{ImagingStudy} & \texttt{SERIES\_INSTANCE\_SOP\_CLASS} & \texttt{Code} \\
+\texttt{ImagingStudy} & \texttt{SERIES\_MODALITY} & \texttt{Code} \\
+\texttt{ImagingStudy} & \texttt{SUBJECT} & \texttt{Patient} \\
+\texttt{Immunization} & \texttt{ENCOUNTER} & \texttt{Encounter} \\
+\texttt{Immunization} & \texttt{LOCATION} & \texttt{Location} \\
+\texttt{Immunization} & \texttt{PATIENT} & \texttt{Patient} \\
+\texttt{Immunization} & \texttt{VACCINE\_CODE} & \texttt{Code} \\
+\texttt{Location} & \texttt{PHYSICAL\_TYPE} & \texttt{Code} \\
+\texttt{Medication} & \texttt{CODE} & \texttt{Code} \\
+\texttt{MedicationAdministration} & \texttt{CONTEXT} & \texttt{Encounter} \\
+\texttt{MedicationAdministration} & \texttt{MEDICATION} & \texttt{Code} \\
+\texttt{MedicationAdministration} & \texttt{MEDICATION} & \texttt{Medication} \\
+\texttt{MedicationAdministration} & \texttt{REASON} & \texttt{Condition} \\
+\texttt{MedicationAdministration} & \texttt{REASON\_CODE} & \texttt{Code} \\
+\texttt{MedicationAdministration} & \texttt{SUBJECT} & \texttt{Patient} \\
+\texttt{MedicationRequest} & \texttt{CATEGORY} & \texttt{Code} \\
+\texttt{MedicationRequest} & \texttt{DOSAGE\_INSTRUCTION\_ADDITIONAL\_INSTRUCTION} & \texttt{Code} \\
+\texttt{MedicationRequest} & \texttt{DOSAGE\_INSTRUCTION\_DOSE\_AND\_RATE\_TYPE} & \texttt{Code} \\
+\texttt{MedicationRequest} & \texttt{ENCOUNTER} & \texttt{Encounter} \\
+\texttt{MedicationRequest} & \texttt{MEDICATION} & \texttt{Code} \\
+\texttt{MedicationRequest} & \texttt{MEDICATION} & \texttt{Medication} \\
+\texttt{MedicationRequest} & \texttt{REASON} & \texttt{Condition} \\
+\texttt{MedicationRequest} & \texttt{REASON\_CODE} & \texttt{Code} \\
+\texttt{MedicationRequest} & \texttt{REQUESTER} & \texttt{Practitioner} \\
+\texttt{MedicationRequest} & \texttt{SUBJECT} & \texttt{Patient} \\
+\texttt{Observation} & \texttt{CATEGORY} & \texttt{Code} \\
+\texttt{Observation} & \texttt{CODE} & \texttt{Code} \\
+\texttt{Observation} & \texttt{COMPONENT} & \texttt{Component} \\
+\texttt{Observation} & \texttt{ENCOUNTER} & \texttt{Encounter} \\
+\texttt{Observation} & \texttt{SUBJECT} & \texttt{Patient} \\
+\texttt{Observation} & \texttt{VALUE} & \texttt{Code} \\
+\texttt{Organization} & \texttt{TYPE} & \texttt{Code} \\
+\texttt{Patient} & \texttt{COMMUNICATION\_LANGUAGE} & \texttt{Code} \\
+\texttt{Patient} & \texttt{EXTENSION\_VALUE} & \texttt{Code} \\
+\texttt{Patient} & \texttt{IDENTIFIER\_TYPE} & \texttt{Code} \\
+\texttt{Patient} & \texttt{MARITAL\_STATUS} & \texttt{Code} \\
+\texttt{PractitionerRole} & \texttt{CODE} & \texttt{Code} \\
+\texttt{PractitionerRole} & \texttt{SPECIALTY} & \texttt{Code} \\
+\texttt{Procedure} & \texttt{CODE} & \texttt{Code} \\
+\texttt{Procedure} & \texttt{ENCOUNTER} & \texttt{Encounter} \\
+\texttt{Procedure} & \texttt{LOCATION} & \texttt{Location} \\
+\texttt{Procedure} & \texttt{REASON} & \texttt{Condition} \\
+\texttt{Procedure} & \texttt{REASON\_CODE} & \texttt{Code} \\
+\texttt{Procedure} & \texttt{SUBJECT} & \texttt{Patient} \\
+\texttt{Recommendation} & \texttt{CITES} & \texttt{Abstract} \\
+\texttt{Recommendation} & \texttt{CONTRAINDICATES} & \texttt{Concept} \\
+\texttt{Recommendation} & \texttt{RECOMMENDS} & \texttt{Concept} \\
+\texttt{Recommendation} & \texttt{TARGETS} & \texttt{Concept} \\
+\end{longtable}
+
+\section{Recommendation Queries}
+\label{app:queries}
+The query below is the one evaluated per patient to produce the applicable
+recommendation set; Listing~\ref{lst:applicable-core} in Chapter~III shows its
+core. It is reproduced verbatim from the evaluation module.
+
+\begin{lstlisting}[caption={Applicable recommendations for one patient.},label={lst:applicable-full}]
+MATCH (p:Patient {uid:$pid})
+WHERE EXISTS { (p)<-[:SUBJECT]-(:Condition)-[:CODE]->(:Code)<-[:SAME_CONCEPT]-(:Concept {umlsCui:$gate}) }
+MATCH (rec:Recommendation)
+WHERE NOT rec.cor STARTS WITH '3'
+OPTIONAL MATCH (rec)-[:TARGETS]->(tc:Concept)
+  WHERE tc.umlsCui <> $gate
+    AND ( EXISTS { (tc)-[:SAME_CONCEPT]->(:Code)<-[:CODE]-(:Condition) }
+       OR EXISTS { (tc)-[:SAME_CONCEPT]->(:Code)<-[:CODE]-(:Procedure) } )
+WITH p, rec, collect(DISTINCT tc) AS extraConds
+WITH p, rec, extraConds,
+     [tc IN extraConds WHERE
+        EXISTS { (p)<-[:SUBJECT]-(:Condition)-[:CODE]->(:Code)<-[:SAME_CONCEPT]-(tc) }
+        OR EXISTS { (p)<-[:SUBJECT]-(:Procedure)-[:CODE]->(:Code)<-[:SAME_CONCEPT]-(tc) }] AS matched
+WHERE size(extraConds) = 0
+   OR (coalesce(rec.targetLogic, 'AND') = 'OR'  AND size(matched) >= 1)
+   OR (coalesce(rec.targetLogic, 'AND') = 'AND' AND size(matched) = size(extraConds))
+RETURN rec.recommendationId AS recId
+\end{lstlisting}
+
+\section{Modules and Their Outputs}
+\label{app:modules}
+Table~\ref{tab:modules} names the twelve modules of the pipeline proper. Several further
+scripts support them without forming part of it: \texttt{cohort.cypher} defines the CCD
+cohort by clinical criterion; \texttt{make\_worksheets.py} generates the manual-labelling
+packet and \texttt{build\_gold\_labels.py} consolidates the filled worksheets into
+\texttt{eval/gold\_labels.csv}.
+
+The evaluation rests on two reference standards, and the filenames distinguish them:
+
+\begin{itemize}
+  \item \texttt{silver\_oracle.py} encodes the guideline logic and labels every
+  patient by reading the raw FHIR bundles, writing \texttt{eval/silver\_oracle\_labels.csv}.
+  Its output is generated, not curated.
+  \item \texttt{eval/gold\_labels.csv} holds the manual labels, produced by a human
+  reading the guideline text against the patient record.
+  \item \texttt{crs\_eval.py} scores the system against either standard;
+  \texttt{obs\_gate.py} evaluates the observation gate;
+  \texttt{pick\_review\_patients.py} ranks the cohort for the manual sample.
+  \item \texttt{subjektif\_audit.py} measures the subjective data in the 30 sample patients'
+  FHIR records---clinical notes, chief complaints, cardiac symptoms, functional scales,
+  patient-reported questionnaires and angina diagnoses---and writes
+  \texttt{eval/subjektif\_audit.txt}, which supports the limitation on cardiac symptom data in
+  Section~\ref{sec:limitations}.
+  \item \texttt{kappa\_bootstrap.py} estimates confidence intervals for the silver--gold
+  $\kappa$ with a bootstrap that resamples patients as well as cells, and reports the
+  prevalence index, bias index, PABAK and a per-patient jackknife; its output
+  \texttt{eval/kappa\_bootstrap.txt} supports Section~\ref{sec:kappa-ci}.
+  \item \texttt{predicate\_audit.py} audits where the reference standard shares a predicate
+  with the system under test, proves the two are the same function over 200{,}876 feature
+  vectors, and reports the concordance once the shared-predicate recommendations are removed;
+  its output \texttt{eval/predicate\_audit.txt} supports Section~\ref{sec:shared-predicate}.
+  \item \texttt{csv\_gate.py} rebuilds the observation gate from Synthea's CSV export alone,
+  compares it against the FHIR bundle path, and writes
+  \texttt{eval/csv\_gating\_experiment.txt}. It is the script that produces the figures in
+  Section~\ref{sec:csv-gating}.
+  \item The \texttt{telaah-klinisi/} directory holds the clinician-review toolchain.
+  \texttt{buat\_telaah.py} and \texttt{perbarui\_lembar.py} build the review sheet and its key
+  file. \texttt{baca\_hasil.py} reads the completed sheets into one table, and
+  \texttt{analisis\_hasil.py} computes the rating proportions, the per-patient bootstrap
+  intervals, and the inter-rater agreement reported in Section~\ref{sec:clinician}.
+\end{itemize}
+
+\subsection{Idempotent Load}
+Listing~\ref{lst:loader-merge} gives the four write statements the loader issues. Every one
+is a \texttt{MERGE}, which is what allows a bundle to be reloaded without duplicating a
+node, a code or an edge---the property the \texttt{:Patient} count in
+Section~\ref{sec:kg-results} confirms. The backticked names are interpolated per resource
+type and per field.
+
+\begin{lstlisting}[caption={The loader's write path (\texttt{loader.py}).},label={lst:loader-merge}]
+// nodes -- one statement per FHIR resource type
+UNWIND $rows AS row
+MERGE (n:Resource {uid: row.uid})
+SET n += row.props SET n:`<ResourceType>`
+
+// shared terminology nodes, keyed on (system, code)
+UNWIND $rows AS row
+MERGE (c:Code {system: row.system, code: row.code})
+ON CREATE SET c.display = row.display
+
+// resource-to-resource references
+UNWIND $rows AS row
+MATCH (s:Resource {uid: row.src})
+MATCH (t:Resource {uid: row.dst})
+MERGE (s)-[:`<FIELD>`]->(t)
+RETURN count(*) AS n      // a shortfall means a MATCH found no node
+
+// resource-to-code edges
+UNWIND $rows AS row
+MATCH (s:Resource {uid: row.src})
+MATCH (c:Code {system: row.system, code: row.code})
+MERGE (s)-[:`<FIELD>`]->(c)
+\end{lstlisting}
+
+\subsection{The Observation-Gate Predicate}
+Each entry of \texttt{OBS\_GATE} is a predicate over graph-derived features.
+\texttt{decide} lets it \emph{override} the graph's gate-and-\texttt{AND} decision rather
+than intersect with it, so a disjunctive branch such as \texttt{RAAI:1} adds patients
+instead of filtering them out.
+
+\begin{lstlisting}[language=Python,caption={The observation gate (\texttt{obs\_gate.py}), abridged.},label={lst:obs-gate}]
+OBS_GATE = {
+    "CCD-2023:BB:1":    lambda f: f["lvef_min"] is not None and f["lvef_min"] <= 40,
+    "CCD-2023:BB:2":    lambda f: f["lvef_min"] is not None and f["lvef_min"] < 50,
+    "CCD-2023:SGLT2:4": lambda f: f["hf"] and f["lvef_min"] is not None
+                                  and f["lvef_min"] <= 40,
+    "CCD-2023:RAAI:1":  lambda f: f["htn"] or f["dm"] or f["ckd"]
+                                  or (f["lvef_min"] is not None and f["lvef_min"] <= 40),
+    "CCD-2023:WM:2":    lambda f: f["bmi_ge25"],
+    # ... ten further predicates, one per observation-gated recommendation
+}
+OBS_GATED = set(OBS_GATE)
+
+def decide(graph_applicable, feats):
+    keep = {r for r in graph_applicable if r not in OBS_GATED}
+    if feats.get("ccd"):          # obs-gated recs fire only for CCD patients
+        keep |= {r for r, pred in OBS_GATE.items() if pred(feats)}
+    return keep
+\end{lstlisting}
+
+\subsection{The Briefing Prompt}
+The prompt is what bounds the language model to the retrieved facts; the faithfulness
+check of Section~\ref{sec:faithfulness} then verifies that the bound held.
+
+\begin{lstlisting}[caption={The grounded-briefing prompt (\texttt{crs\_briefing.py}), abridged.},label={lst:briefing-prompt}]
+SYSTEM
+You are summarizing decision-support facts retrieved from a clinical knowledge
+graph for a physician treating a patient with chronic coronary disease (CCD).
+The briefing INFORMS the clinician; it does not make the decision.
+
+USER
+Write a clinician-facing briefing from the JSON facts below, in TWO clearly-headed
+parts: a MAIN BRIEFING a cardiologist reads in 30 seconds, then a DETAILS chapter
+for drill-down.
+
+CONTENT RULES (strict -- these preserve trust):
+- Use ONLY the facts provided. Never add recommendations, drugs, doses, or
+  evidence that are not present in the JSON.
+- Justify applicability ONLY from `requiresAlso` and the patient's actual
+  `conditions` / `medications`. A rec's OTHER text preconditions are NOT
+  established facts about this patient. If a rec's action assumes such an
+  unconfirmed precondition, phrase the action CONDITIONALLY, never as an
+  assertion.
+- Every item in `applicable` and `safetyFlags` MUST appear at least once, named
+  by its recommendation id. You may GROUP and COMPRESS them, but never drop one.
+- Never alter a COR value, and never attach a PMID to the wrong recommendation.
+- State a count only if it equals the number of items given.
+- If a list is empty, say so explicitly -- do not fill the gap.
+
+[... the two part templates follow, then the JSON facts payload ...]
+\end{lstlisting}
+
+
+\section{A Worked \emph{Grounded Briefing}}
+\label{app:briefing}
+
+Listing~\ref{lst:briefing-example} reproduces one complete grounded briefing exactly as the
+system produced it, stored as \texttt{eval/briefing\_22f599b6-\ldots.md}. The patient is the
+same synthetic record used as the FHIR resource example in Chapter~II. Nothing has been
+edited, reordered, or shortened: this is the output that was scored in
+Section~\ref{sec:faithfulness}.
+
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily,numbers=none,caption={Complete grounded briefing for one patient, as generated (\texttt{claude-sonnet-5}) and stored under \texttt{eval/}.},label={lst:briefing-example}]
+# MAIN BRIEFING
+
+**1. BOTTOM LINE**
+This is a CCD patient with established atherosclerotic disease (ischemic heart disease, history of STEMI/MI, history of CABG), hypertension, diabetic kidney disease, and obesity. Top priorities: refer to cardiac rehabilitation (COR 1) and treat hypertension to a <130/<80 target with GDMT (COR 1); antiplatelet strategy should reflect PCI history but any oral-anticoagulant-dependent regimen must first be confirmed clinically. Key safety concerns: nitrate/PDE5-inhibitor interaction (harm) and prasugrel contraindication if stroke/TIA/ICH history, plus two no-benefit flags on beta-blocker and clopidogrel use.
+
+**2. SAFETY FLAGS (stop-and-check)**
+- Metoprolol succinate ER / metoprolol tartrate -- no MACE benefit if no prior MI or LVEF<=50% and no other BB indication [BB:4, 3-NoBenefit]
+- Clopidogrel -- not useful added to aspirin without recent ACS or PCI-related DAPT indication [APT:7, 3-NoBenefit]
+- Nitroglycerin (spray and sublingual) -- do not combine with PDE5 inhibitors: risk of severe hypotension [SHA:3, 3-Harm]
+- Prasugrel -- contraindicated with history of stroke/TIA/ICH [APT:9, 3-Harm]
+
+**3. ACTIONS FOR THIS PATIENT**
+- Refer to cardiac rehabilitation program [CR:1:1, COR 1]
+- Hypertension lifestyle education toward BP <130/<80 [BPM:2, COR 1]
+- First-line antihypertensive GDMT -- ACE inhibitor, ARB, or beta blocker (e.g., lisinopril, amlodipine, metoprolol succinate) (+17 more options), add-on agents as needed [BPM:3, COR 1]
+- If on/requiring oral anticoagulation: DAPT 1-4 weeks then clopidogrel alone for 6 months, added to DOAC [APT:11, COR 1]
+- Weight management counseling on diet, lifestyle, and weight-loss goals [WM:2, COR 1]
+- If on/requiring oral anticoagulation and high thrombotic/low bleeding risk: continue aspirin + clopidogrel up to 1 month [APT:12, COR 2a]
+- Consider GLP-1 receptor agonist (semaglutide preferred) for further weight reduction, with diet/activity counseling [WM:3, COR 2a]
+
+---
+
+# DETAILS & RATIONALE
+
+**1. FURTHER PATIENT-SPECIFIC OPTIONS (COR 2b -- "may be considered")**
+- Extended DAPT (aspirin + clopidogrel) beyond 12 months up to 3 years [APT:4, COR 2b]
+- Vorapaxar added to aspirin (no stroke/TIA/ICH history) [APT:5, COR 2b]
+- DAPT after CABG to reduce saphenous vein graft occlusion [APT:6, COR 2b]
+- If on/requiring oral anticoagulation with low atherothrombotic risk: discontinue aspirin, continue DOAC alone (rivaroxaban, apixaban, dabigatran, edoxaban) at 1 year post-PCI [APT:13, COR 2b]
+- Reassess ongoing need for long-term (>1 year) beta-blocker therapy [BB:3, COR 2b]
+
+**2. WHY THESE APPLY**
+- CR:1:1 -- triggered by History of MI, History of CABG, History of PCI
+- BPM:2 -- triggered by Essential Hypertension
+- BPM:3 -- triggered by Essential Hypertension
+- APT:11 -- triggered by History of PCI (anticoagulant need not confirmed in patient's medication list)
+- WM:2 -- triggered by BMI 30+/obesity finding
+- APT:12 -- triggered by History of PCI (anticoagulant need not confirmed)
+- WM:3 -- triggered by BMI 30+/obesity finding
+- APT:4 -- triggered by History of MI
+- APT:5 -- triggered by History of MI
+- APT:6 -- triggered by History of CABG
+- APT:13 -- triggered by History of PCI (anticoagulant need not confirmed)
+- BB:3 -- triggered by History of MI
+
+**3. STANDARD CCD CARE (applies to all CCD patients)**
+- Nutrition: heart-healthy diet [NUTRI:1, COR 1]; reduced saturated fat [NUTRI:2, COR 2a]; low sodium/processed meat limits [NUTRI:3, COR 2a]; limit refined carbs/sugar drinks [NUTRI:4, COR 2a]
+- Tobacco: assess use at every visit [TP:1, COR 1]
+- Alcohol/Substance use: routine counseling [ASU:1, COR 1]; limit alcohol intake [ASU:2, COR 2a]
+- Lipid management: high-intensity statin [LIPID:1, COR 1]; moderate-intensity statin if high-intensity not tolerated [LIPID:2, COR 1]; periodic lipid panel monitoring [LIPID:3, COR 1]; consider ezetimibe [LIPID:10, COR 2b]; consider bempedoic acid/inclisiran [LIPID:11, COR 2b]
+- Weight management: routine BMI/waist circumference assessment [WM:1, COR 1]
+- Cardiac rehabilitation: also indicated after SCAD event (not this patient's trigger) [CR:1:3, COR 1]
+- Physical activity: aerobic exercise >=150 min/wk [PA:1, COR 1]; resistance training >=2 days/wk [PA:2, COR 1]; reduce sedentary time [PA:3, COR 2a]
+- Antiplatelet therapy: low-dose aspirin if no anticoagulant indication [APT:1, COR 1]; DAPT 6 months post-PCI then SAPT [APT:2, COR 1]; P2Y12 monotherapy after short DAPT with DES [APT:3, COR 2a]; low-dose rivaroxaban + aspirin in select high-risk patients [APT:15, COR 2a]; PPI with DAPT for GI bleeding risk [APT:16, COR 2a]; DOAC monotherapy if no acute antiplatelet indication [APT:14, COR 2b]
+- Beta blockers: recommended if LVEF<=40% [BB:1, COR 1]; preferred agents (metoprolol succinate, carvedilol, bisoprolol) if LVEF<50% [BB:2, COR 1]
+- Renin-Angiotensin-Aldosterone inhibitors: ACEi/ARB for hypertension, diabetes, LVEF<=40%, or CKD [RAAI:1, COR 1]
+- Immunizations: annual influenza vaccine [IMMU:1, COR 1]; COVID-19 vaccination [IMMU:2, COR 1]; pneumococcal vaccine [IMMU:3, COR 2a]
+- Angina therapy: beta blocker/CCB/long-acting nitrate first-line [MTRA:1, COR 1]; add second class if symptomatic [MTRA:2, COR 1]; ranolazine if still symptomatic [MTRA:3, COR 1]; sublingual/spray nitroglycerin for immediate relief [MTRA:4, COR 1]
+- Mental health: screening [MHC:1, COR 2a]; treatment if indicated [MHC:2, COR 2a]
+- Sexual health: individualize resumption of activity [SHA:1, COR 2a]; cardiac rehab/exercise to reduce risk [SHA:2, COR 2a]
+- Environmental exposures: minimize air pollution exposure [EE:1, COR 2a]; minimize climate-related exposures [EE:2, COR 2b]
+- Colchicine: may be considered for secondary prevention [COLC:1, COR 2b]
+- Refractory angina: enhanced external counterpulsation if no other options [MRA:1, COR 2b]
+
+**4. LITERATURE-SUPPORTED OPTIONS**
+- Disorder of kidney due to diabetes mellitus + canagliflozin 100 MG: pmi 1.249, 4 articles
+- Metabolic syndrome X + Simvastatin (10/20/40 MG): pmi 0.759, 6 articles (each strength)
+- Myocardial infarction + irbesartan (75/150 MG): pmi 0.537, 4 articles
+- Myocardial infarction + ramipril (2.5/5/10 MG): pmi 0.475, 39 articles
+- Myocardial infarction + ticagrelor 90 MG: pmi 0.43, 68 articles
+- Myocardial infarction + prasugrel 10 MG: pmi 0.383, 47 articles
+- Myocardial infarction + clopidogrel (75/300 MG): pmi 0.367, 148 articles
+- Myocardial infarction + aspirin 81 MG (tablet/capsule): pmi 0.353, 249 articles
+
+**5. EVIDENCE (recId -- citedPmids)**
+- CR:1:1 -- 17387127, 32100573, 32227755, 34355130, 34587751
+- BPM:2 -- 26551272, 28564682, 30919899, 31169350, 32866419
+- BPM:3 -- 10639539, 15351192, 19454737, 26551272, 9796841
+- APT:11 -- 32101251
+- APT:12 -- 32101251, 31707833
+- APT:4 -- 25773268, 26324537
+- APT:5 -- 22443427, 22932716, 26338971
+- APT:6 -- 30072154
+- APT:13 -- 31475793
+- BB:3 -- 24927909, 25511558, 28571635, 32542362, 33428707, 34227397, 33877862
+- WM:2 -- 18056904, 19744231, 25369490, 30326501
+- WM:3 -- 26132939, 30122305, 33567185, 35015037
+- NUTRI:1 -- 23999993, 30864165, 34255848, 9989963
+- NUTRI:2 -- 23999993, 24355537, 30864165, 32428300, 34255848, 9989963
+- NUTRI:3 -- 22110105, 23999993, 32428300, 9989963
+- NUTRI:4 -- 11136953, 23999993, 32428300, 34255848, 9989963
+- TP:1 -- 18617085, 22695462, 28056007
+- ASU:1 -- 25986138, 28793133, 29535062, 31976871, 21156654
+- ASU:2 -- 20338495, 22076059, 35333364
+- LIPID:1 -- 15755765, 21067804, 30712900
+- LIPID:2 -- 12114037, 21067804, 7968073, 8801446, 8992351, 9841303
+- LIPID:3 -- 21067804, 27533947, 31952841, 34861203
+- LIPID:10 -- 26039521, 28231942, 28768335, 28465286
+- LIPID:11 -- 30865796, 31714986, 32187462
+- WM:1 -- 10511607, 16820550, 17846390, 20038741, 20696950, 29490333
+- CR:1:3 -- 17387127, 26923234, 27055757, 29472380, 32227755, 33884107, 34355130
+- PA:1 -- 15007010, 25488550, 29654095
+- PA:2 -- 21450617, 21896934, 34805309
+- PA:3 -- 32563261, 32843054, 33930434
+- APT:1 -- 11786451, 19482214, 33999548
+- APT:2 -- 22179532, 25236346, 25616646, 25777667
+- APT:3 -- 22999717, 24177257, 28110296, 32551860, 32795096
+- APT:14 -- 27959713, 31603196, 33250267
+- APT:15 -- 28844192, 32223318, 32436455
+- APT:16 -- 34408652
+- BB:1 -- 11356434, 12390947, 32289158
+- BB:2 -- 10376614, 11356434, 11386264, 11835035, 12390947, 12853193, 7600653
+- RAAI:1 -- 10821360, 1386652, 1463530, 7477219, 8104270
+- IMMU:1 -- 24150467, 25940444, 26310262, 31444266, 32535214, 33275134, 33719496
+- IMMU:2 -- 33622834, 35076665, 33587998
+- IMMU:3 -- 22739637, 32259237, 34521082
+- MTRA:1 -- 10349897, 1672481, 2178381
+- MTRA:2 -- 10349897, 24776376, 30165445, 8557899
+- MTRA:3 -- 14734593, 16875985
+- MTRA:4 -- 1577055, 27468079
+- MHC:1 -- 23759474, 31633746, 31907104, 30698764
+- MHC:2 -- 28209727, 30043065, 31907104, 30698764
+- SHA:1 -- 17628195, 21427375
+- SHA:2 -- 8618365
+- EE:1 -- 16893917, 25810496, 26613345, 27233746, 31433918, 31492503, 32384243
+- EE:2 -- 31376629, 33301532, 34098271
+- COLC:1 -- 23265346, 32865380
+- MRA:1 -- 10362181
+- Safety flags (BB:4, APT:7, SHA:3, APT:9) -- no citedPmids provided in source data
+\end{lstlisting}

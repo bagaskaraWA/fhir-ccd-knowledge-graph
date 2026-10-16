@@ -1,0 +1,240 @@
+\chapter{Pendahuluan}
+
+%% VERSI BAHASA INDONESIA.
+%%
+%% KONVENSI PERISTILAHAN (berlaku untuk seluruh bab):
+%%  1. Prosa akademik penghubung ditulis dalam bahasa Indonesia.
+%%  2. Istilah teknis DIPERTAHANKAN dalam bahasa Inggris (ditulis miring) kecuali
+%%     padanannya benar-benar mapan dan lazim dipakai. Menerjemahkan istilah yang
+%%     belum mapan menghasilkan rumusan yang terasa janggal dan justru mengaburkan
+%%     rujukan ke literatur -- misalnya "observation gate" dan "faithfulness"
+%%     dipertahankan, bukan diterjemahkan.
+%%  3. Yang diterjemahkan hanya istilah dengan padanan mapan: rekam medis elektronik,
+%%     panduan klinis, basis data, presisi, keselarasan, kohort.
+%%  4. Nama standar, produk, dan akronim tidak diterjemahkan
+%%     (HL7 FHIR, SNOMED CT, RxNorm, LOINC, UMLS, Neo4j, Synthea).
+%%  5. Akronim diperkenalkan sebagai: istilah Indonesia (Istilah Inggris, AKRONIM).
+%%
+%% \crosscheck{...} menandai isi yang wajib diverifikasi manusia sebelum diserahkan.
+
+\section{Latar Belakang}
+
+%% Catatan lingkup: beban penyakit pada skala populasi tidak dilaporkan pada tingkat CCD
+%% -- CCD adalah kategori tata laksana klinis yang diperkenalkan \cite{virani2023}, bukan
+%% kategori penyebab dalam Global Burden of Disease. IHD, yang fase kronisnya adalah CCD,
+%% merupakan tingkat terdekat yang dilaporkan, sehingga angka di bawah ini bersifat
+%% spesifik IHD, bukan kardiovaskular secara keseluruhan.
+Penyakit jantung koroner kronis (\emph{chronic coronary disease}, CCD)---sebelumnya
+dikenal sebagai penyakit jantung iskemik stabil (\emph{stable ischemic heart disease},
+SIHD)---adalah fase kronis penyakit jantung iskemik (\emph{ischemic heart disease},
+IHD), yang merupakan penyumbang terbesar untuk penyakit kardiovaskular global. \emph{Global
+Burden of Disease Study 2019} memperkirakan terdapat 197 juta prevalensi IHD dan
+9,14 juta kematian akibat IHD di dunia pada tahun 2019---dari total 18,6 juta kematian
+kardiovaskular---dan beban tersebut terus meningkat di hampir seluruh negara yang bukan dalam
+kelompok berpenghasilan tinggi \cite{gbd2019_cvd}. Indonesia mengikuti pola yang sama:
+antara tahun 2000 dan 2019, angka kematian kardiovaskular terstandardisasi usia
+(\emph{age-standardised mortality rate}) di Indonesia
+naik dari 356,05 menjadi 412,46 kematian per 100.000 penduduk laki-laki,
+sementara pada perempuan pada dasarnya tidak berubah \cite{gbd_indonesia_cvd}.
+Pasien dengan CCD memerlukan pencegahan sekunder seumur hidup,
+seperti terapi medis sesuai panduan (\emph{guideline-directed medical therapy}, GDMT) yang terbukti
+menurunkan risiko kejadian kardiovaskular mayor (\emph{major adverse cardiovascular events},
+MACE) secara bermakna. Untuk membakukan tata laksana tersebut, American Heart Association dan American College of
+Cardiology menerbitkan panduan \emph{2023 AHA/ACC Guideline for the Management of Patients
+with Chronic Coronary Disease} \cite{virani2023}. Panduan itu merangkum bukti ilmiah ke
+dalam sekumpulan rekomendasi. Cakupannya meliputi terapi antiplatelet, pengelolaan lipid dan
+tekanan darah, penyekat beta (\emph{beta blocker}), penghambatan
+renin-angiotensin-aldosteron, pengelolaan berat badan dan gaya hidup, serta kontraindikasi
+keamanan dari terapi-terapi tersebut.
+
+Meskipun panduan klinis tersebut tersedia, penerapan dalam praktik rutin masih jauh dari optimal.
+Studi INTERASPIRE, yang meneliti 4.548 pasien penyakit jantung koroner di 14 negara pada
+keenam wilayah WHO, menemukan bahwa hanya 1,0\% pasien yang memenuhi definisi
+penerapan panduan klinis yang optimal; hanya 38,6\% mencapai tekanan darah di bawah
+130/80~mmHg, 16,6\% mencapai target kolesterol LDL di bawah 1,4~mmol/L, dan
+9,0\% mengikuti rehabilitasi jantung \cite{adherence_gap}.
+Klinisi harus memadukan rekam medis elektronik (\emph{electronic health record}, EHR) yang
+terfragmentasi, puluhan kondisi dan obat, serta panduan klinis yang memuat banyak
+rekomendasi bersyarat dan bersifat spesifik terhadap jenis pasien---seringkali di bawah tekanan waktu yang berat.
+Sistem pendukung keputusan klinis (\emph{clinical decision support system}, CDSS) bertujuan
+menutup celah tersebut dengan mencocokkan rekam medis pasien terhadap panduan klinis dan
+menampilkan rekomendasi yang berlaku. Namun, CDSS yang efektif untuk CCD harus mengatasi
+tiga tantangan yang masih ada. Pertama, sistem harus \emph{memadukan} tiga sumber bukti
+yang berbeda---EHR pasien, panduan klinis, dan literatur biomedis pendukung---ke dalam satu
+struktur yang dapat dikueri. Kedua, sistem harus \emph{menjembatani terminologi klinis yang
+heterogen} (misalnya SNOMED~CT, RxNorm, dan LOINC) agar kode dalam rekam medis dapat
+dicocokkan dengan konsep dalam panduan klinis. Ketiga, ketika disajikan dalam bahasa alami,
+keluarannya harus \emph{tepercaya}, yaitu bebas dari klaim klinis yang dikarang ataupun
+tidak berdasar pada data.
+
+Terdapat dua perkembangan teknologi yang membuat pendekatan baru menjadi mungkin. Pertama, EHR modern semakin banyak memaparkan data klinis melalui standar HL7 \emph{Fast
+Healthcare Interoperability Resources} (FHIR) \cite{fhir_r4}. FHIR merupakan format
+terstruktur yang berorientasi pada sumber daya (\emph{structured, resource-oriented
+format}). Format ini menjadikan kondisi, prosedur, obat, dan \emph{observasi numerik} (hasil
+laboratorium serta tanda vital) sebagai data kelas satu yang dapat dibaca mesin. CDSS yang
+bersifat \emph{FHIR-native} karenanya dapat mengonsumsi data klinis terstruktur secara
+langsung, alih-alih bergantung pada ekspor tabular terdatarkan, yang di dalamnya observasi
+berkomponen jamak seperti panel tekanan darah terurai menjadi baris-baris terpisah dan harus
+dirakit ulang sebelum dapat dijadikan dasar penalaran (Subbab~\ref{sec:flattening}). Perakitan
+ulang itu merupakan biaya, bukan penghalang; Subbab~\ref{sec:csv-gating} mengukur berapa
+besarnya. Kedua, \emph{knowledge graph} (KG)---graf
+pengetahuan yang diwujudkan di atas basis data \emph{property graph} seperti Neo4j---sangat
+sesuai untuk menyatukan EHR, panduan klinis, dan literatur ke dalam satu graf, dengan keragaman
+terminologi disatukan melalui pemetaan setiap kode ke kode payung bersama menggunakan
+\emph{Unified Medical Language System} (UMLS) \cite{umls}.
+
+Peluang sekaligus risiko yang saling melengkapi muncul dari \emph{large language model} (LLM). LLM mampu mengubah fakta rekomendasi yang
+terstruktur menjadi ringkasan yang bermakna dan siap dibaca klinisi, tetapi rentan
+terhadap \emph{hallucination}, yaitu pemunculan pernyataan yang tidak berdasar---sesuatu
+yang tidak dapat diterima dalam konteks klinis. Rancangan yang penelusuran dan penalarannya bersifat \emph{deterministik}---dikerjakan
+oleh kueri graf---dan yang peran LLM-nya dibatasi pada \emph{perumusan kalimat} atas
+fakta hasil kueri beserta asal faktanya, dapat menghasilkan keterbacaan sekaligus
+\emph{faithfulness} `kesesuaian keluaran terhadap fakta sumber' yang dapat diverifikasi. Hal ini berbeda dengan
+\emph{retrieval-augmented generation} konvensional yang menelusuri potongan teks secara
+aproksimatif melalui kemiripan vektor \cite{rag_lewis2020}.
+
+Skripsi ini mengembangkan sistem rekomendasi klinis (\emph{clinical recommendation system}, CRS) berbasis \emph{knowledge graph}
+yang bersifat FHIR-native untuk CCD. Rekam medis pasien sintetis namun realistis
+dihasilkan dengan Synthea \cite{synthea} dan diekspor sebagai \emph{bundle} HL7 FHIR~R4,
+kemudian dimuat ke dalam \emph{knowledge graph} Neo4j, lalu disatukan dengan panduan AHA/ACC CCD
+2023 dan korpus literatur PubMed yang dihasilkan menggunakan \emph{seed} dari referensi panduan klinis tersebut melalui lapisan
+konsep UMLS. Transformasi dari FHIR ke graf itu sendiri bukanlah hal yang baru dan telah tersedia
+sebagai alat siap pakai yang berbasis web \cite{tenasol_viewer}; kontribusi penelitian ini terletak pada
+lapisan-lapisan yang dibangun di atasnya. Kontribusi utamanya mengikuti langsung dari
+rancangan FHIR-native. Karena observasi numerik dimuat sebagai data graf, sistem dapat
+menerapkan \emph{observation gate} pada rekomendasi yang bergantung pada observasi
+berdasarkan nilai terukur pasien yang sebenarnya. Contohnya adalah rekomendasi penyekat
+beta yang disyaratkan pada fraksi ejeksi ventrikel kiri dan rekomendasi pengelolaan berat
+badan yang disyaratkan pada indeks massa tubuh. Hal itu tidak dapat dilakukan oleh alur
+berbasis kondisi dan teks semata. Perolehan tersebut dihasilkan oleh pemuatan nilai observasi numerik sebagai data kelas satu. FHIR merupakan cara yang paling langsung untuk memperolehnya, tetapi bukan satu-satunya cara. Subbab~\ref{sec:csv-gating} mengujinya dengan
+membangun kembali gerbang yang sama dari ekspor tabular dan batas klaim yang sah menurut hasil
+pengujian itu dinyatakan pada Subbab~\ref{sec:limitations}.
+Sistem juga menghasilkan ringkasan dalam bahasa alami yang membumi (\emph{grounded briefing}),
+yang isinya ditelusuri secara deterministik dari graf dan \emph{faithfulness}-nya pada tingkat sitasi diperiksa secara otomatis. Dengan demikian, penelitian ini menyelidiki bagaimana \emph{knowledge
+graph} yang FHIR-native dapat meningkatkan presisi sekaligus tingkat kepercayaan
+rekomendasi yang selaras dengan panduan klinis untuk penyakit jantung koroner kronis.
+
+\section{Rumusan Masalah}
+
+Berdasarkan latar belakang di atas, masalah yang hendak diatasi dalam penelitian ini
+dirumuskan sebagai berikut:
+
+\begin{enumerate}
+    \item Bukti yang diperlukan untuk mendukung keputusan klinis pada penyakit jantung
+    koroner kronis tersebar pada tiga sumber yang berbeda bentuk---rekam medis pasien,
+    panduan praktik klinis, dan literatur biomedis---dan belum tersedia dalam satu
+    struktur yang dapat dikueri. Keadaan tersebut diperberat oleh terminologi klinis yang
+    heterogen: kondisi dikodekan dalam SNOMED~CT, obat dalam RxNorm, dan observasi dalam
+    LOINC sehingga kode dalam rekam medis tidak dapat langsung dicocokkan dengan konsep
+    yang dirujuk panduan klinis.
+
+    \item Alur pendukung keputusan yang bertumpu pada kondisi dan teks semata tidak mengikutsertakan
+    nilai observasi numerik, padahal sebagian rekomendasi dari panduan klinis disyaratkan pada nilai
+    terukur pasien---misalnya fraksi ejeksi ventrikel kiri atau indeks massa tubuh.
+    Akibatnya, rekomendasi yang bergantung pada observasi tidak dapat digerbangi menurut
+    nilai observasi dari pasien yang sebenarnya dan keselarasan panduan klinis yang dihasilkan menjadi kurang
+    presisi.
+
+    \item Keluaran bahasa alami yang dihasilkan LLM rentan terhadap \emph{hallucination},
+    sedangkan \emph{retrieval-augmented generation} konvensional hanya berlandas pada
+    potongan teks yang ditelusuri secara aproksimatif. Belum tersedia rancangan yang
+    \emph{faithfulness}-nya dapat diverifikasi terhadap rekam medis sumber---sifat yang
+    diperlukan dalam konteks klinis.
+\end{enumerate}
+
+\section{Tujuan Penelitian}
+
+Sejalan dengan rumusan masalah, tujuan penelitian ini adalah sebagai berikut.
+
+\begin{enumerate}
+    \item Merancang dan mengimplementasikan alur FHIR-native yang memuat \emph{bundle}
+    HL7 FHIR~R4 ke dalam \emph{knowledge graph} Neo4j, lalu menyatukannya dengan panduan
+    AHA/ACC CCD 2023 serta korpus literatur yang dibenihkan dari referensi pada panduan
+    klinis melalui jembatan konsep berbasis UMLS. Sistem yang dihasilkan kemudian dievaluasi
+    secara menyeluruh melalui uji keselarasan panduan klinis terhadap standar rujukan
+    otomatis yang independen dari sistem rekomendasi, uji kesepakatan dengan standar emas
+    berlabel manual (Cohen's~$\kappa$), deteksi keamanan kontraindikasi, serta telaah ketepatan
+    rekomendasi oleh klinisi.
+    \item Mengimplementasikan \emph{observation gate} yang mengevaluasi rekomendasi bergantung-observasi terhadap nilai
+    terukur pasien. Perubahan keselarasan panduan klinis yang dihasilkan gerbang tersebut kemudian diukur melalui studi ablasi (dengan dan tanpa \emph{observation gate}).
+    \item Mengimplementasikan alur \emph{grounded briefing} yang
+    fakta-fakta rekomendasinya ditelusuri secara deterministik dari graf dan
+    perumusan kalimatnya dilakukan oleh LLM. \emph{Faithfulness} ringkasan yang dihasilkan kemudian dievaluasi dengan prosedur verifikasi otomatis.
+\end{enumerate}
+
+\section{Batasan Penelitian}
+
+Agar penelitian tetap terfokus, batasan berikut diberlakukan:
+
+\begin{enumerate}
+    \item \textbf{Ranah klinis.} Sistem hanya menyasar penyakit jantung koroner kronis
+    dan mengodekan panduan AHA/ACC CCD 2023 \cite{virani2023} sebagai basis rekomendasinya.
+    \item \textbf{Data.} Data pasien bersifat \emph{sintetis}, dihasilkan oleh Synthea
+    dan diekspor sebagai \emph{bundle} HL7 FHIR~R4; tidak ada data pasien nyata yang
+    digunakan. Kohort terdiri atas 5.490 pasien (lihat Bab~III) dan subhimpunan
+    yang lolos dari gerbang CCD digunakan untuk evaluasi.
+    \item \textbf{Terminologi.} Kondisi dan prosedur dikodekan dalam SNOMED~CT, obat dalam
+    RxNorm, dan observasi dalam LOINC. Kode ICD-10-CM/ICD-11 tidak terdapat pada data
+    sintetis; pemuatan rekam medis berkode ICD pada penerapan nyata akan memerlukan
+    pemetaan silang SNOMED$\leftrightarrow$ICD tambahan.
+    \item \textbf{Observasi.} Hanya observasi LOINC dalam \emph{allow-list} yang
+    relevan secara klinis---misalnya fraksi ejeksi, LDL, indeks massa tubuh, trigliserida,
+    tekanan darah, dan status merokok---yang dimuat dan digunakan oleh \emph{observation gate}.
+    \item \textbf{Peran sistem.} Sistem merupakan alat \emph{rekomendasi} yang
+    bersifat informatif dan menampilkan pilihan yang selaras dengan panduan klinis; sistem tidak
+    mengambil keputusan klinis dan tidak diterapkan pada pelayanan pasien nyata.
+    \item \textbf{Evaluasi.} Efektivitas diukur sebagai \emph{keselarasan panduan klinis}, bukan
+    sebagai luaran klinis nyata. Sejumlah prasyarat pada panduan klinis yang tidak dapat dipastikan
+    dari data terstruktur---misalnya skor risiko komposit dan sebagian klausa yang
+    didefinisikan melalui negasi---diperlakukan sebagai keterbatasan yang terdokumentasi.
+\end{enumerate}
+
+\section{Manfaat Penelitian}
+
+Manfaat yang diharapkan dari penelitian ini adalah sebagai berikut.
+
+\begin{enumerate}
+    \item \textbf{Manfaat akademis.}
+    \begin{itemize}
+        \item Menunjukkan arsitektur yang dapat direproduksi untuk CRS berbasis
+        \emph{knowledge graph} yang FHIR-native dan menyatukan bukti dari EHR, panduan klinis,
+        serta literatur.
+        \item Mengukur secara kuantitatif kontribusi observasi terstruktur---yang
+        dimungkinkan oleh EHR FHIR-native---terhadap presisi keselarasan panduan klinis.
+        \item Memperkenalkan kerangka \emph{faithfulness} berbasis penelusuran deterministik untuk
+        keluaran LLM pada konteks klinis, yang isi faktualnya dapat diverifikasi terhadap
+        sumbernya.
+    \end{itemize}
+    \item \textbf{Manfaat praktis.}
+    \begin{itemize}
+        \item Menyediakan cetak biru untuk membangun sistem rekomendasi yang sesuai panduan klinis
+        berbasis data FHIR terstandar, yang dapat dipindahkan ke kondisi dan panduan klinis lain.
+        \item Menawarkan pola ringkasan membumi untuk pembangkitan teks klinis yang
+        tepercaya, yang dapat menginformasikan---tanpa menggantikan---pertimbangan klinisi.
+    \end{itemize}
+\end{enumerate}
+
+\section{Sistematika Penulisan}
+
+Sisa skripsi ini disusun sebagai berikut.
+
+\noindent\textbf{Bab~I (Pendahuluan)} memaparkan latar belakang, rumusan masalah, tujuan,
+batasan, dan manfaat penelitian.
+
+\noindent\textbf{Bab~II (Tinjauan Pustaka dan Dasar Teori)} menelaah penelitian terdahulu
+mengenai pendukung keputusan klinis, \emph{knowledge graph} berbasis panduan klinis, dan
+\emph{retrieval-augmented generation} serta menetapkan dasar teori yang mencakup HL7 FHIR,
+basis data \emph{property graph}, pemetaan terminologi berbasis UMLS, dan konsep klinis
+panduan CCD.
+
+\noindent\textbf{Bab~III (Metode Penelitian)} menguraikan rancangan penelitian: sumber data
+dan kohort, urutan pembangunan graf, rancangan pembentukan standar rujukan yang independen dari sistem
+rekomendasi, serta protokol evaluasi.
+
+\noindent\textbf{Bab~IV (Hasil dan Pembahasan)} melaporkan dan membahas kualitas
+pembangunan graf, ablasi keselarasan \emph{observation gate}, validasi $\kappa$ terhadap
+label manual, evaluasi deteksi keamanan, hasil \emph{faithfulness} ringkasan,
+serta perbandingan terhadap penelitian terdahulu.
+
+\noindent\textbf{Bab~V (Kesimpulan dan Saran)} merangkum temuan, menyatakan kesimpulan
+terhadap tujuan penelitian, dan menguraikan arah penelitian selanjutnya.

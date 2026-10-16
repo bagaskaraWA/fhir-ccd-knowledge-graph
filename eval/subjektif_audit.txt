@@ -1,0 +1,32 @@
+==============================================================================
+SUBJECTIVE DATA IN THE 30 SAMPLE PATIENTS' FHIR RECORDS
+==============================================================================
+
+-- 1. clinical notes ---------------------------------------------------------
+notes (DocumentReference)                : 8067
+notes with no chief complaint            : 203
+distinct chief-complaint lists per patient, across all visits:
+   0 list(s): 2 patient(s)
+   1 list(s): 28 patient(s)
+patients whose complaint list ever changes : 0 of 30
+
+-- 2. cardiac symptoms in chief complaints ----------------------------------
+patients with any cardiac symptom listed : 1 of 30
+   chest pressure                           514 note(s)
+   shortness of breath                      514 note(s)
+
+-- 3. symptom grading or functional scales in note text --------------------
+   new york heart                           10
+
+-- 4. patient-reported observations that do exist --------------------------
+   pain severity 0-10            4309 observation(s), 30 patient(s)
+   PRAPARE                       1964 observation(s), 30 patient(s)
+   PHQ-2                         1421 observation(s), 26 patient(s)
+   GAD-7 total                    896 observation(s), 29 patient(s)
+   HARK                           565 observation(s), 30 patient(s)
+   DAST-10                        519 observation(s), 24 patient(s)
+   AUDIT-C total                  501 observation(s), 24 patient(s)
+   PHQ-9                           89 observation(s), 21 patient(s)
+
+-- 5. how angina reaches the guideline logic: coded diagnoses --------------
+patients with any angina diagnosis code  : 0 of 30

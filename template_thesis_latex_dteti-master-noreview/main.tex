@@ -1,0 +1,225 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Filename: main.tex
+%%%  ---
+%%%  Template for Bachelor Thesis at DTETI UGM   		
+%%%  Created using thesisdtetiugm.cls
+%%%  --- 
+%%%  Original Written by Canggih Puspo Wibowo
+%%%  [canggihpw@gmail.com]
+%%%
+%%% Developed by Dr.-Ing. Yohan Fajar Sidik [DTETI FT UGM]
+%%% [yohanfajarsidik@ugm.ac.id]
+%%% Github repo: https://github.com/Dr-Sidik/template_thesis_latex_dteti
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Use option "bahasa" or "english" 
+%%    to change the basic language used
+%% User option "bachelor", "master", or "doctoral"
+%% 	  to change the degree
+% \documentclass[<bachelor/master/doctoral>,<bahasa/english>]{thesisdtetiugm}
+%\documentclass[bachelor,bahasa]{thesisdtetiugm}
+\documentclass[bachelor,english]{thesisdtetiugm}
+%======================================
+% Information Input
+%======================================
+% Input author's name and ID number
+\author{Bagaskara Waskita Ahmad}{22/497184/TK/54481}
+% Input the thesis' title
+%% English rendering of the Indonesian title set in template_thesis_latex_dteti-id.
+%% Not a literal back-translation: "Pengembangan" becomes "Development of" rather
+%% than "Design and Build of", and "Berbasis" becomes "Built From", which is what
+%% the Indonesian means here (the graph's three source layers).
+\title{Development of a Clinical Recommendation System for Chronic Coronary Disease
+Using a Knowledge Graph Built From FHIR Electronic Health Records, Clinical
+Guidelines, and Biomedical Literature}
+% Program and the head of the program
+\program{Teknik Biomedis}{Syukron Abu Ishaq Alfarozi, S.T., Ph.D.}{111199205202101102}
+% Name of department head and NIP
+\departmenthead{Prof. Ir. Hanung Adi Nugroho, S.T., M.Eng., Ph.D., IPM., SMIEEE.}{197802242002121001}
+\major{Teknik Biomedis}
+\yearsubmit{2026}
+\examdate{3 September 2026}
+% Name of thesis supervisors/promotors
+\addsupervisor{Teguh Bharata Adji, S.T., M.T., M.Eng., Ph.D.}{NIP 196909201995121001}
+\addsupervisor{}{}
+%\addsupervisor{<<Supervisor 3>>}{<<NIP>>}
+% Name of examiners
+%\addexaminer{<<Examiner 1>>}{<<NIP 1>>}
+%\addexaminer{<<Examiner 2>>}{<<NIP 2>>}
+%\addexaminer{<<Examiner 3>>}{<<NIP 3>>}
+%\addexaminer{<<Examiner 4>>}{<<NIP 4>>}
+%\addexaminer{<<Examiner 5>>}{<<NIP 5>>}
+%\addexaminer{<<Examiner 6>>}{<<NIP 6>>}
+%\addexaminer{<<Examiner 7>>}{<<NIP 7>>}
+%\addexaminer{<<Examiner 8>>}{<<NIP 8>>}
+%\addexaminer{<<Examiner 9>>}{<<NIP 9>>}
+
+%======================================
+
+% correct bad hyphenation here [example]
+% \babelhyphenation[<<english/bahasa>>]{op-tical net-works semi-conduc-tor}
+%% Uncomment block of code below to disable hyphenation
+%\tolerance=1
+%\emergencystretch=\maxdimen
+%\hyphenpenalty=10000
+%\hbadness=10000
+
+% Last-resort stretch for paragraphs that would otherwise overflow the measure.
+% Applied only on the final pass, so well-behaved paragraphs are unaffected.
+\emergencystretch=3em
+
+% ---- Draft cross-check flags (applies to every chapter) ----
+% \crosscheck{...} renders a red, bold [CROSSCHECK: ...] note in the PDF, marking
+% content a human must verify before submission (numbers, versions, claims).
+% To HIDE every flag for the final version, replace the line below with:
+%     \newcommand{\crosscheck}[1]{}
+\newcommand{\crosscheck}[1]{#1}
+
+% ---- Abstract-only provenance marker ----
+% \fromabstract{...} marks a figure or capability claim about ANOTHER author's work that
+% was taken from the paper's ABSTRACT and has NOT been confirmed against the full text.
+% Renders the value followed by a red superscript dagger, so the prose stays readable.
+% To HIDE every marker for the final version, replace the line below with:
+%     \newcommand{\fromabstract}[1]{#1}
+\newcommand{\fromabstract}[1]{#1}
+
+\begin{document}
+%======================================
+% Create cover etc
+%======================================
+
+%---- COVER ----
+%\printcover{sample/logougm.png}{Pendadaran/Tesis/Ringkasan Tesis*}
+\printcover{sample/logougm.png}{Bachelor}
+% *Choose one
+
+%---- ENDORSEMENT PAGE ----
+% Select endorsement page type. If you want to use your own PDF file,  
+% 	use \printendorsementpdf, or if you want to use JPG file, use 
+% 	\printendorsementjpg. Otherwise, use \printendorsement.
+% 	Choose one only. Comment out unused command(s).
+%
+\cleardoublepage \phantomsection
+\printendorsement
+%\printendorsementpdf
+%\printendorsementjpg{sample/scanned-endorsement.jpg}
+
+%---- DEDICATION PAGE ----
+\cleardoublepage \phantomsection
+%% Signed scan of the plagiarism-free declaration. The class has no PDF form of
+%% this page (only \chapterstatement for a .tex and \chapterstatementjpg for an
+%% image), so the include is written out here, mirroring \printendorsementpdf.
+%% The page-counter pair makes the TOC record the page the scan lands on.
+\addtocounter{page}{1}
+\addcontentsline{toc}{chapter}{\statementname}
+\includepdf[page={1}]{contents/statement/bebasplagiasi.pdf}
+\addtocounter{page}{-1}
+%% To go back to the typeset page, comment the four lines above and uncomment:
+%\chapterstatement{contents/statement/statement}
+
+\cleardoublepage \phantomsection
+\chapterdedication{contents/dedication/dedication}
+
+%---- STATEMENT PAGE ----
+% Select statement page type. If you want to use your own JPG file,  
+%	use \chapterstatementjpg{<your *.jpg file path>}. Otherwise, 
+%	use \chapterstatement{contents/statement/statement}.
+%	Choose one only. Comment out unused command(s).
+%
+
+
+%---- PREFACE PAGE ----
+\cleardoublepage \phantomsection
+\chapterpreface{contents/preface/preface}
+
+%======================================
+% Create Table of Contents, List of Figures, List of Tables
+% <Do not change this part>
+%======================================
+\cleardoublepage \phantomsection
+\thetoc
+\onehalfspacing
+\tableofcontents
+\singlespacing
+\cleardoublepage \phantomsection
+\thelot
+\listoftables
+\cleardoublepage \phantomsection
+\thelof
+\listoffigures
+
+%======================================
+
+%---- NOMENCLATURE PAGE ----
+\cleardoublepage \phantomsection
+%% \chapternomenclature expanded with \addcontentsline moved BEFORE \input:
+%% the macro records the page the list ENDS on, which is wrong once the list
+%% spans more than one page (TOC said xv, the heading is on xiv).
+\chapter*{\nomenclaturename}
+\addcontentsline{toc}{chapter}{\nomenclaturename}
+\input{contents/nomenclature/nomenclature}
+
+%---- INTISARI PAGE----
+\cleardoublepage \phantomsection
+\chapterintisari{contents/abstract/intisari}
+
+%---- ABSTRACT PAGE----
+\cleardoublepage \phantomsection
+\chapterabstract{contents/abstract/abstract}
+
+
+%======================================
+
+
+
+%======================================
+%  MAIN TEXT
+%======================================
+\startmain
+% You can change 
+%    the filename and location of the files inputted
+\cleardoublepage \phantomsection
+\include{contents/chapter-1/chapter-1}
+\cleardoublepage \phantomsection
+\include{contents/chapter-2/chapter-2}
+\cleardoublepage \phantomsection
+\include{contents/chapter-3/chapter-3}
+\cleardoublepage \phantomsection
+\include{contents/chapter-4/chapter-4}
+\cleardoublepage \phantomsection
+\include{contents/chapter-5/chapter-5}
+
+%======================================
+
+%======================================
+%  References
+%======================================
+\cleardoublepage \phantomsection
+\thereferences
+% You can change 
+%    the filename and location of the files inputted
+\bibliography{references}
+
+%======================================
+
+%======================================
+%  Appendix
+%======================================
+% You can change 
+%    the filename and location of the files inputted
+%    use \chapterappendix for the first page of the appendix
+%    use \chapterappendixadd for the next page
+
+\appendix
+\appendixtables
+\appendixfigures
+
+\cleardoublepage \phantomsection
+\chapterappendix{contents/appendix/appendix-code}
+
+
+
+
+%======================================
+
+\end{document}

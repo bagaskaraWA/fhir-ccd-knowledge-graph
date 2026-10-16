@@ -1,0 +1,81 @@
+# Raw Synthea FHIR + CSV data (regenerable, ~18 GB)
+sihd+general/
+synthea_sample_data_fhir_latest/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Virtualenvs (live outside this dir, but defensive)
+.venv/
+.venv311/
+
+# OS cruft
+Thumbs.db
+Desktop.ini
+
+# LaTeX build artifacts (regenerable by compiling the thesis)
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+# covers both the English (-master) and Indonesian (-id) thesis trees
+template_thesis_latex_dteti-*/main.pdf
+
+# Derived review-free clone of the Indonesian tree, rebuilt by make_clean.py. Ignoring
+# the directory rather than its contents is deliberate: the tree carries a copy of the
+# canonical tree's own .gitignore, whose `!*.tex` would otherwise re-include every
+# source file. A parent-directory exclusion cannot be undone by a nested negation.
+template_thesis_latex_dteti-id-noreview-clean/
+
+# The author's working copy of the Indonesian tree (edited and rendered outside git, then
+# ported into template_thesis_latex_dteti-id-noreview/, which is the tracked source).
+template_thesis_latex_dteti-id-noreview-clean-myver/
+
+# Rendered PDFs, slides and administrative forms kept at the repository root for convenience:
+# outputs or personal paperwork, not source. Root level only, so committed PDFs elsewhere
+# (template samples, review kits) are unaffected.
+/*.pdf
+/*.docx
+
+# Generated presentation decks. NOTE: unlike main.pdf these are NOT regenerable from
+# anything in this repo -- the build script lives in a scratch directory that is wiped
+# between sessions. If a deck matters, commit its generator alongside it.
+*.pptx
+
+# Third-party reference PDFs: Consensus-generated literature syntheses, each carrying
+# "Personal, non-commercial use only; redistribution requires copyright holders'
+# consent." Kept locally as leads only -- the primary papers they point to are cited
+# directly in references.bib. Deliberately NOT committed, so that pushing this repo
+# anywhere public does not redistribute them.
+chronic_nsaid_use.pdf
+find_sources_to_back_this_categories_of_statin_int.pdf
+
+# Full-text PDFs pulled for dagger verification (fromabstract discharge).
+# Third-party copyright: local leads only, never redistributed -- same reason as
+# the Consensus PDFs above. One directory rule so it scales past a handful.
+sources/
+
+# Build artifact of the conference paper. The thesis rule above does not cover it:
+# that glob is template_thesis_latex_dteti-*, this directory is template-makalah-*.
+template-makalah-latex-dteti-master/main.pdf
+
+# Completed clinician-review sheets. A rater's name can sit in a sheet's file properties
+# (docProps/core.xml), and raters were promised that only a code would be published, so the
+# raw sheets stay local. hasil/penilaian.csv carries the same ratings under codes A/B/C.
+telaah-klinisi/hasil/*.docx
+# Word lock files left by an open document.
+~$*
+
+# Signed plagiarism-free declaration. Carries a handwritten signature and a materai, so it
+# is kept out of git history, which is effectively permanent and public if this repo is
+# ever pushed. The page still compiles locally -- main.tex \includepdf's it from
+# contents/statement/. Remove this rule if the signature is meant to be committed.
+bebasplagiasi.pdf

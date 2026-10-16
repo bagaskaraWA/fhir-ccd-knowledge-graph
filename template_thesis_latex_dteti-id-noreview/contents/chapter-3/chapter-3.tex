@@ -1,0 +1,1591 @@
+\chapter{Metode Penelitian}
+
+%% VERSI BAHASA INDONESIA. Konvensi peristilahan dijelaskan pada kepala chapter-1.tex.
+%% Kode TikZ, label, sitasi, dan persamaan dipertahankan identik dengan versi Inggris;
+%% hanya prosa, caption, dan kepala tabel yang diterjemahkan.
+
+\section{Gambaran Umum Penelitian}
+
+Penelitian ini mengikuti \emph{design science research} (DSR), yaitu paradigma untuk
+penelitian yang kontribusinya berupa artefak yang dibangun, bukan hipotesis yang diuji. Jika
+penelitian keperilakuan berupaya menjelaskan atau memprediksi, \emph{design science} berupaya
+memperluas kapabilitas dengan membangun dan mengevaluasi sebuah artefak dan pengetahuan
+tentang masalah diperoleh \emph{melalui} proses pembangunan tersebut \cite{hevner2004}. Model
+proses spesifik yang diikuti adalah \emph{design science research methodology} dari Peffers
+\textit{et al.} \cite{peffers2007}, yang terdiri atas enam aktivitas: identifikasi masalah dan
+motivasi, penetapan tujuan solusi, perancangan dan pengembangan, demonstrasi, evaluasi, serta
+komunikasi.
+
+Artefak dalam penelitian ini adalah sistem rekomendasi klinis (CRS) berbasis
+\emph{knowledge graph} yang FHIR-native untuk penyakit jantung koroner kronis (CCD);
+evaluasinya berupa penilaian keselarasan, kesepakatan, keamanan, dan \emph{faithfulness}
+pada Subbab~\ref{sec:eval-method}. Keenam aktivitas DSR dipetakan pada skripsi ini sebagai berikut. Identifikasi masalah dan
+tujuan berada pada Bab~I. Perancangan dan pengembangan berupa empat tahap di bawah.
+Demonstrasi berupa \emph{grounded briefing} yang dihasilkan untuk masing-masing pasien.
+Evaluasi berada pada Bab~IV dan komunikasinya adalah skripsi ini sendiri. Penelitian disusun dalam
+empat tahap:
+
+\begin{enumerate}
+    \item \textbf{Pembangkitan data.} Rekam medis pasien sintetis dihasilkan dengan Synthea
+    dan diekspor sebagai \emph{bundle} HL7 FHIR R4.
+    \item \textbf{Pembangunan \emph{knowledge graph}.} \emph{Bundle} FHIR dimuat ke dalam
+    \emph{knowledge graph} Neo4j, yang kemudian disatukan dengan panduan AHA/ACC CCD 2023 dan
+    korpus literatur biomedis yang diambil dari referensi panduan klinis tersebut melalui lapisan konsep
+    berbasis UMLS.
+    \item \textbf{Implementasi sistem rekomendasi.} Lapisan kueri mencocokkan setiap pasien
+    dengan rekomendasi panduan klinis yang berlaku, menerapkan \emph{observation gate} pada
+    rekomendasi bergantung-observasi berdasarkan nilai terukur, mendeteksi tanda keamanan
+    kontraindikasi, memeringkat pilihan yang didukung literatur, dan menghasilkan
+    \emph{grounded briefing} dalam bahasa alami.
+    \item \textbf{Evaluasi.} Sistem dievaluasi untuk kualitas pembangunan graf, keselarasan
+    panduan klinis (dengan ablasi \emph{observation gate}), kesepakatan dengan standar emas berlabel
+    manual, deteksi keamanan, serta \emph{faithfulness} ringkasan.
+\end{enumerate}
+
+Gambar~\ref{fig:research-flow} merangkum alur tersebut beserta artefak utama yang dihasilkan
+setiap tahap. Setiap tahap diuraikan pada subbabnya sendiri: tahap~1 pada
+Subbab~\ref{sec:data-source}, tahap~2 pada Subbab~\ref{sec:kg-construction}, tahap~3 pada
+Subbab~\ref{sec:dss-method}, dan tahap~4 pada Subbab~\ref{sec:eval-method}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance = 7mm and 12mm,
+    stage/.style = {rectangle, rounded corners=2pt, draw, thick,
+                    text width=62mm, align=center, minimum height=11mm,
+                    font=\small},
+    art/.style   = {rectangle, draw, dashed, text width=32mm, align=center,
+                    minimum height=8mm, font=\scriptsize, fill=black!5},
+    ar/.style    = {-latex, thick}
+]
+\node[stage] (s1)
+    {\textbf{1. Pembangkitan data}\\[1pt]
+     \scriptsize Synthea $\rightarrow$ \emph{bundle} HL7 FHIR R4};
+\node[stage, below=of s1] (s2)
+    {\textbf{2. Pembangunan \emph{knowledge graph}}\\[1pt]
+     \scriptsize FHIR $\rightarrow$ Neo4j; jembatan konsep UMLS;
+     lapisan panduan klinis dan literatur};
+\node[stage, below=of s2] (s3)
+    {\textbf{3. Implementasi sistem rekomendasi}\\[1pt]
+     \scriptsize himpunan rekomendasi berlaku, \emph{observation gate}, tanda keamanan,
+     pemeringkatan literatur, \emph{grounded briefing}};
+\node[stage, below=of s3] (s4)
+    {\textbf{4. Evaluasi}\\[1pt]
+     \scriptsize struktur graf, keselarasan panduan klinis dan ablasi,
+     standar emas, keamanan, \emph{faithfulness}};
+
+\node[art, right=of s1] (a1) {\emph{Bundle} FHIR \\ dan ekspor CSV};
+\node[art, right=of s2] (a2) {\emph{Knowledge graph} terpadu};
+\node[art, right=of s3] (a3) {Rekomendasi, tanda keamanan, ringkasan};
+\node[art, right=of s4] (a4) {Metrik evaluasi};
+
+\draw[ar] (s1) -- (s2);
+\draw[ar] (s2) -- (s3);
+\draw[ar] (s3) -- (s4);
+\draw[ar, dashed] (s1) -- (a1);
+\draw[ar, dashed] (s2) -- (a2);
+\draw[ar, dashed] (s3) -- (a3);
+\draw[ar, dashed] (s4) -- (a4);
+\end{tikzpicture}
+\caption{Alur penelitian: empat tahap penelitian beserta artefak utama yang dihasilkan
+masing-masing tahap.}
+\label{fig:research-flow}
+\end{figure}
+
+\section{Alat dan Bahan}
+\label{sec:tools}
+
+Perangkat lunak dan bahan yang digunakan dalam penelitian ini diuraikan di bawah ini. Versi
+dan spesifikasi minimum dinyatakan agar peneliti lain dapat mereproduksi pembangunannya pada
+perangkat keras yang setara.
+
+\begin{itemize}
+    \item \textbf{Synthea}, pembangkit pasien sintetis \cite{synthea}, \emph{build}
+    \texttt{aa0772f}, dijalankan di atas Java~26.0.1, menghasilkan \emph{bundle} HL7 FHIR~R4
+    \cite{fhir_r4}. Parameter pembangkitan dicatat pada
+    Subbab~\ref{sec:cohort}.
+    \item \textbf{Neo4j}, basis data graf edisi Enterprise~2026.05.0, sebagai penyimpan
+    \emph{knowledge graph} \cite{neo4j}, dikueri dengan Cypher \cite{cypher}. Instansnya
+    dijalankan di bawah Neo4j Desktop~2.2.1 dan dikonfigurasi dengan \emph{heap} JVM sebesar
+    4~GB awal dan 8~GB maksimum serta \emph{page cache} 4~GB; grafnya disimpan pada basis
+    data bernama \texttt{sihdfhir}.
+    \item \textbf{Python} untuk \emph{loader}, jembatan terminologi, kueri pendukung
+    keputusan, dan skrip evaluasi, menggunakan \emph{driver} resmi Neo4j.
+    Dua interpreter digunakan: Python~3.14.4 untuk \emph{loader}, sistem rekomendasi, dan
+    skrip evaluasi (\texttt{neo4j}~6.2.0, \texttt{anthropic}~0.112.0,
+    \texttt{biopython}~1.87) serta Python~3.11.9 untuk rangkaian
+    pemrosesan bahasa alami, yang oleh \texttt{nmslib} dipatok di bawah 3.12
+    (\texttt{scispacy}~0.6.2, \texttt{spacy}~3.7.5, \texttt{numpy}~1.26.4,
+    \texttt{scikit-learn}~1.8.0, \texttt{pandas}~3.0.3).
+    \item \textbf{scispaCy}, model NLP klinis (\texttt{en\_core\_sci\_md}) dengan
+    \emph{entity linker} UMLS \cite{umls} dan MeSH \cite{scispacy}, digunakan untuk ekstraksi
+    entitas literatur dan penjembatanan terminologi.
+    Modelnya adalah \texttt{en\_core\_sci\_md}~0.5.4; \emph{linker}-nya dibangun terhadap
+    subhimpunan UMLS 2022AB (kategori semantik 0, 1, 2, dan 9) serta rilis MeSH 2022. Tiga
+    ambang kemiripan digunakan, diperketat seiring presisi yang dituntut tiap tahap: 0,80
+    untuk penautan entitas literatur, 0,85 untuk penautan entitas klinis, dan 0,75 untuk
+    penjembatanan SNOMED~CT ke UMLS karena nama konsep tertaut lebih andal daripada teks
+    bebas.
+    \item \textbf{\emph{Large language model}} yang diakses melalui API, digunakan semata-mata untuk
+    merumuskan fakta rekomendasi hasil penelusuran menjadi sebuah ringkasan.
+    Ringkasan yang dilaporkan di sini dibangkitkan dengan \texttt{claude-sonnet-5}.
+    Pilihan model hanya memengaruhi perumusannya:
+    penelusuran bersifat deterministik dan selesai sebelum model mana pun dipanggil
+    sehingga fakta yang boleh dimuat sebuah ringkasan sudah tetap sebelum pembangkitan
+    dimulai.
+    \item \textbf{Perangkat keras.} Diperlukan \emph{workstation} yang mampu menampung
+    \emph{working set} graf di memori; kendala dominan adalah \emph{page cache} Neo4j selama
+    pemuatan massal, bukan CPU.
+    Penelitian ini dijalankan pada Intel Core i7 generasi ke-13 dengan model 1365U yang berkecepatan
+    1,8~GHz dengan RAM 32~GB di bawah Windows~11 Pro. Basis data sendiri
+    mencadangkan 12~GB, yaitu \emph{heap} maksimum 8~GB dan \emph{page cache} 4~GB. Karena
+    itu, 16~GB merupakan batas bawah praktis untuk mereproduksi pembangunannya; di bawah
+    angka tersebut \emph{page cache} akan saling berebut selama pemuatan massal. RAM 32~GB menyisakan
+    ruang sehingga memungkinkan pemuatan dan skrip evaluasi dapat berjalan bersamaan.
+\end{itemize}
+
+\section{Sumber Data dan Kohort Penelitian}
+\label{sec:data-source}
+
+\subsection{Sumber data}
+Data pasien seluruhnya bersifat \emph{sintetis}, dihasilkan oleh Synthea \cite{synthea} dan
+diekspor sebagai \emph{bundle} HL7 FHIR R4 \cite{fhir_r4}; tidak ada data pasien nyata yang
+digunakan sehingga risiko privasi dan etika dapat ditekan seminimal mungkin. Dalam
+\emph{bundle} FHIR, kondisi dan prosedur dikodekan dalam SNOMED~CT \cite{snomedct}, obat dalam
+RxNorm \cite{rxnorm}, dan observasi (hasil laboratorium serta tanda vital) dalam LOINC
+\cite{loinc}; kode ICD-10-CM/ICD-11 tidak terdapat di dalamnya.
+
+Sebuah \texttt{Bundle} FHIR tidak membawa elemen \texttt{fhirVersion}---hanya
+\texttt{CapabilityStatement} yang membawanya dan Synthea tidak menerbitkannya---sehingga
+rilis yang digunakan dipastikan dari instans hasil ekspor, bukan diasumsikan. Tiga pembeda
+struktural yang saling bebas sama-sama menunjuk pada R4. Pertama, konsep berkode merujuk pada
+ruang nama \texttt{terminology.hl7.org/CodeSystem/} tanpa satu pun kemunculan ruang nama
+pra-R4 seperti \texttt{hl7.org/fhir/v3/} ataupun \texttt{/v2/}. Kedua, butir klaim menggunakan
+\texttt{productOrService}, yang merupakan elemen yang diperkenalkan R4 sebagai pengganti
+\texttt{Claim.item.service} pada STU3. Ketiga, pesanan obat muncul sebagai
+\texttt{MedicationRequest}, bukan \texttt{MedicationOrder} sebagaimana pada DSTU2. Direktori
+keluaran pengekspor (\texttt{fhir/}, bukan \texttt{fhir\_stu3/} atau \texttt{fhir\_dstu2/})
+juga menunjukkan konsistensi dengan hal ini. \emph{Bundle} tersebut juga membawa penegasan profil US~Core dan
+US~Core hanya didefinisikan terhadap R4.
+Bukti pada tingkat instans yang sama juga memastikan versi \emph{implementation guide} yang
+dipakai. Himpunan profilnya memuat \texttt{us-core-observation-screening-assessment}, yang
+diperkenalkan pada US~Core~6.0.0 untuk menggantikan profil Survey terdahulu---dan profil Survey
+itu sendiri tidak ada; \texttt{us-core-condition-encounter-diagnosis} juga muncul, sedangkan profil
+tunggal \texttt{us-core-condition} pra-5.0.0 tidak. Synthea menyediakan empat versi
+US~Core---3.1.1, 4.0.0, 5.0.1, dan 6.1.0 \cite{synthea_fhir_wiki}---dan hanya 6.1.0 yang berada
+pada atau di atas 6.0.0. Karena itu, ekspor tersebut merupakan US~Core~6.1.0. Tidak ada
+\texttt{synthea.properties} yang digunakan saat pembangkitan data sehingga
+penetapan ini bertumpu pada instans hasil ekspor, setara dengan penetapan rilis di atas.
+
+\subsection{Kohort}
+\label{sec:cohort}
+Kumpulan data dihasilkan oleh dua proses Synthea yang terpisah, keduanya untuk
+negara bagian Massachusetts dengan riwayat sepuluh tahun yang diekspor, lalu digabungkan
+menjadi satu korpus (Tabel~\ref{tab:generation}). Proses pertama dibatasi pada modul \texttt{stable\_ischemic\_heart\_disease} agar korpus
+memuat kepadatan pasien penyakit sasaran yang memadai. Proses kedua menjalankan seluruh
+himpunan modul (\texttt{*}) untuk menyediakan populasi umum. Karena itu, seleksi kohort
+harus benar-benar membedakan pasien berdasarkan kode kondisinya, bukan sekadar berdasarkan
+proses mana yang membangkitkannya. Kedua proses menghasilkan
+$2{.}009 + 3{.}481 = 5{.}490$ pasien secara keseluruhan. Setiap proses mencatat
+\emph{seed} acaknya sehingga korpus dapat dibangkitkan ulang secara persis.
+
+\begin{table}[h]
+\centering
+\caption{Parameter pembangkitan Synthea untuk kedua proses yang menyusun kumpulan data pasien.}
+\label{tab:generation}
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Proses diperkaya penyakit} & \textbf{Proses umum} \\
+\hline
+Modul                & \texttt{stable\_ischemic\_} & \texttt{*} (semua) \\
+                     & \texttt{heart\_disease} & \\
+Jumlah pasien        & 2{.}009 & 3{.}481 \\
+\emph{Seed}          & 1784186620874 & 1784186859476 \\
+Negara bagian        & Massachusetts & Massachusetts \\
+Riwayat (tahun)      & 10 & 10 \\
+\emph{Build} Synthea & \texttt{aa0772f} & \texttt{aa0772f} \\
+\hline
+\multicolumn{3}{l}{\textbf{Total: 5{.}490 pasien}} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Mengapa pemilihan modul tidak menentukan ukuran kohort}
+\label{sec:module-yield}
+Ada kemungkinan untuk dapat disalahpahami oleh pembaca bahwa 2{.}009 pasien dari hasil proses Synthea yang diperkaya penyakit sebagai 2{.}009
+pasien dengan penyakit jantung koroner kronis. Kenyataannya bukan demikian. Modul Synthea
+adalah \emph{mesin keadaan probabilistik}, bukan label pengaktifan kondisi penyakit tertentu. Mengaktifkan modul
+\texttt{stable\_ischemic\_heart\_disease} berarti setiap pasien pada proses tersebut
+\emph{disimulasikan melewati} modul itu, bukan bahwa setiap pasien pasti mencapai keadaan
+diagnosisnya. Perjalanan melalui modul ditentukan oleh usia, jenis kelamin, ras, dan akumulasi
+faktor risiko seperti status merokok, diabetes, hipertensi, serta kadar lipid, yang semuanya
+juga dihasilkan secara stokastik. Gambar~\ref{fig:sihd-module} menyajikan mesin keadaan modul
+tersebut secara lengkap; mekanismenya perlu dinyatakan secara tepat karena mekanisme itulah
+yang menjelaskan mengapa hasilnya hanya sebagian dan mengapa pasien yang terdiagnosis berusia
+setengah baya.
+
+Modul itu sendiri tidak memuat kondisi usia. Keadaan \texttt{Chance\_of\_IHD} pada modul tersebut merupakan
+perulangan berupa tundaan satu bulan yang memiliki penentu untuk melakukan transisi menuju keadaan \emph{onset} berupa atribut \texttt{ihd\_risk} dalam bentuk
+peluang, dengan nilai bawaan nol, dan yang selain itu berputar kembali ke dirinya sendiri.
+Setiap bulan yang disimulasikan merupakan penarikan yang tak terikat dan seorang pasien dapat berputar
+sepanjang hidupnya tanpa pernah bertransisi. Kebergantungan pada usia justru masuk melalui
+\texttt{ihd\_risk} itu sendiri, yang dihitung Synthea sebagai risiko kardiovaskular sepuluh
+tahun yang dikonversi menjadi \emph{hazard} per bulan lalu dikalikan lima. Pada \emph{build}
+yang dipakai di sini, risiko itu berasal dari \emph{ASCVD Pooled Cohort Equations}, bukan dari
+Framingham---tanda \texttt{useFramingham} bernilai \texttt{false}---dan
+\texttt{ASCVD.ascvd10Year} mengembalikan $-1$ alih-alih sebuah peluang bilamana pasien berusia
+di bawah 40 atau di atas 79 tahun. Di luar jendela itu tidak ada \emph{onset} yang dapat terjadi. Di
+dalamnya, usia masuk secara kontinu melalui $\ln(\mathrm{usia})$ beserta suku-suku
+interaksinya sehingga \emph{hazard} bulanan meningkat sepanjang rentang hidup.
+
+Korpus membuktikan hal ini pada kedua sisi umur tersebut. Dari 876 \emph{onset} yang tercatat, yang
+termuda berada pada usia 41 dan mediannya pada usia 60, tanpa satu pun
+di bawah 40 dan tepat satu di atas 79---jendela kalkulator itu terreproduksi persis di dalam
+data. Karena itu, batas bawah usia~40 bukanlah pertimbangan klinis yang dikodekan ke dalam
+modul, melainkan artefak dari rentang tervalidasi kalkulator risikonya dan lebih tepat dibaca
+sebagai keterbatasan kohort sintetis daripada sebagai pilihan pemodelan. Kedua proses
+tidak berbagi satu pun pasien yang sama dan proses yang diperkaya penyakit sama sekali tidak
+mengeluarkan observasi status merokok sementara setiap pasien pada proses umum membawanya
+sehingga keberadaan LOINC \texttt{72166-2} menandai asal proses seorang pasien tanpa kebermaknaan
+ganda. Dengan penanda itu, proses yang diperkaya penyakit menyumbang 249 dari 876
+pasien dan proses umum menyumbang 627---yaitu hasil sebesar 12,4\%
+($249/2{.}009$) dan 18,0\% ($627/3{.}481$). \texttt{conditions.csv} milik proses
+yang diperkaya penyakit membenarkan angka pertama. Berkas itu memuat tepat
+249 baris yang membawa \texttt{414545008}.
+
+Jadi, proses yang dipilih \emph{dengan harapan} menghasilkan penyakit tersebut justru menghasilkan kasus yang secara
+proporsional \emph{lebih sedikit} daripada proses yang sekadar mengaktifkan seluruh modul.
+Pemilihan modul bukan hanya gagal menentukan ukuran kohort; pemilihan itu menggesernya ke arah
+yang berlawanan dengan yang dimaksudkan. Penyebabnya tampak pada ekspor yang sama. Di antara
+2{.}009 pasiennya, proses yang diperkaya penyakit hanya mencatat kode kondisi
+yang berbeda dan 606 baris kondisi secara keseluruhan, tanpa
+hipertensi, diabetes, maupun hiperlipidemia, berbanding 285 kode dan
+130.859 baris pada proses umum. \emph{Onset} digerakkan oleh skor risiko ASCVD dan skor
+itu justru mengintegrasikan komorbiditas-komorbiditas tersebut: mengaktifkan modul penyakitnya
+sendirian berarti membatasi model risikonya dari faktor risiko yang menjadi sandarannya.
+Prevalensi penyakit pada korpus Synthea dengan demikian merupakan \emph{luaran} simulasi yang
+harus diukur setelah pembangkitan, bukan parameter yang dapat ditetapkan di muka.
+
+Akibatnya, terdapat satu konsekuensi yang nantinya akan dibahas di Bab~IV. Sebanyak 249
+pasien dari proses yang diperkaya penyakit di dalam kohort ini membawa satu diagnosis penyakit
+jantung iskemik, satu temuan pencitraan jantung yang abnormal, dan pada 108 kasus
+riwayat \emph{bypass} koroner---dan tidak ada lagi selain itu. Mereka tidak memiliki komorbiditas
+yang dapat dicocoki oleh rekomendasi mana pun dan, selain fraksi ejeksi, tidak memiliki
+observasi untuk digerbangi. Karena itu, sekitar 28\% kohort yang dievaluasi jauh lebih miskin
+secara klinis daripada pasien penyakit jantung koroner kronis mana pun di kenyataan.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    node distance = 4.5mm and 10mm,
+    st/.style    = {rectangle, rounded corners=2pt, draw, thick, text width=52mm,
+                    align=center, minimum height=7mm, font=\scriptsize},
+    onset/.style = {st, fill=black!8},
+    side/.style  = {rectangle, rounded corners=2pt, draw, dashed, text width=26mm,
+                    align=center, minimum height=6mm, font=\scriptsize},
+    ar/.style    = {-latex, thick},
+    lb/.style    = {font=\tiny, inner sep=1.5pt}
+]
+\node[onset]                  (init)  {\textbf{Initial}};
+\node[onset, below=of init]   (chance){\textbf{Chance\_of\_IHD} --- \emph{Delay} 1 bulan};
+\node[onset, below=of chance] (start) {\textbf{IHD\_Start} --- \emph{ConditionOnset}\\
+                                       SNOMED 414545008 \emph{Ischemic heart disease}};
+\node[st, below=of start]     (delay) {\textbf{Delay\_Until\_Symptoms} --- \emph{Delay} 1 bulan};
+\node[st, below=of delay]     (symp)  {\textbf{Symptoms\_Start} $\rightarrow$
+                                       \textbf{Dyspnea\_Symptom}\\
+                                       nyeri dada; sesak saat aktivitas};
+\node[st, below=of symp]      (enc)   {\textbf{Diagnosis\_Encounter} --- \emph{Encounter}
+                                       (\emph{wellness})};
+\node[st, below=of enc]       (ecg)   {\textbf{ECG / Labs} $\rightarrow$
+                                       \textbf{Stress Test}};
+\node[st, below=of ecg]       (med)   {\textbf{Medical\_Therapy} --- \emph{Delay} 1 pekan};
+\node[st, below=of med]       (presc) {\textbf{Prescribe\_CHD\_Meds}\\
+                                       kaskade bergerbang tahun: clopidogrel (1997),
+                                       \emph{simvastatin} (1991), metoprolol (1978),
+                                       nitrogliserin};
+\node[st, below=of presc]     (cabg)  {\textbf{CABG} --- \emph{CallSubmodule}
+                                       \texttt{heart/cabg\_sequence}};
+\node[st, below=of cabg]      (term)  {\textbf{Terminal}};
+\node[side, right=of delay]   (arrest){\textbf{Cardiac\_Arrest} --- \emph{Death}\\
+                                       SNOMED 410429000};
+
+\draw[ar] (init)   -- (chance);
+\draw[ar] (chance) -- node[lb, right] {$p=\texttt{ihd\_risk}$} (start);
+\draw[ar] (start)  -- (delay);
+\draw[ar] (delay)  -- node[lb, right] {$0{,}25$} (symp);
+\draw[ar] (symp)   -- (enc);
+\draw[ar] (enc)    -- (ecg);
+\draw[ar] (ecg)    -- node[lb, right] {$0{,}99$ pada tiap langkah} (med);
+\draw[ar] (med)    -- (presc);
+\draw[ar] (presc)  -- node[lb, right] {$0{,}9$ via Symptoms\_Continue} (cabg);
+\draw[ar] (cabg)   -- (term);
+\draw[ar, dashed] (delay)  -- node[lb, above] {$0{,}0005$} (arrest);
+\draw[ar, dashed] (arrest) |- (term);
+
+\draw[ar] (chance.north west) to[out=180, in=180, looseness=2]
+          node[lb, left] {selain itu} (chance.south west);
+\draw[ar] (delay.north west)  to[out=180, in=180, looseness=2]
+          node[lb, left] {$0{,}7495$} (delay.south west);
+\draw[ar] (presc.west)        to[out=180, in=180, looseness=1.5]
+          node[lb, left] {$0{,}1$} (med.west);
+\end{tikzpicture}
+\caption{Modul \texttt{stable\_ischemic\_heart\_disease} sebagai mesin keadaan, pada komit
+Synthea \texttt{aa0772f}. Hanya keadaan berlatar abu-abu yang menentukan keanggotaan kohort:
+pasien masuk ke \texttt{Chance\_of\_IHD} dan menarik sekali setiap bulan simulasi terhadap
+\texttt{ihd\_risk} sehingga sebagian besar pasien berputar hingga meninggal tanpa pernah
+mencapai \texttt{IHD\_Start}. Segala hal di bawah wilayah berlatar abu-abu merupakan alur
+perawatan, bukan diagnosis, dan hanya berjalan bagi pasien yang memang bertransisi. Peluang
+yang tertera adalah peluang yang tercantum apa adanya di dalam modul; \texttt{ihd\_risk}
+dipasok dari luar oleh \texttt{CardiovascularDiseaseModule} dan tidak terdefinisi di luar usia
+40---79. Demi keterbacaan, dua sisi kecil tidak digambarkan: \texttt{ECG / Labs} dan
+\texttt{Stress Test} masing-masing juga mengalirkan $0{,}01$ langsung ke \texttt{CABG}, dengan
+melewati terapi medis.}
+\label{fig:sihd-module}
+\end{figure}
+
+\subsection{Gerbang CCD dan penurunan kohort}
+\label{sec:gate}
+Keanggotaan kohort karenanya ditetapkan dengan mengueri data yang dibangkitkan, bukan dengan
+memercayai konfigurasi proses pembangkitan saja. Seorang pasien masuk ke kohort evaluasi jika graf
+memuat, bagi pasien tersebut, sebuah \texttt{:Condition} yang kodenya menjembatani ke konsep
+UMLS \texttt{C0151744}---yang oleh lapisan terminologi diresolusi dari SNOMED~CT
+\texttt{414545008}, \emph{Ischemic heart disease (disorder)}. Secara konkret, gerbang tersebut
+adalah penelusuran Cypher
+\texttt{(:Patient)$\leftarrow$[:SUBJECT]$-$(:Condition)$-$[:CODE]$\rightarrow$(:Code)
+$\leftarrow$[:SAME\_CONCEPT]$-$(:Concept)} dan gerbang inilah klausa pertama yang dievaluasi
+pada kueri penentuan kohort: pasien yang tidak melewatinya tidak pernah dicocokkan dengan
+rekomendasi apa pun. Konsep gerbang yang sama digunakan oleh standar rujukan yang menjadi dasar penilaian sistem,
+yaitu \emph{silver standard} yang dihasilkan secara otomatis serta didefinisikan dan
+dijustifikasi pada Subbab~\ref{sec:oracle}. Dengan demikian, kedua sisi evaluasi keselarasan
+dihitung pada kohort yang identik.
+
+Tabel~\ref{tab:cohort-funnel} menelusuri penurunan yang dihasilkannya.
+
+\begin{table}[h]
+\centering
+\caption{Penurunan kohort yang dapat dievaluasi gerbang dari korpus hasil pembangkitan.}
+\label{tab:cohort-funnel}
+\begin{tabular}{lrl}
+\hline
+\textbf{Tahap} & \textbf{Pasien} & \textbf{Ditentukan oleh} \\
+\hline
+Korpus hasil pembangkitan (kedua proses) & 5{.}490 & konfigurasi proses Synthea \\
+\quad proses diperkaya penyakit          & 2{.}009 & \texttt{stable\_ischemic\_heart\_disease} \\
+\quad proses umum                        & 3{.}481 & seluruh modul (\texttt{*}) \\
+Membawa SNOMED 414545008                 &    876  & luaran simulasi \\
+\textbf{Kohort yang dapat dievaluasi gerbang} & \textbf{876} & \textbf{gerbang CCD} \\
+\hline
+\end{tabular}
+\end{table}
+
+Angka 876 dengan demikian adalah jumlah pasien simulasi yang benar-benar mengalami diagnosis
+penggerbang (SNOMED~CT~\texttt{414545008}, \emph{Ischemic heart disease (disorder)}), yaitu $16{,}0\%$ dari korpus.
+
+\subsection{Apa yang tidak tercakup oleh gerbang}
+Panduan AHA/ACC 2023 mendefinisikan penyakit jantung koroner kronis secara \emph{disjungtif}:
+riwayat infark miokardial dan riwayat revaskularisasi koroner sama-sama menjadi penentu CCD di
+samping diagnosis penyakit jantung iskemik. Gerbang yang diimplementasikan di sini hanya
+menggunakan yang terakhir. Sebanyak 67 pasien lain dalam korpus membawa \emph{History of
+myocardial infarction} (SNOMED \texttt{399211009}) atau \emph{History of coronary artery
+bypass grafting} (SNOMED \texttt{399261000}) tanpa turut membawa \texttt{414545008}; menurut
+definisi panduan klinis, mereka juga termasuk sebagai pasien CCD sehingga kohort yang didefinisikan
+secara klinis semestinya berjumlah 943.
+
+Kesenjangan ini bukan kegagalan penjembatanan terminologi. Ketiga kode diresolusi dengan benar ke konsep UMLS yang berbeda: \texttt{414545008} ke
+\texttt{C0151744}, \texttt{399211009} ke \texttt{C1275835}, dan \texttt{399261000} ke
+\texttt{C1275842}. Pembedaan itu benar secara semantik karena SNOMED~CT memodelkan
+\emph{situation with explicit context} (``riwayat'') sebagai entitas yang berbeda dari
+\emph{disorder} yang bersesuaian.
+Lapisan panduan klinis pun tidak keliru: enam rekomendasi memang secara khusus menargetkan konsep riwayat infark miokardial.
+Keterbatasannya berada pada gerbang yang dinyatakan sebagai
+konsep \emph{tunggal} sementara panduan klinis menyatakan sebuah disjungsi sehingga keenam
+rekomendasi tersebut tidak akan pernah terjangkau oleh 67 pasien itu karena gerbang
+dievaluasi sebelum pencocokan rekomendasi dimulai.
+
+Gerbang berkonsep tunggal ini dipertahankan dalam penelitian ini agar angka keselarasan,
+kesepakatan, dan keamanan yang dilaporkan seluruhnya menggambarkan satu kohort yang
+didefinisikan secara konsisten. Kohort yang dapat dievaluasi gerbang karenanya harus dibaca
+sebagai subhimpunan konservatif dari populasi CCD klinis---$876$ dari $943$, atau
+$92{,}9\%$---dan sisa $7{,}1\%$ ditinjau kembali di antara keterbatasan pada
+Subbab~\ref{sec:ethics}.
+Ketiga puluh pasien yang dilabeli secara manual tidak diambil secara acak. Setiap pasien
+dari 876 tersebut diberi skor menurut sejauh mana rekamnya dapat menghasilkan ringkasan.
+Penskorannya memberi dua poin untuk tiap komorbiditas pembeda, dihitung paling banyak
+untuk enam dari sembilan komorbiditas dalam \emph{allow-list}, sehingga menyumbang maksimum
+12 poin. Penskorannya juga memberi satu poin untuk tiap kelas obat relevan-keamanan,
+dihitung paling banyak untuk tiga dari enam kelas, sehingga menyumbang maksimum 3 poin.
+Skor tertinggi yang mungkin dicapai karenanya 15 poin. Skor tersebut kemudian dikenai
+penalti atas artefak pembangkit data. Penalti terberat dikenakan pada fraksi ejeksi
+ventrikel kiri di luar rentang 20---70\%, yang tidak fisiologis dan justru akan mengundang
+pembaca mengkritik Synthea alih-alih sistemnya. Tiga puluh pasien dengan skor tertinggi kemudian diambil.
+Prosedurnya deterministik: peringkat~1---18 mencapai skor
+tertinggi tersebut dan peringkat~19---30 memperoleh 13 poin, dengan batas potong berada di dalam
+kesamaan skor tersebut dan diputus menurut urutan nomor identitas pasien. Sampel ini karenanya memiliki
+alasan pemilihan yang jelas, yaitu condong pada rekam yang paling kompleks secara klinis, sehingga kesepakatan yang
+dilaporkan pada Subbab~\ref{sec:goldlabel} dimaknai sebagai hasil pengukuran atas
+kasus-kasus tersebut, bukan atas pasien rata-rata.
+
+\section{Metode Pembangunan \emph{Knowledge Graph}}
+\label{sec:kg-construction}
+
+\emph{Knowledge graph} dibangun secara \emph{EHR-first}: lapisan konsep dicetak dari kode EHR
+sebelum korpus literatur dimuat. Resolusi EHR ke UMLS hanya bergantung pada deskripsi kode dan
+pada rilis UMLS yang dipakai \emph{linker} sehingga himpunan konsep yang dapat dijangkau dari data pasien---dan bersamanya
+setiap sisi \texttt{SAME\_CONCEPT}---tetap utuh betapa pun penelusuran literatur diulang atau
+diperluas. Hal ini penting karena gerbang CCD pada Subbab~\ref{sec:gate} melakukan penelusuran menggunakan
+sisi-sisi tersebut. Seandainya lapisan konsep dicetak dari literatur, korpus yang berbeda akan
+memberikan himpunan konsep yang berbeda dan karenanya kohort yang berbeda pula sehingga
+setiap metrik yang dilaporkan dapat berubah tergantung dari penelusuran literatur yang dilakukan. Konsep yang
+berasal dari literatur kemudian di-\emph{merge} ke kunci simpul \texttt{umlsCui} yang sama
+sehingga memperkaya lapisan konsep tersebut tanpa mendefinisikannya ulang. Pembangunannya berlangsung
+sebagai berikut.
+
+\begin{enumerate}
+    \item \textbf{Pemuatan FHIR ke graf.} Setiap \emph{resource} FHIR menjadi sebuah simpul,
+    setiap rujukan menjadi sebuah relasi bertipe, dan setiap kode terminologi diangkat menjadi
+    simpul \texttt{:Code} bersama dengan kunci berupa (\emph{system}, \emph{code}) sehingga semua
+    kemunculan sebuah kode merujuk pada satu simpul. Observasi bernilai jamak (misalnya
+    tekanan darah) direpresentasikan sebagai simpul komponen agar tidak kehilangan data.
+    \emph{Resource} penagihan/administratif dilewati dan hanya \emph{allow-list} observasi LOINC
+    yang relevan secara klinis yang dimuat.
+
+    \item \textbf{Jembatan terminologi (EHR ke UMLS).} Kode EHR yang telah dideduplikasi
+    diekspor dari graf dan dipetakan ke \emph{concept unique identifier} (CUI) UMLS
+    \cite{umls} menggunakan \emph{linker} tiga-lintasan (alias persis, pembangkitan kandidat,
+    dan disambiguasi berbasis NLP \cite{scispacy}), menghasilkan lapisan konsep yang terhubung
+    ke simpul \texttt{:Code} bersama melalui sisi \texttt{SAME\_CONCEPT}.
+
+    \item \textbf{Lapisan panduan klinis.} Panduan AHA/ACC CCD 2023 dikurasi secara manual menjadi
+    81 rekomendasi, masing-masing ditautkan ke konsep yang direkomendasikan,
+    dikontraindikasikan, atau ditargetkannya. Tipe sisi diturunkan dari \emph{Class of
+    Recommendation} (COR): COR~3 (Harm/No-Benefit) menghasilkan sisi \emph{contraindicates},
+    sedangkan COR~1/2a/2b menghasilkan sisi \emph{recommends}. Rekomendasi bertarget
+    disjungtif ditandai agar lapisan kueri menggabungkan targetnya dengan OR, bukan AND.
+
+    \item \textbf{Lapisan literatur.} Korpus PubMed yang diekstrak dari panduan klinis (uji klinis
+    yang disitasi panduan klinis beserta artikel serupanya) diproses dengan NER klinis scispaCy untuk
+    mengekstraksi sebutan entitas, yang lalu ditautkan ke konsep UMLS yang sama. Asosiasi
+    obat-kondisi diwujudkan antarsimpul \texttt{:Code} sebagai sisi kemunculan bersama yang
+    diperingkat menurut \emph{pointwise mutual information} (PMI) \cite{pmi}, dengan ambang
+    minimum jumlah artikel.
+    Korpusnya terdiri atas 4.801 abstrak berbeda: 274 uji klinis yang disitasi oleh
+    panduan klinis itu sendiri, bersama 4.793 artikel serupa yang ditarik darinya. Kedua himpunan itu
+    beririsan cukup lebar---266 abstrak benihnya muncul kembali di antara artikel serupanya
+    sendiri dan tiap abstrak hanya disimpan satu kali---sehingga gabungannya lebih kecil
+    daripada jumlahnya. Sebuah pasangan obat--kondisi harus disebut bersama dalam
+    sekurang-kurangnya tiga abstrak berbeda sebelum layak diperingkat.
+\end{enumerate}
+
+\subsection{Model data graf}
+\emph{Loader} memetakan FHIR ke graf properti sebagai berikut. Setiap \emph{resource} menjadi
+simpul berlabel \texttt{:Resource:<ResourceType>}, dengan atribut skalarnya menjadi bagian dari simpul
+tersebut. Elemen yang memuat sebuah rujukan diubah menjadi relasi bertipe yang namanya diturunkan dari
+lintasan elemen FHIR; misalnya, \texttt{Observation.subject} menghasilkan sisi
+\texttt{SUBJECT}. \emph{Loader} meresolusi ketiga bentuk rujukan yang diterbitkan
+Synthea, yaitu pengenal \texttt{urn:uuid:}, rujukan bersyarat
+(\texttt{Type?identifier=system\textbar value}), dan rujukan terkandung
+(\texttt{\#fragment}).
+
+Label \texttt{:Resource} lebih merupakan urusan teknis daripada urusan makna. Label itu hanya
+menyatakan bahwa sebuah simpul dapat dicari melalui \texttt{uid}-nya dan tidak mengeklaim apa
+pun tentang apakah simpul itu merupakan \emph{Resource} dalam pengertian FHIR. Setiap bentuk rujukan menyusut menjadi pengenal telanjang (\emph{bare identifier}):
+\texttt{Type/id} membuang awalannya dan \texttt{urn:uuid:} memang tidak pernah membawanya.
+Akibatnya, ketika sebuah sisi hendak dituliskan, \emph{loader} sudah memegang pengenal
+sasarannya, tetapi belum mengetahui tipenya. Karena itu, \emph{loader}
+membutuhkan satu label yang dimiliki setiap kemungkinan sasaran dan label inilah yang
+berperan demikian. Label yang sama memegang satu-satunya kendala keunikan \texttt{uid}, yang
+didukung basis data dengan indeks, sehingga menelusuri sebuah rujukan hanya memerlukan
+satu pencarian indeks, bukan pemindaian.
+
+Akibatnya, terdapat dua konsekuensi. Simpul komponen membawa label
+\texttt{:Resource} meskipun \texttt{Observation.component} pada FHIR merupakan
+\emph{BackboneElement}, bukan \emph{Resource}, karena sisi harus dapat meresolusi ke simpul
+tersebut melalui pengenal. Sebaliknya, simpul \texttt{:Code} merupakan pengecualian yang
+disengaja: simpul itu memiliki kunci berupa (\texttt{system}, \texttt{code}), bukan berupa \texttt{uid},
+tidak pernah menjadi sasaran rujukan \emph{resource}, dan karenanya tidak membawa label
+\texttt{:Resource}. Setiap \emph{coding} terminologi diangkat menjadi simpul bersama
+\texttt{:Code\{system, code, display\}}, dengan kunci berupa (\texttt{system}, \texttt{code}) di
+bawah \emph{constraint} unik sehingga setiap kemunculan sebuah kode---lintas kondisi, prosedur,
+obat, dan observasi---merujuk pada satu simpul; simpul \texttt{:Code} bersama inilah jangkar
+tempat lapisan konsep UMLS melekat. Sebuah \emph{Coding} dibedakan dari sebuah
+\emph{Quantity} (keduanya membawa \texttt{system} dan \texttt{code}) melalui keberadaan
+\texttt{value}, yang mencegah satuan ukur terangkat menjadi kode klinis. Observasi bernilai
+jamak---terutama panel tekanan darah---dimekarkan menjadi simpul \texttt{:Component} agar
+nilai sistolik dan diastolik sama-sama terpelihara. Seluruh penulisan menggunakan
+\texttt{MERGE}, yang menjadikan pemuatan bersifat idempoten dan dapat diulang;
+\emph{resource} penagihan dan provenans dilewati dan hanya observasi LOINC dalam
+\emph{allow-list} yang dimuat.
+
+\subsubsection*{Mengapa beberapa terminologi hadir bersama}
+\label{sec:multi-vocab}
+Graf yang dimuat memuat 26 \emph{code system} yang berbeda. Hal ini merupakan
+sifat FHIR itu sendiri, bukan keanehan generator: spesifikasi dari FHIR mengikat setiap elemen berkode
+pada sebuah \emph{value set} dan ikatan tersebut menyebut kosakata tertentu. Synthea
+menyatakan kesesuaian itu secara eksplisit---observasi status merokok membawa rujukan
+\texttt{meta.profile} ke \texttt{us-core-smokingstatus}---sehingga kosakata yang dipakai
+merupakan kosakata yang diwajibkan profil US~Core, bukan pilihan bebas generator. Setiap
+kosakata menjawab satu pertanyaan dan tidak berusaha menjawab pertanyaan lainnya. SNOMED~CT
+\cite{snomedct} membawa makna klinis---kondisi, prosedur, tipe \emph{encounter} dan
+\emph{device}---sebagai ontologi \emph{description logic} dengan \emph{subsumption} yang dapat
+dikomputasi. RxNorm \cite{rxnorm} membawa obat, dengan menormalkan penamaan obat lintas
+kosakata \emph{proprietary} pada tingkat abstraksi yang eksplisit. LOINC \cite{loinc} membawa
+observasi, mengidentifikasi \emph{apa yang diukur} di bawah model multisumbu yang formal. CVX
+membawa vaksin. Satu kelompok \emph{code system} HL7 lainnya membawa nilai administratif milik
+FHIR sendiri---\emph{clinical status}, \emph{category}, \emph{encounter class}---yang
+merupakan metadata struktural alih-alih terminologi klinis dan kelompok tersebut mencakup
+kira-kira separuh dari seluruh \emph{code system} yang hadir.
+
+Pembagian tersebut tampak langsung pada graf yang dimuat. Observasi menjangkau LOINC melalui
+sisi \texttt{CODE} (242.217), tetapi menjangkau SNOMED~CT melalui sisi
+\texttt{VALUE} (47.259): LOINC menamai pertanyaannya dan SNOMED~CT menamai
+jawabannya bilamana jawaban itu sendiri berupa konsep berkode, bukan angka. Status merokok
+merupakan contoh paling jelas---LOINC \texttt{72166-2} mengidentifikasi observasinya dan
+nilainya berupa konsep SNOMED~CT.
+
+Akibatnya, terdapat dua konsekuensi rancangan. Pertama, simpul
+\texttt{:Code} harus memiliki kunci berupa (\texttt{system}, \texttt{code}), bukan berupa kode semata,
+sebab untai kode saja dapat berbenturan antarkosakata. Kedua,
+kosakata-kosakata itu merupakan \emph{namespace} terpisah yang dikelola organisasi berbeda
+dengan siklus rilis yang mandiri dan tidak ada satu sisi pun yang menghubungkannya di dalam
+terminologi sumber mana pun. Satu rekomendasi panduan klinis lazimnya menggunakan beberapa kosakata
+sekaligus. Contohnya, rekomendasi mengenai terapi statin bagi pasien penyakit jantung koroner kronis menyebutkan satu bahan aktif
+RxNorm dan satu gangguan SNOMED~CT; begitu ambang batas lipid diberlakukan, satu pengukuran LOINC juga
+disebut. Tidak ada properti apa pun dalam data pasien yang dapat menghubungkan ketiganya. Karena itu, lapisan
+konsep UMLS bukanlah sekadar kemudahan, melainkan keharusan struktural---lapisan itulah satu-satunya
+artefak yang memberi ketiganya satu pengenal bersama dan tanpanya lapisan panduan klinis sama sekali
+tidak dapat menjangkau lapisan pasien.
+
+Konsekuensi ketiga menyangkut kontribusi penelitian ini secara khusus. LOINC memisahkan
+pengukuran dari hasilnya dan menyisakan nilai numeriknya di dalam \texttt{valueQuantity}.
+Seandainya fraksi ejeksi direkam sebagaimana SNOMED~CT merekamnya---sebagai temuan seperti
+``disfungsi sistolik ventrikel kiri''---tidak akan ada angka yang dapat dibandingkan terhadap
+sebuah ambang batas dan \emph{observation gate} pada Subbab~\ref{sec:dss-method} sama sekali tidak
+dapat dituliskan. Perolehan \emph{observation gate} yang dilaporkan pada Bab~IV bertumpu pada
+sifat LOINC ini secara spesifik, bukan pada pengodean terstruktur secara umum. Sifat itu
+dimiliki pula oleh ekspor tabular Synthea, yang juga membawa kode LOINC beserta nilai
+numeriknya (Subbab~\ref{sec:csv-gating}).
+
+\subsubsection*{Apa yang hilang dari ekspor tabular terdatarkan}
+\label{sec:flattening}
+Bab~I melandaskan rancangan FHIR-native pada pembandingan terhadap ekspor tabular terdatarkan.
+Karena Synthea mengeluarkan kohort yang sama dalam kedua format, pembandingan itu dapat
+ditunjukkan, bukan sekadar dinyatakan sebagai klaim. Tabel~\ref{tab:flattening} memaparkannya untuk panel
+tekanan darah.
+
+\begin{table}[h]
+\centering
+\caption{Panel tekanan darah pada ekspor CSV dan pada graf FHIR, untuk kohort yang sama.}
+\label{tab:flattening}
+\begin{tabular}{lrl}
+\hline
+\textbf{LOINC} & \textbf{Baris CSV} & \textbf{Graf} \\
+\hline
+85354-9 panel tekanan darah & 0      & satu \texttt{:Observation} per pengukuran \\
+8480-6 sistolik             & 52.583 & \texttt{:Component} dari Observation itu \\
+8462-4 diastolik            & 52.583 & \texttt{:Component} dari Observation itu \\
+\hline
+\end{tabular}
+\end{table}
+
+Panel tekanan darah tersebut tidak dihasilkan pada ekspor CSV. Panel tersebut tidak memiliki
+barisnya sendiri dan kedua anggotanya berubah menjadi baris yang saling lepas sehingga
+memulihkan ``tekanan darah pasien ini 121/80'' menuntut perakitan ulang. Graf menyimpan
+105.166 simpul \texttt{:Component}, yaitu $2 \times 52.583$---setiap anggota
+terpelihara dan masing-masing masih melekat pada panel yang menaunginya.
+
+Seberapa mahal perakitan ulang itu merupakan pertanyaan empiris dan Subbab~\ref{sec:csv-gating}
+menjawabnya dengan membangun kembali \emph{observation gate} dari ekspor tersebut. Jawabannya perlu dinyatakan di sini agar pembandingan ini tidak terbaca lebih kuat daripada
+yang sebenarnya. Ekspor itu menyertakan kolom \texttt{ENCOUNTER} yang terisi pada seluruh
+baris observasi. Karena itu, kedua anggota satu pengukuran dapat dipertemukan kembali
+melalui kunci rujukan yang tersurat, bukan melalui penanda waktu yang diandaikan
+bersesuaian. Pada kohort
+evaluasi, 17.177 pasang terakit kembali seluruhnya tanpa menyisakan satu baris pun yang tak
+berpasangan. Yang hilang karenanya adalah identitas panelnya sebagai satu kesatuan, bukan
+keterpulihan nilainya.
+
+Perbedaan kedua lebih halus. Status
+merokok muncul pada CSV sebagai 47.259 baris yang hanya membawa untai
+tampilan (\emph{display string})---35.541 \texttt{Never smoked tobacco (finding)}, 11.587
+\texttt{Ex-smoker (finding)}, dan 131 \texttt{Smokes tobacco daily
+(finding)}---dengan \texttt{TYPE} tercatat sebagai \texttt{text}. \emph{Resource} FHIR membawa
+untai yang sama di dalam \texttt{valueCodeableConcept}, tetapi bersamaan dengan \texttt{system}
+\texttt{http://snomed.info/sct} dan \texttt{code} \texttt{266919005}. Ekspor itu mempertahankan
+labelnya dan membuang kodenya; graf mempertahankan keduanya.
+
+Tiga hal perlu dijelaskan di sini. Pertama, jembatan konsep mengekspor kode dari \emph{resource}
+kondisi, obat, kategori \emph{care plan}, dan prosedur, tetapi tidak dari nilai observasi
+sehingga \texttt{266919005} tidak pernah menjadi simpul \texttt{:Concept}. Kedua, \emph{observation gate} untuk merokok membaca properti \texttt{display} pada simpul
+nilainya, bukan \texttt{code}-nya, sehingga status merokok dicocokkan sebagai untai di kedua
+sisi. Ketiga, tidak ada satu pun pasien dalam kohort evaluasi yang merupakan perokok aktif.
+Kelima rekomendasi yang digerbangi status merokok karenanya mencatat nol \emph{true
+positive}, nol \emph{false positive}, dan nol \emph{false negative}, sebagaimana dilaporkan
+pada Subbab~\ref{sec:ablation-class}.
+
+Karena itu, status merokok merupakan contoh yang buruk untuk mendukung klaim bahwa kode tetap
+terbawa saat diekspor dan di bahasan ini contoh tersebut memang tidak dipakai seperti demikian. Contoh tersebut tetap
+disertakan karena \emph{jenis} kehilangan yang ditunjukkannya terwujud dan berlaku umum berupa tabel datar
+tidak punya tempat untuk mencatat sistem kode asal sebuah nilai. Pada korpus ini kehilangan
+tersebut kebetulan tidak mengakibatkan apa pun. Bagi jalur FHIR, dampak yang nyata justru datang dari panel tekanan darah di atas, yang nilai komponennya dibaca sebagai
+angka dan memang mengubah hasil.
+
+Kosakatanya sendiri tidak hilang. Setiap kolom
+\texttt{CODE} bersandar pada kosakata yang ditetapkan oleh berkasnya, bukan yang dideklarasikan
+pada barisnya: \texttt{conditions.csv} dan \texttt{procedures.csv} memakai SNOMED~CT,
+\texttt{medications.csv} memakai RxNorm, \texttt{observations.csv} memakai LOINC,
+\texttt{immunizations.csv} memakai CVX, dan kamus datanya menyatakan masing-masing hal itu
+secara eksplisit \cite{synthea_csv_dict}. Kolom \texttt{SYSTEM} justru hadir tepat pada dua
+berkas yang dokumentasinya menyebut kosakatanya \emph{typically} SNOMED~CT dan tidak hadir pada
+tiga berkas yang kosakatanya dinyatakan kamus itu secara tegas. Karena itu, asimetrinya beralasan
+dan pada tingkatan kolom utuh ekspor tersebut tidak kehilangan apa pun.
+
+Yang tidak dapat diungkapkan oleh kosakata yang ditetapkan per berkas adalah kode yang
+sistemnya berubah \emph{di dalam} satu kolom---dan itu persis terlihat pada kasus \texttt{VALUE} yang berada pada
+observasi di atas. Satu kolom itu memuat angka bagi kolesterol LDL sekaligus konsep SNOMED~CT
+bagi status merokok sehingga tidak ada satu sistem yang dapat secara konsisten dideklarasikan oleh
+kolom pendamping dan kodenya pun dibuang demi untai tampilannya. FHIR melekatkan
+\texttt{system} pada setiap \emph{coding} secara tersendiri sehingga tidak menghadapi kendala
+serupa. Kehilangan itu merupakan konsekuensi dari bentuk tabularnya, bukan dari rancangan skema
+yang terlewat.
+
+Satu kehilangan lagi menyangkut ketelitian, bukan struktur. Ekspor tersebut menuliskan nilai
+observasi ke satu angka di belakang koma, sedangkan \emph{resource} FHIR menyimpannya utuh.
+Selisihnya terbatas pada $0{,}05$ dan berpotensi berarti hanya bila sebuah nilai kebetulan
+berada tepat di tepi ambang panduan klinis. Subbab~\ref{sec:csv-gating} menghitung seberapa
+sering hal itu terjadi pada kohort ini.
+
+Yang benar-benar hilang secara struktural adalah \texttt{status}. Tidak satu pun tabel membawanya:
+\emph{resource} FHIR mencatat \texttt{"status": "final"} dan CSV tidak memiliki tempat untuk
+menaruhnya. Ketiadaan yang sama pada \texttt{medications.csv}, yang menyediakan \texttt{START},
+\texttt{STOP}, dan \texttt{DISPENSES}, tetapi tanpa status, justru itulah yang harus dibahas
+pada Subbab~\ref{sec:chronicity}.
+Kedua total di bawah ini seluruhnya berasal dari proses umum: proses yang diperkaya penyakit
+sama sekali tidak mencatat observasi tekanan darah maupun status merokok.
+
+\subsubsection*{Mengapa observasi dibatasi dengan \emph{allow-list}}
+Observasi merupakan penentu skala yang dominan dalam korpus FHIR: observasi mencakup sekitar
+38\% dari seluruh \emph{resource} dan seorang pasien dalam kohort ini dapat
+membawa beberapa ribu di antaranya. Memuat semuanya akan melipatgandakan graf beberapa kali
+akibat adanya pengukuran rutin yang tidak menjadi prasyarat oleh satu pun rekomendasi
+panduan klinis---misalnya urinalisis berulang, tanda vital dari kunjungan yang tidak berkaitan, dan
+anggota panel yang tidak pernah dirujuk oleh logika yang dikodekan. \emph{Loader} karenanya
+menerapkan \emph{allow-list} berisi sembilan kode LOINC yang persis mencakup nilai-nilai
+yang menjadi tumpuan logika panduan klinis: fraksi ejeksi, indeks massa tubuh, kolesterol LDL dan
+total, trigliserida, hemoglobin terglikasi, status merokok, serta panel tekanan darah. Tekanan
+sistolik dan diastolik tidak memerlukan entri tersendiri karena keduanya dibawa sebagai
+komponen di dalam panel dan ikut tertangkap bersamanya.
+
+Keputusan ini berkaitan dengan \emph{skala} dan perlu dipisahkan dari mekanisme
+\emph{observation gate} yang diuraikan pada Subbab~\ref{sec:dss-method}, yang merupakan
+keputusan mengenai \emph{daya ungkap}. \emph{Allow-list} mengendalikan observasi mana yang ada di
+dalam graf, sedangkan \emph{observation gate} mengendalikan bagaimana sebuah rekomendasi
+yang bergantung pada nilai numerik diputuskan setelah observasi tersebut ada. Memperlebar
+\emph{allow-list} akan memperbesar graf tanpa mengubah cara kerja penggerbangan dan mempersempitnya
+akan membuat gerbang kekurangan masukan tanpa mengubah struktur logikanya.
+\emph{Allow-list} ini diturunkan dari logika panduan klinis yang dikodekan dengan memperhatikan
+aturan berupa sebuah kode akan dimasukkan karena ada rekomendasi yang membacanya. Karena itu, tidak ada rekomendasi yang dikeluarkan dari evaluasi akibat ketiadaan observasi yang tidak perlu---daftar
+tersebut membatasi seberapa banyak korpus yang dimuat, bukan rekomendasi mana yang dapat
+dinilai.
+
+\subsection{Dua sudut pandang atas skema}
+Graf yang dimuat akan diuraikan di sini menurut dua sudut pandang yang saling melengkapi karena skema
+lengkap dan bagian skema yang benar-benar ditelusuri lapisan rekomendasi berbeda jauh
+ukurannya. Skema \emph{lengkap} adalah himpunan seluruh tripel label-relasi-label yang ada
+dalam basis data: 24 label simpul---tidak termasuk label struktural \texttt{:Resource} yang
+melekat pada segala sesuatu kecuali \texttt{:Code}, akibat konsekuensi metode konstruksi---yang dihubungkan
+oleh 95 tripel berbeda. Skema lengkap direproduksi pada Lampiran~\ref{app:schema}. Skema
+\emph{terpakai} adalah subgraf yang ditelusuri kueri: sebelas label dan sebelas tipe relasi. Dua belas
+label klinis tetap dimuat, tetapi tidak dibaca oleh satu pun kueri yang dilaporkan dalam
+skripsi ini---\texttt{:AllergyIntolerance}, \texttt{:CarePlan}, \texttt{:CareTeam},
+\texttt{:Device}, \texttt{:Encounter}, \texttt{:ImagingStudy}, \texttt{:Immunization},
+\texttt{:Location}, \texttt{:MedicationAdministration}, \texttt{:Organization},
+\texttt{:Practitioner}, dan \texttt{:PractitionerRole}---dan seluruhnya tetap tersedia untuk
+penelitian lanjutan. Label ketiga belas yang tidak terkueri, \texttt{:Guideline}, tidak
+terpakai karena alasan yang berbeda: label itu membawa provenans panduan klinis melalui
+\texttt{(:Guideline)$-$[:CONTAINS]$\rightarrow$(:Recommendation)}, sedangkan kueri pendukung
+keputusan memasuki lapisan panduan klinis langsung pada \texttt{:Recommendation} sehingga simpul
+induknya tidak pernah diperlukan pada saat kueri dijalankan.
+
+Subgraf terpakai tidak dipilih berdasarkan pertimbangan subjektif. Subgraf itu adalah himpunan
+label dan tipe relasi yang muncul secara harfiah pada modul rekomendasi,
+\emph{observation gate}, \emph{briefing}, dan kronisitas. Setiap sisi pada Gambar~\ref{fig:graph-model} telah diverifikasi keberadaannya di dalam basis data yang dimuat,
+bukan disimpulkan dari kode sumber \emph{loader}.
+
+Simpul \texttt{:Code} bersama merupakan poros bagi keseluruhan rancangan: setiap tipe \emph{resource}
+klinis bertemu padanya dan simpul itu merupakan satu-satunya titik lekat bagi lapisan konsep
+UMLS, yang digunakan untuk membawa masing-masing dari lapisan panduan klinis dan literatur. Inilah yang memungkinkan
+seorang pasien terhubung ke sebuah rekomendasi dan bukti pendukungnya hanya dengan menggunakan
+penelusuran, tanpa pencocokan teks apa pun pada saat kueri dijalankan. Perhatikan arah
+jembatannya: sisi tersebut berjalan
+\texttt{(:Concept)-[:SAME\_CONCEPT]->(:Code)}, dari konsep ke kode, sehingga penelusuran yang
+berangkat dari pasien mencapai konsep dengan menyusurinya secara terbalik.
+
+\begin{figure}[htbp]
+\centering
+% Scaled to the measure: the natural width is a few mm over \textwidth.
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance = 3.5mm and 10mm,
+    res/.style  = {rectangle, rounded corners=2pt, draw, text width=27mm,
+                   align=center, minimum height=7mm, font=\scriptsize},
+    hub/.style  = {rectangle, rounded corners=2pt, draw, very thick, text width=21mm,
+                   align=center, minimum height=9mm, font=\scriptsize, fill=black!12},
+    lay/.style  = {rectangle, rounded corners=2pt, draw, text width=23mm,
+                   align=center, minimum height=9mm, font=\scriptsize},
+    pat/.style  = {rectangle, rounded corners=2pt, draw, very thick, text width=17mm,
+                   align=center, minimum height=9mm, font=\scriptsize, fill=black!6},
+    lbl/.style  = {font=\tiny, inner sep=1pt},
+    ar/.style   = {-latex}
+]
+% resource EHR
+\node[res] (c)  {\texttt{:Condition}};
+\node[res, below=of c] (p)  {\texttt{:Procedure}};
+\node[res, below=of p] (m)  {\texttt{:MedicationRequest}};
+\node[res, below=of m] (md) {\texttt{:Medication}};
+\node[res, below=of md] (o) {\texttt{:Observation}};
+\node[res, below=of o] (cm) {\texttt{:Component}};
+
+% jangkar pasien
+\node[pat, left=10mm of p, yshift=-8mm] (pt) {\texttt{:Patient}};
+
+% jembatan terminologi dan lapisan atas
+\node[hub, right=of p, yshift=-10mm] (code) {\texttt{:Code}\\(system, code)};
+\node[lay, right=of code] (con) {\texttt{:Concept}\\(CUI UMLS)};
+\node[lay, above right=6mm and 10mm of con] (rec) {\texttt{:Recommendation}\\(COR)};
+\node[lay, below right=6mm and 10mm of con] (abs) {\texttt{:Abstract}\\(PMID)};
+
+% SUBJECT: resource klinis berjangkar pada pasien
+\draw[ar] (c) -- (pt);
+\draw[ar] (p) -- (pt);
+\draw[ar] (m) -- (pt);
+\draw[ar] (o) -- (pt);
+\node[lbl, above=0.5mm of pt] {\texttt{SUBJECT}};
+
+% CODE / MEDICATION / COMPONENT
+\draw[ar] (c)  -- (code);
+\draw[ar] (p)  -- (code);
+\draw[ar] (o)  -- (code);
+\draw[ar] (cm) -- (code);
+\draw[ar] (md) -- (code);
+\draw[ar] (m)  -- (code);
+\draw[ar] (o)  -- (cm);
+\draw[ar] (m)  -- (md);
+
+% jembatan berjalan Concept -> Code
+\draw[ar] (con) -- node[lbl, above, sloped] {\texttt{SAME\_CONCEPT}} (code);
+\draw[ar] (rec) -- (con);
+\draw[ar] (abs) -- (con);
+\draw[ar] (rec) -- node[lbl, right] {\texttt{CITES}} (abs);
+
+\node[lbl, above=1mm of c]   {lapisan EHR};
+\node[lbl, above=1mm of rec] {lapisan panduan klinis};
+\node[lbl, below=1mm of abs] {lapisan literatur};
+\end{tikzpicture}}
+\caption{Skema \emph{terpakai}: sebelas label dan sebelas tipe relasi yang ditelusuri kueri pendukung
+keputusan. \emph{Resource} klinis berjangkar pada \texttt{:Patient} melalui \texttt{SUBJECT}
+dan bertemu pada simpul \texttt{:Code} bersama; \texttt{:Concept} menjembatani \emph{ke}
+\texttt{:Code} melalui \texttt{SAME\_CONCEPT}, sekaligus membawa lapisan panduan dan
+literatur. Obat diresolusi melalui dua lintasan---langsung ke \texttt{:Code} atau melalui
+rujukan \texttt{:Medication}---dan kueri menyusuri keduanya. Sisi
+\texttt{CO\_OCCURS\_IN\_LITERATURE}, yang dihilangkan di sini demi keterbacaan, turut
+menghubungkan \texttt{:Code} dengan \texttt{:Code}. Skema lengkap berisi 95 tripel diberikan
+pada Lampiran~\ref{app:schema}.}
+\label{fig:graph-model}
+\end{figure}
+
+\section{Metode Rekomendasi}
+\label{sec:dss-method}
+
+Untuk seorang pasien, lapisan rekomendasi menjalankan empat operasi deterministik
+terhadap graf:
+
+\begin{enumerate}
+    \item \textbf{Rekomendasi yang berlaku.} Sebuah rekomendasi dinyatakan berlaku jika pasien
+    termasuk dalam kohort CCD (gerbang dasar) \emph{dan} pasien memenuhi seluruh target
+    kondisi rekomendasi tersebut. Target kondisi adalah diagnosis lanjutan di luar gerbang
+    kohort itu sendiri yang mungkin disyaratkan sebuah rekomendasi dan target itu hanya
+    dihitung bila menjembatani ke kode yang benar-benar dipakai EHR. Penelusurannya bersifat
+    gerbang-plus-AND, dengan OR untuk rekomendasi yang ditandai disjungtif. Subbab~\ref{sec:disc-class} memformalkan istilah
+    tersebut.
+    \item \textbf{\emph{Observation gate}.} Rekomendasi yang prasyaratnya bergantung pada
+    observasi numerik (misalnya fraksi ejeksi, LDL, indeks massa tubuh, trigliserida, tekanan
+    darah, dan status merokok) diputuskan dengan mengevaluasi predikat panduan klinis atas nilai
+    terukur pasien yang dibaca dari graf, menggunakan ambang yang sama dengan standar rujukan
+    (Subbab~\ref{sec:oracle}). Inilah mekanisme yang membuat observasi FHIR-native
+    meningkatkan presisi.
+    \item \textbf{Keamanan kontraindikasi.} Obat yang dikonsumsi pasien diperiksa terhadap
+    rekomendasi yang mengontraindikasikannya dalam tiga varian. Varian unary menandai jika
+    pasien mengonsumsi obat tersebut. Varian tergerbang-populasi menandai hanya jika pasien
+    juga memenuhi kondisi populasi kontraindikasinya. Varian tergerbang-kronisitas, khusus
+    untuk rekomendasi NSAID kronis, menandai hanya jika penggunaan obat memenuhi kriteria kronis. Gerbang kronisitas yang
+    dipakai di dalam lapisan rekomendasi dihitung dari graf semata. Gerbang itu membaca
+    \texttt{MedicationRequest.status}, yang oleh FHIR dicatat sebagai kategori
+    (\texttt{active} atau \texttt{completed}) alih-alih sebagai tanggal, serta jumlah
+    episode peresepan yang terpisah. Dengan demikian, gerbang ini hanya menjalankan bagian
+    definisi kronisitas yang masih tersedia pada hasil ekspor FHIR. Karena tanggal berhenti tidak
+    diekspor, kedua lengan dari definisi kronisitas yang dinyatakan sebagai durasi sama sekali tidak dapat
+    dinilai dari graf; Subbab~\ref{sec:chronicity} memaparkan asimetrinya secara utuh.
+    \item \textbf{Dukungan literatur dan \emph{briefing}.} Pilihan obat yang terikat dengan
+    kondisi pasien pada lapisan literatur diperingkat menurut PMI dan seluruh fakta di atas
+    dirakit menjadi muatan terstruktur yang kemudian dirumuskan oleh model bahasa besar
+    menjadi ringkasan untuk klinisi. Model tersebut tidak pernah mengueri graf dan tidak
+    pernah mengambil keputusan klinis; model hanya merumuskan ulang fakta hasil penelusuran
+    yang membawa provenans.
+\end{enumerate}
+
+\subsection{Rancangan kueri dan prosedur \emph{observation gate}}
+Subbab ini berupa sebuah rancangan kueri dan prosedur yang menghasilkan rekomendasi untuk menjawab RQ2.
+Penerapan rekomendasi dievaluasi melalui satu penelusuran. Penelusuran diawali dari
+pencarian id pasien, lalu kueri memeriksa apakah pasien berada dalam kohort CCD (konsep
+gerbang dasar). Untuk setiap rekomendasi yang dapat diterapkan, pasien kemudian harus
+memenuhi \emph{seluruh} target kondisi nonjangkar dari rekomendasi tersebut yang
+menjembatani ke EHR. Syarat ini diimplementasikan sebagai logika AND, yaitu jumlah target
+yang cocok harus sama dengan jumlah target yang dapat dijembatani. Untuk rekomendasi yang ditandai disjungtif, kueri memakai cabang OR sehingga
+satu target yang cocok sudah memadai. Karena tipe pilihan
+obat pada FHIR dapat dinyatakan baik secara langsung maupun melalui rujukan, kedua lintasan
+obat (\texttt{:Code} langsung dan rujukan
+\texttt{:Medication}$\to$\texttt{:Code}) akan ditambahkan untuk setiap obat yang muncul pada \texttt{:Medication} sehingga
+obat yang dirujuk pasti terpetakan.
+
+\subsubsection*{Bagaimana sebuah rekomendasi membedakan pasien}
+\label{sec:disc-class}
+Tidak setiap rekomendasi dapat mengerucutkan kohort. Begitu seorang pasien melewati gerbang CCD,
+sebagian rekomendasi berlaku bagi pasien itu secara otomatis tanpa ada lagi yang perlu diuji.
+Sebagian rekomendasi lainnya hanya berlaku bagi pasien yang memenuhi syarat tertentu.
+Terdapat dua mekanisme persyaratan yang tidak saling bergantung untuk mengerucutkan kohort. 
+Pertama, sebuah rekomendasi dapat membawa \emph{target kondisi} di luar konsep gerbang
+yang menjembatani ke EHR sehingga penelusuran dapat membuang pasien yang tidak
+memenuhi target kondisi. Kedua, rekomendasi dapat membawa \emph{prasyarat numerik} atas sebuah
+observasi sehingga \emph{observation gate} dapat membuang pasien yang nilai observasi terukurnya (\emph{numerik})
+tidak memenuhi ambang batas. Persilangan keduanya menghasilkan empat kelas, yang dirangkum pada
+Tabel~\ref{tab:disc-class}.
+
+\begin{table}[h]
+\centering
+\caption{Klasifikasi rekomendasi nonkontraindikasi menurut mekanisme yang tersedia untuk
+mempersempit kohort.}
+\label{tab:disc-class}
+\begin{tabular}{lccl}
+\hline
+\textbf{Kelas} & \textbf{Target?} & \textbf{Numerik?} & \textbf{Rekomendasi} \\
+\hline
+Universal        & tidak & tidak & 38 \quad (NUTRI, PA, WM:1, APT:1---2 \ldots) \\
+Tergerbang-nilai & tidak & ya    & \phantom{0}5 \quad (BB:1, BB:2, BPM:1, RAAI:1, RAAI:2) \\
+Tercocok-konsep  & ya    & tidak & 15 \quad (APT:11---13, APT:4---5 \ldots) \\
+Keduanya         & ya    & ya    & 10 \quad (LIPID:9, SGLT2:4, SGLT2:6, TP:2 \ldots) \\
+\hline
+\textbf{Total}   &       &       & \textbf{68} \\
+\hline
+\end{tabular}
+\end{table}
+
+Kelas \emph{universal} adalah yang terbesar. Rekomendasi nutrisi, aktivitas fisik, dan
+pengelolaan berat badan termasuk di dalamnya karena panduan klinis hanya mensyaratkannya kepada setiap pasien
+CCD; sistem yang benar adalah sistem yang memunculkan rekomendasi-rekomendasi tersebut bagi setiap anggota kohort. Rekomendasi
+\emph{tercocok-konsep} membedakan melalui penelusuran---misalnya rekomendasi yang menyasar
+pasien yang juga memerlukan antikoagulan oral hanya berlaku bila indikasi penggunaan obat tersebut terkode di EHR.
+Rekomendasi \emph{tergerbang-nilai} membedakan pasien semata-mata melalui predikat.
+Contohnya, \texttt{BB:1} dan \texttt{BB:2} bertumpu pada fraksi ejeksi, yang merupakan angka
+terukur dan bukan diagnosis. Karena itu, penelusuran berbasis kondisi semata tidak dapat
+memisahkan pasien yang dikenai rekomendasi tersebut. Kelas \emph{keduanya} bekerja
+berdasarkan kedua mekanisme tersebut secara berurutan.
+
+Akibatnya, terdapat dua konsekuensi. Pertama, dapat disalahpahami
+bahwa rekomendasi universal tidak dapat menurunkan presisi, dengan alasan
+bahwa rekomendasi itu berlaku bagi setiap anggota kohort menurut definisinya. Pernyataan tersebut
+keliru dan Subbab~\ref{sec:ablation-class} mengukur seberapa keliru: kelas universal
+menghasilkan sebagian besar \emph{false positive} sistem. Sebabnya, ``universal'' di sini
+merupakan pernyataan tentang \emph{pengodean}, bukan tentang panduan klinisnya. Istilah universal berarti
+rekomendasi tersebut tidak memiliki target kondisi yang dapat dikodekan dan dijembatani
+ke kode EHR---bukan berarti teks panduan klinisnya tidak menetapkan prasyarat. Ketika pandua klinis memang
+menetapkan prasyarat yang tidak pernah direpresentasikan pada lapisan pengetahuan, sistem
+tidak memiliki cara untuk menahan rekomendasi tersebut dan standar rujukan yang membaca
+logika panduan klinis dari rekam medis mentah menandai selisihnya sebagai \emph{false positive}.
+Dengan demikian, batas utama presisi terletak pada \emph{seberapa banyak panduan yang berhasil
+dikodekan}, bukan pada seberapa baik kueri mencocokkan pasien terhadap apa yang telah
+dikodekan.
+
+Kedua, ablasi \emph{observation gate} pada Subbab~\ref{sec:eval-method}
+hanya dapat menyentuh 15 rekomendasi yang memang tergerbang: lima yang tergerbang-nilai
+dan sepuluh pada kelas keduanya. Ke-53 rekomendasi sisanya dinilai dengan cara yang persis
+sama, baik ketika penggerbangan dinyalakan maupun dimatikan. Jadi, perbedaan apa pun
+yang ditunjukkan ablasi itu pasti berasal dari 15 rekomendasi tersebut dan tidak mungkin dari yang
+lain. Hal itu masih sebuah prediksi, tetapi bukanlah asumsi dan karena itulah Bab~IV melaporkan keselarasan
+kelas demi kelas---supaya dapat diperiksa kebenarannya. Hasilnya terbukti persis: pada kelas yang tidak tergerbang, adanya penggerbangan maupun tidak menghasilkan kesepakatan hingga ke cacah satuannya.
+
+\subsubsection*{Mengapa \emph{observation gate} merupakan mekanisme terpisah}
+Rekomendasi bergantung-observasi tidak dapat diselesaikan oleh penelusuran yang baru saja
+diuraikan karena alasan daya ungkap, bukan karena skala. Kueri gerbang-plus-AND mencocokkan
+\emph{konsep}: kueri itu menanyakan apakah rekam medis seorang pasien memuat kode yang
+menjembatani ke konsep yang ditargetkan sebuah rekomendasi. Namun, prasyarat seperti ``LDL-C di
+bawah 70~mg/dL'' atau ``fraksi ejeksi kurang dari atau sama dengan 40\%'' bukanlah sebuah
+konsep---melainkan sebuah predikat berupa sebuah \emph{nilai}. Tidak ada pola untuk simpul dan
+sisi yang dapat mengevaluasinya karena yang harus dibandingkan adalah sebuah angka yang
+dibawa sebagai properti, terhadap sebuah ambang yang dinyatakan dalam teks panduan klinis dan sama
+sekali tidak hadir di dalam graf.
+
+Rekomendasi bergantung-observasi karenanya diputuskan secara terpisah: modul
+\emph{observation gate} membaca fitur observasi gabungan milik pasien dari graf (nilai laboratorium
+terburuk sepanjang riwayat, tekanan darah, dan status merokok terkini) dan mengevaluasi
+predikat panduan klinis bagi setiap rekomendasi tersebut menggunakan ambang yang sama dengan standar
+rujukan. Himpunan akhir rekomendasi yang dapat diberlakukan dihasilkan dari dua bagian. Pertama, rekomendasi
+yang tidak tergerbang observasi mempertahankan apa pun yang telah diputuskan
+penelusuran gerbang-plus-AND pada graf. Kedua, rekomendasi yang tergerbang justru diputuskan
+oleh predikatnya dan keputusan itu \emph{menggantikan} keputusan graf, bukan diiriskan dengannya.
+Bedanya terlihat setiap kali panduan klinis menyatakan prasyaratnya sebagai daftar pilihan. Ada satu rekomendasi yang berlaku jika pasien memiliki hipertensi, diabetes, penyakit ginjal
+kronis, \emph{atau} fraksi ejeksi yang menurun. Mensyaratkan keempatnya sekaligus akan
+membuang setiap pasien yang hanya memiliki salah satunya. Pasien-pasien tersebut tetap
+terjaring hanya bila predikatnya yang memutuskan keberlakuan rekomendasi.
+
+Gambar~\ref{fig:obs-gate} merangkum mekanisme tersebut sekaligus ablasi yang mengukurnya.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    box/.style  = {rectangle, rounded corners=2pt, draw, text width=30mm, align=center,
+                   minimum height=12mm, font=\scriptsize},
+    wide/.style = {rectangle, rounded corners=2pt, draw, text width=62mm, align=center,
+                   minimum height=10mm, font=\scriptsize},
+    ev/.style   = {wide, fill=black!8},
+    ar/.style   = {-latex, thick}
+]
+\node[box] (pt) {Pasien yang lolos gerbang CCD};
+
+\node[box, below=9mm of pt, xshift=-20mm] (trav)
+    {Penelusuran gerbang-plus-AND\\[1pt]\emph{mencocokkan konsep pada graf}};
+\node[box, below=9mm of pt, xshift=20mm] (feat)
+    {Fitur observasi dari graf\\[1pt]\emph{LVEF, LDL, BMI, TG, tekanan darah, status merokok}};
+
+\node[box, below=8mm of trav] (keep)
+    {53 rekomendasi tak bergerbang\\[1pt]\emph{keputusan graf dipertahankan}};
+\node[box, below=8mm of feat] (pred)
+    {15 rekomendasi bergerbang\\[1pt]\emph{predikat menggantikan keputusan graf}};
+
+\node[wide] (set) at ($(keep)!0.5!(pred) + (0,-20mm)$)
+    {Himpunan rekomendasi yang dapat diberlakukan};
+\node[ev, below=7mm of set] (abl)
+    {Ablasi: lengan tanpa gerbang versus lengan dengan gerbang};
+
+\draw[ar] (pt) -- (trav);
+\draw[ar] (pt) -- (feat);
+\draw[ar] (trav) -- (keep);
+\draw[ar] (feat) -- (pred);
+\draw[ar] (keep) -- (set);
+\draw[ar] (pred) -- (set);
+\draw[ar] (set) -- (abl);
+\end{tikzpicture}
+\caption{Mekanisme \emph{observation gate} beserta ablasinya. Penelusuran pada graf
+mencocokkan \emph{konsep} sehingga prasyarat berupa ambang atas sebuah \emph{nilai} tidak
+dapat dievaluasi olehnya. Rekomendasi bergantung-observasi karena itu diputuskan oleh
+predikat tersendiri dan keputusan predikat tersebut menggantikan keputusan graf alih-alih
+diiriskan dengannya---hal inilah yang membuat prasyarat disjungtif menambah pasien, bukan
+menyaringnya keluar. Ablasi menjalankan alur yang sama sebanyak dua kali, dengan gerbang
+dimatikan dan dinyalakan, sehingga hanya ke-15 rekomendasi bergerbang itulah yang dapat
+berubah.}
+\label{fig:obs-gate}
+\end{figure}
+
+
+\emph{Grounded briefing} dihasilkan dalam empat tahap. Tahap~(i) adalah penelusuran
+deterministik untuk ringkasan pasien, rekomendasi yang berlaku, tanda keamanan, dan dukungan
+literatur melalui kueri di atas. Tahap~(ii) merakit seluruhnya menjadi muatan fakta
+terstruktur yang setiap butirnya membawa provenans, yaitu pengenal rekomendasi,
+\emph{class of recommendation}, dan PMID. Tahap~(iii) menggunakan satu model bahasa untuk
+merumuskan fakta tersebut; setiap rekomendasi hanya boleh dijustifikasi dari kondisi pemicu
+hasil penelusurannya dan model dilarang menyatakan prasyarat yang tidak didukung data.
+Tahap~(iv) mengeluarkan fakta dan ringkasan sebagai artefak terpisah agar
+\emph{faithfulness}-nya pada tingkat sitasi dapat diperiksa secara mekanis.
+Listing~\ref{lst:applicable-core} memuat inti kueri tersebut, sedangkan teks lengkapnya
+disalin pada Lampiran~\ref{app:queries}.
+\begin{lstlisting}[caption={Inti kueri rekomendasi yang dapat diberlakukan menggunakan gerbang CCD, yang kemudian dilakukan pencocokan
+target menurut tanda konjungsi/disjungsi milik rekomendasi itu sendiri.},
+label={lst:applicable-core}]
+MATCH (p:Patient {uid:$pid})
+WHERE EXISTS { (p)<-[:SUBJECT]-(:Condition)-[:CODE]->(:Code)
+                 <-[:SAME_CONCEPT]-(:Concept {umlsCui:$gate}) }
+MATCH (rec:Recommendation) WHERE NOT rec.cor STARTS WITH '3'
+/* ... kumpulkan target non-jangkar tiap rekomendasi sebagai extraConds,
+   dan yang benar-benar dipenuhi pasien sebagai matched ... */
+WHERE size(extraConds) = 0
+   OR (coalesce(rec.targetLogic,'AND') = 'OR'  AND size(matched) >= 1)
+   OR (coalesce(rec.targetLogic,'AND') = 'AND' AND size(matched) = size(extraConds))
+RETURN rec.recommendationId AS recId
+\end{lstlisting}
+
+Gambar~\ref{fig:briefing-pipeline} memperlihatkan susunan tersebut. Hal yang penting adalah
+model bahasa berada \emph{di hilir} penelusuran dan tidak memiliki jalur kembali ke graf.
+Model tidak memiliki cara untuk memperoleh rekomendasi di luar hasil penelusuran sehingga
+rekomendasi apa pun di luar himpunan itu pasti karangan. Justru itulah yang membuat
+pemeriksaan butir yang dapat disitasi dapat diputuskan. Susunan ini tidak menjamin bahwa
+setiap kalimat yang dirumuskan model setia secara makna (Subbab~\ref{sec:faithfulness}).
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+   node distance = 8mm,
+   box/.style = {rectangle, rounded corners=2pt, draw, text width=24mm, align=center,
+                 minimum height=13mm, font=\scriptsize},
+   ar/.style  = {-latex, thick}
+]
+\node[box] (g) {\emph{Knowledge graph}\\[1pt]\emph{penelusuran Cypher deterministik}};
+\node[box, right=of g] (f) {Muatan fakta\\[1pt]\emph{recId, COR, PMID}};
+\node[box, right=of f] (l) {Model bahasa\\[1pt]\emph{hanya merumuskan}};
+\node[box, right=of l] (b) {Ringkasan\\[1pt]\emph{utama + rincian}};
+\node[box, below=10mm of l, fill=black!8] (chk) {Pemeriksaan \emph{faithfulness}};
+
+\draw[ar] (g) -- (f);
+\draw[ar] (f) -- (l);
+\draw[ar] (l) -- (b);
+\draw[ar] (f) |- (chk);
+\draw[ar] (b) |- (chk);
+\end{tikzpicture}
+\caption{Alur \emph{grounded briefing}. Penelusuran bersifat deterministik; model bahasa hanya
+merumuskan fakta hasil penelusuran dan pemeriksaan \emph{faithfulness} membandingkan
+keluarannya kembali terhadap muatan fakta yang sama.}
+\label{fig:briefing-pipeline}
+\end{figure}
+
+\subsection{Kronisitas obat: status FHIR versus durasi CSV}
+\label{sec:chronicity}
+Satu rekomendasi---menghindari penggunaan NSAID kronis pada penyakit jantung koroner
+kronis---bergantung bukan pada \emph{apakah} sebuah obat diresepkan, melainkan pada
+\emph{berapa lama} obat itu dikonsumsi dan rekomendasi ini menyingkap asimetri
+antara dua tampilan dari rekam medis sintetis yang sama. \texttt{MedicationRequest} pada FHIR membawa tanggal \texttt{authoredOn} dan \texttt{status}
+penggunaan (\texttt{active} versus \texttt{completed}), tetapi \emph{tidak} membawa tanggal
+berhenti. Sebaliknya, ekspor CSV Synthea yang berpasangan dengannya membawa tanggal
+\texttt{START} dan \texttt{STOP} secara eksplisit, tetapi \emph{tidak} membawa informasi
+status. Keduanya mengodekan fakta dasar yang sama melalui cara
+yang berbeda. \texttt{STOP} yang kosong pada CSV (penggunaan masih berjalan) bersesuaian satu-satu
+dengan \texttt{status} FHIR bernilai \texttt{active}. Tidak ada proyeksi yang merupakan
+subhimpunan dari yang lain.
+
+\subsubsection*{Mengoperasionalkan istilah ``kronis''}
+Panduan tidak mendefinisikan istilah yang dapat dijadikan sebagai tumpuan kronisitas. Rekomendasi
+\texttt{CCD-2023:APT:10} (COR~3-Harm, LOE~B-R) berbunyi lengkap: \emph{``In patients with CCD,
+chronic nonsteroidal anti-inflammatory drugs should not be used because of increased
+cardiovascular and bleeding complications.''} Rekomendasi itu tidak menyebutkan durasi, jumlah
+penggunaan, maupun pola dosis. Setiap implementasi karenanya harus menggunakan definisi
+operasionalnya sendiri dan definisi tersebut merupakan keputusan penelitian yang harus
+diwujudkan untuk keperluan operasional, bukan fakta yang dapat disitasi. Hal ini sendiri merupakan temuan: sebuah
+rekomendasi yang tidak ambigu bagi pembaca manusia ternyata tidak membuatnya langsung dapat dieksekusi
+dan celahnya harus ditutup oleh pihak yang mengimplementasikan panduan klinis tersebut.
+
+Tidak ada satu pun definisi terbitan yang mencakup istilah ini, tetapi ambang-ambang yang
+diterbitkan pun tidak sembarangan. Ambang-ambang tersebut mengelompok. Pada jangka pendek, sebuah
+tinjauan sistematis mengenai keamanan NSAID jangka pendek mengambil ``sepuluh hari atau
+kurang'' dan mencatat bahwa \emph{Food and Drug Administration} Amerika Serikat menyarankan
+konsultasi dengan klinisi bila penggunaan melampaui sepuluh hari \cite{aminoshariae2016} dan
+sebuah tinjauan pakar mengenai osteoartritis menyebut periode penggunaan awal yang lazim adalah tujuh
+hingga sepuluh hari dengan penilaian ulang sekitar tiga minggu
+\cite{magni2021}. Di luar itu, ambang eksplisit muncul pada tiga titik. Sebuah
+studi farmakovigilans memperlakukan paparan NSAID lebih dari 21~hari
+berturut-turut sebagai penggunaan yang berpotensi tidak tepat atau berlebihan
+\cite{ussai2015}. Sebuah studi populasi menghitung penggunaan NSAID dari
+konsumsi yang dilaporkan sendiri selama sekurang-kurangnya 30 hari
+\cite{hessami2025}. Sebuah studi \emph{cross-sectional} mengenai peresepan pada
+lansia bahkan menyatakan secara langsung bahwa seorang pasien dapat dianggap sebagai pengguna NSAID
+kronis bila mengonsumsi NSAID sekurang-kurangnya tiga bulan
+\cite{abdu2020}. Studi lain menghindari jumlah hari penggunaan dan
+mengklasifikasikan penggunaan kronis melalui \emph{medication possession ratio}
+\cite{campbell2022} atau melalui persentase hari terpasok \cite{kikuchi2021}.
+
+Definisi yang diadopsi dalam penelitian ini memiliki empat lengan. Dua ambangnya berada di
+dalam kelompok terbitan yang baru diuraikan dan dipilih karena alasan tersebut; satu lengan sisanya
+merupakan parameter yang dinyatakan tanpa preseden langsung:
+
+\begin{enumerate}
+    \item[(i)] periode penggunaan yang sedang berjalan (\texttt{active});
+    \item[(ii)] paparan kumulatif melampaui 90~hari;
+    \item[(iii)] tiga periode penggunaan terpisah atau lebih;
+    \item[(iv)] satu periode penggunaan tunggal melampaui 30~hari.
+\end{enumerate}
+
+Lengan~(ii), paparan kumulatif di atas 90~hari, bersesuaian dengan batas tiga bulan yang
+dinyatakan secara eksplisit sebagai penggunaan kronis oleh Abdu \textit{et al.}
+\cite{abdu2020}. Ambang tunggal dijelaskan dalam literatur tersebut. Lengan~(iv), satu
+periode penggunaan di atas 30~hari, berada di antara dua batas terbitan terdekat. Batas
+pertama adalah 21 hari berturut-turut yang oleh Ussai \textit{et al.} sudah dianggap tidak
+tepat \cite{ussai2015}. Ambang itu satu-satunya dalam kelompok ini yang dinyatakan
+dalam hari \emph{berturut-turut} sehingga paling dekat konstruksinya dengan satu periode
+penggunaan berkesinambungan. Batas kedua adalah tanda 30 hari yang digunakan Hessami
+\textit{et al.} \cite{hessami2025}. Lengan~(iii), tiga periode penggunaan terpisah atau
+lebih, tidak memiliki preseden langsung; metode berbasis rasio cakupan
+\cite{campbell2022}\cite{kikuchi2021} menangkap intuisi yang sama mengenai
+penggunaan berulang alih-alih sekali pakai, tetapi tidak dalam bentuk yang dapat dialihkan ke
+jumlah episode peresepan. Lengan itu dinyatakan di sini sebagai parameter penelitian ini.
+
+Dua kualifikasi perlu menyertai hal ini. Yang pertama, yang bersesuaian dengan
+karya terbitan adalah \emph{besaran} angkanya, bukan cara angka itu diperoleh. Hessami
+\textit{et al.} mengukur apa yang dilaporkan sendiri oleh pasien sepanjang waktu dan Abdu
+\textit{et al.} mengklasifikasikan pasien alih-alih periode penggunaan, sedangkan lengan-lengan
+di sini dihitung dari tanggal \texttt{START} dan \texttt{STOP} pada peresepan. Ambang terbitan
+menjustifikasi angka yang dipilih dengan menjelaskan bahwa ambang tersebut tidak menunjukkan bahwa yang dihitung adalah hal
+yang sama.
+
+Yang kedua, aturan ini sengaja dibuat dengan hati-hati. Aturan ini bersifat \emph{spesifik, bukan
+sensitif}: sistem akan cenderung melewatkan pengguna kronis daripada menandai orang yang sebenarnya
+bukan pengguna kronis. Pasien pada hari kelima belas tidak tertangkap, padahal hari kelima
+belas sudah melampaui titik ketika penggunaan jangka pendek tanpa pengawasan mulai tidak
+dianjurkan \cite{aminoshariae2016} dan sudah mendekati ambang yang akan ditandai Ussai \textit{et al.} Pada rekomendasi COR~3 (Harm), melewatkan kasus adalah kegagalan yang
+diterima di sini agar setiap tanda yang benar-benar dimunculkan sistem tidak dapat dibantah.
+Penggerbangan yang diterapkan pada graf yang diuraikan di bawah juga mengalami pertukaran yang sama sehingga rekomendasi
+ini diperlakukan dengan cara yang sama di sepanjang penelitian.
+
+Yang terpenting, \emph{temuan} yang dilaporkan skripsi ini tidak bergantung pada angka-angka
+tersebut. Ambang mana pun yang dipilih, lengan~(ii) dan~(iv) dinyatakan dalam durasi, sedangkan
+lengan~(i) dan~(iii) tidak. Klaim bahwa proyeksi FHIR mendukung lengan~(i) dan~(iii), tetapi
+tidak mendukung lengan~(ii) dan~(iv) menjelaskan apa yang berhasil dipertahankan pada proses
+ekspor. Klaim itu tidak menjelaskan di mana ketidakmampuannya berdampak. Hanya angka \emph{recall} yang dilaporkan pada Bab~IV yang akan
+bergeser bila ambangnya diubah.
+
+Dari keempat lengan, hanya~(i) dan~(iii) yang dapat dihitung dari graf---lengan~(i) dari
+\texttt{status} yang kategoris dan lengan~(iii) dari cacah simpul
+\texttt{:MedicationRequest} NSAID. Lengan berbasis durasi, yaitu~(ii) dan~(iv), memerlukan
+tanggal berhenti dan karenanya tidak terlihat oleh alat yang hanya membaca FHIR secara native. Standar
+rujukan (Subbab~\ref{sec:oracle}) mengevaluasi keempat lengan dari ekspor CSV, yang tetap
+merupakan data sintetis mentah dan bukan keluaran sistem rekomendasi. Sebaliknya,
+penggerbangan pada graf yang tertanam pada lapisan rekomendasi dan \emph{briefing} hanya
+mengevaluasi lengan~(i) dan~(iii). Kesenjangan di antara keduanya bukanlah jalan pintas
+implementasi, melainkan akibat langsung dari apa yang dapat dipertahankan dari ekspor FHIR; dampaknya
+terhadap \emph{recall} tanda keamanan dikuantifikasi pada Bab~IV.
+Gambar~\ref{fig:chronicity} memaparkan keempat lengan dan menandai dua di antaranya yang
+selamat dari proyeksi FHIR. Aturan ini diimplementasikan pada
+\texttt{silver\_oracle.py} atas delapan zat aktif NSAID---ibuprofen, \emph{naproxen}, \emph{celecoxib},
+\emph{diclofenac}, \emph{meloxicam}, \emph{indomethacin}, \emph{ketorolac}, dan \emph{piroxicam}---yang dicocokkan pada
+deskripsi obat.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  node distance = 3mm,
+  arm/.style = {rectangle, rounded corners=2pt, draw, text width=95mm, align=left,
+                minimum height=8mm, font=\scriptsize, inner sep=4pt},
+  hit/.style = {arm, fill=black!12, very thick},
+  miss/.style= {arm, dashed}
+]
+\node[hit]  (a1) {(i)~~Penggunaan sedang berjalan \hfill dapat dihitung: \texttt{status = active}};
+\node[miss, below=of a1] (a2)
+    {(ii)~~Paparan kumulatif $>$ 90 hari \hfill perlu tanggal berhenti};
+\node[hit,  below=of a2] (a3)
+    {(iii)~~Tiga periode penggunaan terpisah atau lebih \hfill dapat dihitung: cacah \emph{request}};
+\node[miss, below=of a3] (a4)
+    {(iv)~~Satu periode penggunaan $>$ 30 hari \hfill perlu tanggal berhenti};
+
+% legenda
+\node[draw, very thick, fill=black!12, minimum width=5mm, minimum height=2.5mm,
+      inner sep=0pt, anchor=west] (k1) at ([yshift=-7mm] a4.west) {};
+\node[font=\scriptsize, right=1mm of k1] (k1t) {dapat dihitung dari graf FHIR};
+\node[draw, dashed, minimum width=5mm, minimum height=2.5mm,
+      inner sep=0pt, right=6mm of k1t] (k2) {};
+\node[font=\scriptsize, right=1mm of k2] {memerlukan ekspor CSV};
+\end{tikzpicture}
+\caption{Empat lengan aturan NSAID kronis. Hanya lengan (i) dan (iii) yang dapat dihitung dari
+graf FHIR, sedangkan lengan berbasis durasi memerlukan tanggal berhenti yang tidak dibawa ekspor FHIR.}
+\label{fig:chronicity}
+\end{figure}
+
+\section{Metode Evaluasi}
+\label{sec:eval-method}
+
+Evaluasi memadukan penilaian intrinsik terhadap artefak graf dengan penilaian ekstrinsik dari
+keluaran rekomendasi.
+
+\subsection{Standar rujukan: \emph{silver standard} yang divalidasi terhadap \emph{gold}}
+\label{sec:oracle}
+
+Evaluasi menggunakan dua himpunan rujukan dan pembedaan di antara keduanya mengikuti
+pembedaan yang lazim dalam literatur penambangan teks biomedis. \emph{Gold standard} adalah
+rujukan yang dikurasi secara \emph{manual}, sedangkan \emph{silver standard} adalah rujukan yang
+dihasilkan secara \emph{otomatis}. Kedua istilah tersebut diperkenalkan bersama oleh
+Rebholz-Schuhmann \textit{et al.} \cite{rebholz2010,rebholz2011}, yang membandingkan
+``korpus \emph{gold standard} beranotasi manual'' dengan korpus yang dihasilkan secara
+otomatis, dengan alasan dari dilakukannya pembuatan silver standard berdasar bahwa penyiapan yang pertama
+``memakan waktu dan mahal'' sehingga tidak terskala hingga beberapa ribu butir.
+
+Alasan tersebut juga digunakan di sini. Melabeli setiap pasien dalam kohort yang dapat
+dievaluasi gerbang secara manual akan menuntut seorang manusia menilai kecocokan dari 876
+pasien terhadap 81 rekomendasi---berkisar tujuh puluh ribu keputusan
+satuan---yang tidak mungkin dikerjakan oleh seorang peneliti tunggal. Evaluasi karenanya mengadopsi rancangan dua tingkat yang lazim pada \emph{phenotyping} rekam
+medis elektronik. Pada rancangan itu, label \emph{silver} diturunkan secara otomatis dalam
+skala besar, lalu divalidasi terhadap himpunan \emph{gold} kecil yang dikurasi manual
+\cite{nogues2022}. Di sini, sebuah \emph{silver standard} melabeli seluruh kohort,
+sebagaimana diuraikan pada sisa subbab ini. Sampel berlabel manual kemudian berperan sebagai
+\emph{gold standard} untuk memeriksa \emph{silver standard} tersebut
+(Subbab~\ref{sec:goldlabel}).
+
+Satu kualifikasi mengenai peristilahan. Pada karya korpus yang memperkenalkannya, sebuah
+\emph{silver standard} dibangun dengan \emph{mengharmonisasi keluaran beberapa sistem otomatis
+yang saling bebas} sehingga kesepakatan antarsistem menggantikan pertimbangan manusia.
+\emph{Silver standard} yang digunakan di sini bukan artefak konsensus semacam itu, melainkan
+merupakan satu pengodean aturan yang deterministik terhadap panduan klinis. Istilah tersebut karenanya
+digunakan dalam pengertiannya yang lebih luas dan kini lazim---yaitu standar rujukan yang
+dihasilkan secara otomatis---sebagaimana diterapkan pada literatur \emph{phenotyping} klinis
+\cite{nogues2022}, bukan dalam pengertian harmonisasi yang spesifik seperti pada korpus CALBC asli.
+Istilah \emph{oracle} yang dipakai di sepanjang skripsi ini merujuk pada implementasi
+\emph{silver standard} tersebut. \emph{Oracle} adalah komponen yang menghitung label bagi setiap
+pasangan pasien--rekomendasi dengan menerapkan logika panduan klinis pada rekam medis mentah,
+melalui jalur yang terpisah dari sistem yang diuji. Dengan demikian, \emph{oracle},
+\emph{silver standard}, dan standar rujukan otomatis menunjuk komponen yang sama.
+
+\subsubsection*{Konstruksi dan dua tingkatan ketakbergantungan}
+\emph{Silver standard} mengodekan logika panduan klinis secara langsung dan melabeli setiap pasien
+dengan membaca \emph{bundle} FHIR \emph{mentah}---tidak pernah membaca graf maupun keluaran
+sistem rekomendasi. Ketakbergantungan itu perlu dinyatakan secara terpilah sebab tidak semua
+rekomendasi memperolehnya pada tingkatan yang sama dan menyebutnya sebagai satu sifat tunggal
+akan menyatakan lebih daripada yang sebenarnya berlaku.
+
+Bagi 53 rekomendasi yang tidak tergerbang-observasi, kedua sisi berbeda baik pada logikanya
+maupun pada jalur datanya. Sistem memutuskan melalui penelusuran graf, yaitu gerbang dan
+konjungsi atas kode yang dijembatani konsep UMLS, sedangkan \emph{oracle} memutuskan melalui
+pencocokan untai atas nama kondisi yang dibacanya dari \emph{bundle}. Keduanya kerap tidak
+bersepakat dan justru ketidaksepakatan itulah yang membuat presisi dan \emph{recall} bermakna
+di sana.
+
+Bagi 15 rekomendasi yang tergerbang-observasi, ketakbergantungannya hanya berlaku pada jalur
+datanya. Ambang numerik dan agregasi milik \emph{oracle}---misalnya nilai laboratorium terburuk
+sepanjang riwayat dan tekanan darah terkini---digunakan apa adanya oleh \emph{observation
+gate} sehingga predikat pada kedua sisi bukan sekadar serupa, melainkan merupakan fungsi yang
+sama. Hal itu diperiksa, bukan diandaikan. Kedua predikat dievaluasi atas vektor ciri yang sama,
+yaitu 876 vektor kohort yang sesungguhnya dan 200.000 vektor sintetis yang sengaja diarahkan
+ke tiap ambang yang diujinya. Tidak ditemukan satu pun ketidaksepakatan
+(Lampiran~\ref{app:modules}, \texttt{predicate\_audit.py}).
+
+Konsekuensinya perlu dinyatakan dengan jelas. Bagi kelima belas rekomendasi tersebut,
+kesepakatan antara sistem dan standar rujukan tidak dapat menjadi bukti bahwa ambangnya benar
+secara klinis sebab kedua sisi memang menerapkan ambang yang sama. Yang dibuktikannya adalah
+bahwa \emph{loader} membawa nilai pasien dari \emph{bundle} ke graf tanpa mengubahnya---sebuah
+klaim mengenai jalur datanya, bukan mengenai aturannya. Pengujian yang tidak bergantung
+terhadap aturannya sendiri menuntut pertimbangan klinisi yang berpraktik. Telaah klinisi
+(Subbab~\ref{sec:clinician-method}) memberikan pengujian semacam itu, tetapi hanya bagi tiga
+dari kelima belas rekomendasi tersebut. Selebihnya dicatat sebagai keterbatasan pada
+Subbab~\ref{sec:limitations}.
+Subbab~\ref{sec:shared-predicate} melaporkan seberapa besar bagian angka keselarasan yang
+bertumpu pada kelima belas rekomendasi tersebut.
+
+Satu
+pengecualian yang terdokumentasi adalah rekomendasi NSAID kronis, yang lengan kronisitas
+berbasis durasinya dibaca dari ekspor CSV Synthea---yang tetap merupakan data sintetis mentah,
+bukan keluaran sistem---karena ekspor FHIR tidak memuat tanggal berhenti obat;
+asimetri ini beserta konsekuensinya dirinci pada Subbab~\ref{sec:chronicity}.
+
+Modul yang mengimplementasikannya bernama \texttt{silver\_oracle.py} dan menuliskan
+\texttt{eval/silver\_oracle\_labels.csv}, sedangkan label yang dikurasi manual tetap berada pada
+\texttt{eval/gold\_labels.csv}; dengan demikian kedua nama berkas itu membawa pembedaan yang
+sama dengan yang diuraikan pada teks. Lampiran~\ref{app:modules} mencantumkan modul-modul tersebut beserta
+keluaran masing-masing.
+
+\subsection{Evaluasi keselarasan panduan klinis dan ablasi \emph{observation gate}}
+Metrik utama dari evaluasi ini adalah keselarasan panduan klinis: himpunan rekomendasi dari hasil sistem rekomendasi
+dibandingkan dengan label \emph{oracle} pada kohort yang dapat dievaluasi gerbang,
+dilaporkan sebagai presisi, \emph{recall}, dan $F_1$. Eksperimen utamanya adalah sebuah
+\emph{ablasi} yang menjalankan sistem dengan dan tanpa \emph{observation gate}; selisihnya
+mengisolasi kontribusi \emph{observation gate} itu sendiri, bukan kontribusi wadah datanya
+(Subbab~\ref{sec:csv-gating}). Setiap rekomendasi selanjutnya
+diklasifikasikan menurut seberapa jauh ia membedakan pasien (apakah targetnya terkodekan dan
+menjembatani ke EHR), yang menjelaskan sumber \emph{false positive} yang tersisa.
+
+\subsection{Pelabelan \emph{gold} manual dan kesepakatan \emph{silver}-\emph{gold}}
+\label{sec:goldlabel}
+Untuk memvalidasi \emph{silver standard}, sampel berisi 30 pasien dilabeli secara
+manual terhadap teks panduan klinis dan rekam medis lengkap pasien, menghasilkan \emph{gold
+standard}. \emph{Silver standard} kemudian dibandingkan terhadap himpunan \emph{gold} tersebut
+menggunakan Cohen's $\kappa$ \cite{cohen1960}, sebuah statistik kesepakatan terkoreksi-peluang (\emph{chance-corrected agreement})
+yang juga telah digunakan untuk membandingkan keluaran model bahasa terhadap label rujukan
+pada konteks klinis \cite{shah2024}. Ketidakpastian $\kappa$ ditaksir dengan \emph{bootstrap}
+\cite{efron1994} yang mencuplik ulang \emph{pasien}, bukan sel. Sel-sel dari satu pasien tidak
+saling bebas karena rekam medis yang sama menentukan seluruh labelnya dan pencuplikan ulang
+per klaster mempertahankan ketergantungan tersebut \cite{field2007}. Karena $\kappa$ juga
+dipengaruhi prevalensi label dan bias antarpenilai, indeks prevalensi, indeks bias, dan PABAK
+dilaporkan bersamanya \cite{byrt1993}. Kesepakatan \emph{silver}-\emph{gold} yang tinggi itulah
+yang mengizinkan penggunaan \emph{silver standard} atas seluruh kohort. Kesepakatan tersebut
+menetapkan bahwa label yang dihasilkan otomatis mereproduksi pertimbangan manusia pada sampel
+tempat keduanya tersedia. Dengan demikian, angka keselarasan yang dihitung atas seluruh
+876 pasien bertumpu pada rujukan yang tervalidasi, bukan rujukan yang
+sekadar diasumsikan.
+Pelabelan dilakukan oleh penulis sendiri, dengan membaca teks panduan klinis terhadap rekam
+medis lengkap tiap pasien. Empat keputusan cukup sering berulang sehingga ditetapkan di
+muka. Indikasi antikoagulasi mencakup fibrilasi atrium, katup mekanis atau prostetik,
+tromboemboli vena, serta resep warfarin yang sedang berjalan. Terapi antiplatelet ganda
+mencakup aspirin bersama clopidogrel, \emph{ticagrelor}, atau \emph{prasugrel}. Sindrom koroner akut
+mencakup STEMI, NSTEMI, dan sindrom prainfark. Intensitas statin mengikuti batasan yang ditetapkan panduan klinis. Atorvastatin~40---80~mg
+dan \emph{rosuvastatin}~20~mg tergolong intensitas tinggi. Atorvastatin~10---20~mg,
+\emph{rosuvastatin}~5---10~mg, \emph{simvastatin}~20---40~mg, \emph{pravastatin}~40---80~mg, serta
+ezetimibe/\emph{simvastatin}~40~mg tergolong intensitas sedang. \emph{Simvastatin}~10~mg,
+\emph{pravastatin}~20~mg, serta \emph{lovastatin}~10~mg tergolong intensitas rendah. Cacah rekomendasi yang dilabeli tidak seragam antarpasien, yaitu 71 hingga
+73 rekomendasi, dengan keseluruhan 2.160 sel. Penyebabnya, tiga rekomendasi kontraindikasi
+(\texttt{APT:7}, \texttt{APT:9}, dan \texttt{APT:10}) hanya dilabeli bagi pasien yang
+memang mengonsumsi obat bersangkutan sebab bagi pasien lain rekomendasi itu tidak
+memiliki subjek yang dapat dinilai. Karena
+pelabelnya tunggal, keandalan antarpenilai bagi \emph{gold standard} itu sendiri tidak
+dapat dilaporkan; hal ini ditinjau kembali di antara keterbatasan pada
+Subbab~\ref{sec:limitations}.
+
+\subsection{Evaluasi deteksi keamanan}
+Deteksi keamanan kontraindikasi dievaluasi terhadap tanda keamanan yang dilabeli manual.
+Varian unary dan varian tergerbang-populasi masing-masing dinilai presisi dan
+\emph{recall}-nya. Kedua nilai itu memperlihatkan pertukaran antara penandaan berlebih pada
+varian unary dan terlewatnya kontraindikasi yang secara struktural tidak dapat digerbangi
+pada varian tergerbang-populasi. Rekomendasi NSAID kronis dinilai secara terpisah di bawah varian
+tergerbang-kronisitasnya, yang berdampak pada perubahan nilai \emph{recall} akibat bergantung pada status obat
+kategoris FHIR ketika lengan kronisitas berbasis durasi tidak tersedia
+(Subbab~\ref{sec:chronicity}).
+
+\subsection{Evaluasi \emph{faithfulness} ringkasan}
+\emph{Grounded briefing} dievaluasi \emph{faithfulness}-nya melalui prosedur otomatis yang
+membandingkan teks yang dihasilkan terhadap fakta hasil penelusuran. Prosedur itu menandai
+setiap pengenal rekomendasi atau PMID yang dikarang, setiap rekomendasi berlaku atau tanda
+keamanan yang terlewat, serta satu pola klaim berlebih, yaitu pernyataan bahwa pasien
+memerlukan antikoagulan oral padahal tidak ada antikoagulan pada daftar obatnya. Sebuah
+ringkasan dinyatakan lolos bila keempat hitungan itu nol. Prosedur ini tidak memeriksa apakah
+setiap kalimat lainnya didukung fakta sebab pemeriksaan semacam itu memerlukan pembacaan
+manusia.
+
+\subsection{Telaah ketepatan rekomendasi oleh klinisi}
+\label{sec:clinician-method}
+Tingkat-tingkat evaluasi di atas menguji sistem terhadap aturan yang diturunkan dari panduan
+klinis. Telaah klinisi menguji hal yang tidak dapat diuji aturan itu sendiri, yaitu apakah
+rekomendasi yang dikeluarkan sistem sesuai bagi pasien yang bersangkutan menurut penilaian
+klinisi. Telaah ini menilai keluaran sistem, bukan label \emph{gold standard}.
+
+\subsubsection*{Lembar telaah}
+Lembar telaah memuat 20 pasien, yaitu 20 pasien berskor tertinggi di antara 30 pasien sampel
+\emph{gold standard} menurut aturan pemilihan sampel tersebut (Subbab~\ref{sec:goldlabel}).
+Setiap pasien disajikan pada satu halaman yang berisi identitas singkat, kesimpulan
+\emph{grounded briefing}, dan tabel rekomendasi. Kesimpulan itulah satu-satunya dasar
+penilaian. Vinyet klinis dan daftar obat lengkap sengaja tidak ditampilkan sehingga penilai
+menilai apa yang benar-benar disampaikan sistem, bukan rekam medis di baliknya.
+
+Kesimpulan tersebut diterjemahkan ke dalam bahasa Indonesia. Terjemahannya diperiksa secara
+mekanis: sitasi, target tekanan darah, ambang indeks massa tubuh, stadium, kelas rekomendasi,
+dan nama obat harus terbawa. Penulis kemudian menyunting 12 dari 20 terjemahan. Suntingan itu
+menghapus sitasi dan penanda kelas rekomendasi di dalam kurung, menghapus frasa ``yang sudah
+tegak'', mengembalikan beberapa istilah ke bentuk Inggrisnya, dan merumuskan ulang beberapa
+frasa. Penilai karenanya menilai teks yang telah disunting, bukan keluaran model apa adanya.
+
+Tabel rekomendasi memuat seluruh tanda keamanan bagi pasien tersebut dan seluruh rekomendasi
+berlaku yang dipicu kondisi pasien. Perawatan CCD baku yang berlaku sama bagi setiap pasien
+tidak dimuat. Keseluruhannya berjumlah 327 baris dari 21 jenis rekomendasi dalam tiga
+kelompok, yaitu cek/stop penggunaan obat (107 baris), tata laksana nonobat (77 baris), dan terapi
+medikamentosa (143 baris). Kode dan kelas rekomendasi tidak ditampilkan. Keduanya disimpan
+pada berkas kunci yang tidak dikirim kepada penilai. Setiap baris dinilai dengan satu dari tiga
+pilihan, yaitu ``Tepat'', ``Belum tepat'', atau ``Tidak dapat dinilai''. Panduan penilaian
+menyatakan pilihan ketiga sebagai jawaban yang sah sebab kesimpulan tidak selalu memuat
+seluruh informasi yang diperlukan. Penilai diminta menuliskan saran pada baris yang tidak
+dinilai tepat.
+
+\subsubsection*{Penilai dan cakupan}
+Tiga klinisi menilai secara terpisah dan diminta tidak berdiskusi sebelum penilaiannya
+selesai.
+Penilai~A dan penilai~C merupakan dokter spesialis jantung dan pembuluh darah (SpJP), dengan
+penilai~C sebagai yang lebih senior. Penilai~B merupakan dokter umum yang sedang menempuh
+program doktor. Tidak seorang pun menyelesaikan seluruh lembar. Penilai~A menilai pasien
+1---15, penilai~B menilai pasien 1---10, dan penilai~C hanya menilai pasien~1. Di dalam
+cakupan tersebut, penilai~A dan penilai~B masing-masing melewatkan satu baris. Jumlah baris
+yang dinilai karenanya 247 bagi penilai~A, 160 bagi penilai~B, dan 16 bagi penilai~C.
+
+\subsubsection*{Analisis}
+Proporsi setiap pilihan dihitung per penilai. Interval kepercayaan 95\% bagi proporsi
+``Tepat'' ditaksir dengan \emph{bootstrap} 10.000 replikasi yang mencuplik ulang pasien,
+dengan alasan yang sama seperti pada $\kappa$ \emph{silver}-\emph{gold}
+(Subbab~\ref{sec:goldlabel}). Kesepakatan penilai~A dan penilai~B diukur pada baris yang
+dinilai keduanya dengan kesepakatan teramati, Cohen's $\kappa$ untuk tiga kategori
+\cite{cohen1960}, dan PABAK \cite{byrt1993}, beserta interval \emph{bootstrap} per pasien.
+Penilaian penilai~C hanya mencakup satu pasien sehingga dilaporkan secara deskriptif. Saran
+dibaca dan dikelompokkan menurut rekomendasinya. Seluruh perhitungan dilakukan oleh
+\texttt{baca\_hasil.py} dan \texttt{analisis\_hasil.py} (Lampiran~\ref{app:modules}).
+
+\subsection{Evaluasi struktural graf}
+\label{sec:structural}
+Evaluasi sejauh ini bersifat \emph{ekstrinsik}: evaluasi itu menilai graf melalui mutu
+keputusan yang diambil darinya. Graf juga dinilai secara \emph{intrinsik}, sebagai artefak
+tersendiri, karena hasil rekomendasi tidak mengatakan apa pun mengenai apakah
+representasi yang mendasarinya cukup heterogen, cukup luas, atau cukup dalam keterhubungannya
+untuk dapat digunakan ulang.
+
+Penilaian ini mengadopsi kerangka evaluasi ontologi yang ditetapkan oleh Gangemi \textit{et
+al.} \cite{gangemi2006}. Kerangka itu membedakan tiga jenis ukuran. Ukuran \emph{struktural}
+memperlakukan ontologi sebagai graf. Ukuran fungsional menyangkut kelayakan ontologi bagi
+penggunaan yang dituju dan ukuran \emph{usability-profiling} menyangkut anotasinya. Tingkat
+yang diuraikan di sini bersifat struktural dalam pengertian tersebut, sedangkan tingkat
+keselarasan, keamanan, \emph{faithfulness}, dan telaah klinisi di atas bersifat fungsional. Metrik
+struktural dari keluarga ini telah dievaluasi secara empiris atas repositori ontologi publik
+dan tidak satu pun di antaranya menghasilkan pengelompokan yang tidak stabil: atas 119
+ontologi OBO~Foundry dan 78 ontologi AgroPortal, klasifikasi yang ditimbulkan tiap metrik
+bertahan terhadap \emph{bootstrap resampling} korpusnya dan dalam pengertian itulah
+metrik-metrik tersebut disebut stabil \cite{franco2020}.
+Argumen yang sama dengan yang diajukan skripsi ini---bahwa cacah skala semata tidak
+mencirikan sebuah \emph{knowledge graph}---juga mendasari penggunaan himpunan metrik struktural yang
+diusulkan untuk \emph{knowledge graph} lintas domain \cite{seo2022}.
+
+Tiga dimensi dilaporkan. \textbf{\emph{Richness}} menangkap heterogenitas skema dan kosakata:
+jumlah label simpul, tipe relasi, dan sistem kode serta jumlah lapisan semantik yang
+disatukan. Dimensi ini mengikuti gagasan \emph{richness} yang diperkenalkan OntoQA
+\cite{tartir2005}, yang mencirikan sebuah ontologi melalui keragaman relasi dan kelas yang
+benar-benar terpakai alih-alih melalui ukuran mentahnya. OntoQA merumuskan gagasan tersebut
+sebagai rasio---\emph{relationship richness}-nya adalah $P/(SC+P)$, yaitu porsi relasi nonpewarisan di antara seluruh sambungan antarkelas---yang tidak dapat diterapkan pada graf
+ini karena tidak ada hierarki \emph{subsumption} sehingga tidak ada $SC$ sebagai
+pembaginya. Skripsi ini karenanya melaporkan keragamannya itu sendiri dalam bentuk cacah. \textbf{\emph{Width}} menangkap
+keluasan cakupan: kardinalitas simpul dan sisi, ukuran kohort, rerata jumlah kondisi per
+pasien, dan proporsi panduan klinis yang terepresentasikan. \emph{Width} dalam pengertian ini
+bersesuaian dengan dimensi \emph{completeness} pada mutu \emph{knowledge graph}, yang dalam hal ini
+tersedia literatur metodologis yang cukup luas \cite{issa2021,xue2023}.
+\textbf{\emph{Depth}} menangkap seberapa jauh sebuah kesimpulan dapat dilacak: panjang lintasan
+inferensi kanonis pasien-rekomendasi-bukti serta sejauh mana simpul
+\texttt{:Code} bersama berperan sebagai simpul pusat.
+
+Meskipun demikian, terdapat dua penyimpangan dari literatur sumber yang harus dinyatakan karena istilah yang digunakannya sama, tetapi
+besaran yang terukur tidak. Pertama, \emph{depth} dalam literatur evaluasi ontologi umumnya berarti
+kedalaman hierarki \texttt{is-a}---berapa banyak tingkat yang dimiliki sebuah pohon
+kelas. Graf yang dibangun di sini adalah graf properti yang tidak memiliki hierarki
+\texttt{is-a} untuk diukur sehingga \emph{depth} didefinisikan ulang sebagai panjang lintasan
+inferensi
+yang melintasi lapisan-lapisan yang disatukan. Kedua, \emph{breadth} pada ontologi umumnya
+berarti jumlah kelas bersaudara pada satu tingkat, sedangkan \emph{width} di sini berarti
+kardinalitas dan cakupan kohort. Jadi, yang dipinjam adalah \emph{penggolongan} ukurannya, bukan
+rumusnya: pemisahan evaluasi struktural dari evaluasi fungsional pada Gangemi
+\cite{gangemi2006} dan prinsip OntoQA yang mencirikan sebuah graf melalui keragaman relasinya
+alih-alih melalui ukurannya \cite{tartir2005}. Ketiga besaran yang dilaporkan pada Bab~IV
+didefinisikan oleh skripsi ini sendiri dan tidak semestinya dibandingkan secara angka terhadap
+nilai yang diterbitkan di tempat lain dengan nama yang sama.
+
+Cohen's $\kappa$ dan metrik keselarasan dihitung langsung dari tabel kesepakatan
+$2\times2$ oleh skrip evaluasinya sendiri, tanpa pustaka statistik, sehingga
+mereproduksinya tidak menuntut kebergantungan apa pun di luar pustaka standar Python.
+
+\section{Etika, Masalah, dan Keterbatasan Penelitian}
+\label{sec:ethics}
+
+\subsection{Pertimbangan etis}
+Data pasien yang digunakan dalam penelitian ini seluruhnya bersifat sintetis. Synthea
+membangkitkan individu yang masuk akal secara statistik, tetapi fiktif \cite{synthea} sehingga
+tidak ada informasi kesehatan yang perlu dilindungi yang diproses, tidak diperlukan persetujuan pasien,
+dan tidak ada risiko identifikasi ulang. Hal ini merupakan pilihan rancangan yang disengaja, bukan sekadar kemudahan. Pilihan itu
+memungkinkan rekam medis lengkap, termasuk riwayat obat dan lintasan nilai laboratorium,
+diterbitkan bersama kodenya untuk direproduksi. Penerbitan semacam itu mustahil dilakukan
+dengan rekam medis nyata, yang umumnya masih berupa teks naratif tak terstruktur.
+
+Satu komponen penelitian ini melibatkan manusia, yaitu telaah klinisi
+(Subbab~\ref{sec:clinician-method}). Para klinisi berperan sebagai penilai ahli atas keluaran
+sistem, bukan sebagai subjek penelitian. Penelitian ini mengumpulkan penilaian mereka atas
+rekomendasi bagi pasien sintetis, bukan data mengenai diri mereka. Keikutsertaannya bersifat
+sukarela dan identitas penilai diganti dengan kode pada naskah maupun data yang diterbitkan.
+Karena itu, persetujuan etik untuk penelitian dengan subjek manusia tidak diperlukan. Tingkat
+evaluasi lainnya bersifat otomatis: standar rujukan dibangkitkan secara terprogram, standar
+emas dilabeli oleh penulis dari rekam medis sintetis, dan \emph{faithfulness} ringkasan
+diperiksa melalui prosedur verifikasi otomatis. Konsekuensi rancangan tersebut terhadap
+kekuatan pembuktian sistem dinyatakan secara eksplisit sebagai keterbatasan pada
+Subbab~\ref{sec:limitations}.
+
+Pertimbangan ketiga adalah peran yang dituju sistem ini. Sistem dirancang sebagai alat
+\emph{rekomendasi} yang menampilkan rekomendasi panduan klinis dan tanda kontraindikasi untuk
+dinilai oleh klinisi; sistem tidak meresepkan dan tidak divalidasi untuk penggunaan otonom.
+\emph{Grounded briefing} secara eksplisit dibatasi untuk merumuskan fakta hasil penelusuran
+alih-alih bernalar secara klinis dan setiap pernyataan yang dibuatnya membawa pengenal
+rekomendasi serta \emph{class of recommendation} sehingga pembaca dapat mengauditnya terhadap
+panduan klinis sumber.
+
+\subsection{Masalah dan keterbatasan}
+\label{sec:limitations}
+Keterbatasan berikut melekat pada rancangan dan membatasi hasil penelitian ini:
+
+\begin{enumerate}
+    \item \textbf{Data sintetis.} Pasien Synthea dibangkitkan dari model perjalanan penyakit
+    sehingga pola komorbiditas dan lintasan nilai laboratoriumnya konsisten secara internal,
+    tetapi tidak diambil dari populasi nyata. Kinerja yang diukur di sini karenanya menetapkan
+    bahwa alur pemrosesan benar secara \emph{internal}, bukan bahwa alur itu akan mencapai
+    keselarasan yang sama pada rekam medis nyata, yang lebih berderau, lebih jarang terisi,
+    dan memuat teks tak terstruktur.
+    \item \textbf{Tidak ada data gejala jantung.} Rekam medis Synthea memuat sejumlah ukuran
+    yang dilaporkan pasien, yaitu skor nyeri serta kuesioner depresi, kecemasan, penggunaan
+    zat, dan kebutuhan sosial. Namun, rekam medis itu tidak memuat gambaran gejala jantung. Pada
+    30 pasien sampel, daftar keluhan utama setiap pasien tidak pernah berubah di sepanjang
+    8.067 catatan klinisnya. Hanya satu pasien yang mencantumkan gejala jantung, yaitu rasa
+    tertekan di dada dan sesak napas, dan tidak ada gradasi angina, frekuensi angina, maupun
+    kapasitas latihan. Kelas fungsional NYHA tercatat sekali pada lima pasien, tetapi berada di
+    luar \emph{allow-list} observasi. Tidak satu pun dari 876 pasien kohort membawa diagnosis
+    angina berkode. Akibatnya, enam rekomendasi yang bergantung pada angina (\texttt{CR:1:2},
+    \texttt{MTRA:1}---\texttt{MTRA:4}, dan \texttt{MRA:1}) tidak pernah bernilai positif
+    sehingga bagian panduan klinis ini sama sekali tidak teruji. Pada rekam medis nyata, gejala
+    semacam itu umumnya tercatat sebagai teks bebas dan menangkapnya menuntut pengodean
+    terstruktur yang tidak dicakup rancangan ini.
+    \item \textbf{Kehilangan informasi pada proyeksi FHIR.} Sebagaimana diuraikan pada
+    Subbab~\ref{sec:chronicity}, ekspor FHIR membawa status obat yang kategoris, tetapi tidak
+    membawa tanggal berhenti sehingga logika panduan klinis yang bergantung pada durasi tidak dapat
+    dievaluasi dari graf semata. Hal ini merupakan sifat ekspornya, bukan sifat implementasinya,
+    dan hal itu dikuantifikasi alih-alih disembunyikan.
+    \item \textbf{Predikat bersama pada rekomendasi tergerbang-observasi.} Bagi 15 dari 68
+    rekomendasi, predikat sistem dan aturan standar rujukan merupakan fungsi yang sama
+    (Subbab~\ref{sec:oracle}). Kesepakatan sempurna pada kedua kelas tergerbang karenanya
+    menguji jalur datanya, bukan ketepatan aturannya. Bagian yang dinilai penilai yang
+    benar-benar tidak bergantung mencakup 53 rekomendasi dan mencatat presisi $0{,}666$ serta
+    $F_1$ $0{,}797$, berbanding $0{,}685$ dan $0{,}811$ pada angka utama
+    (Subbab~\ref{sec:shared-predicate}). Seluruh perolehan ablasi terukur pada kelima belas
+    rekomendasi berpredikat bersama tersebut sehingga yang diukurnya adalah kesetiaan
+    implementasi, bukan keabsahan klinis. Telaah klinisi hanya menguji aturan itu pada tiga
+    dari kelima belas rekomendasi, yaitu \texttt{WM:2}, \texttt{WM:3}, dan \texttt{SGLT2:4}.
+    Seluruh 50 penilaian penilai~A dan penilai~B atas ketiganya ``Tepat''
+    (Subbab~\ref{sec:clinician}).
+    \item \textbf{Pelabel \emph{gold standard} tunggal.} Seluruh 2.160 sel \emph{gold
+    standard} dilabeli oleh satu orang, yaitu penulis, yang juga mengodekan aturan
+    \emph{silver standard}. Karena itu, keandalan antarpenilai bagi \emph{gold standard} tidak
+    dapat dilaporkan. Kesepakatan yang tinggi juga sebagian dapat mencerminkan tafsir yang sama
+    terhadap teks panduan klinis, bukan semata ketepatan aturannya. Interval kepercayaan pada
+    Subbab~\ref{sec:kappa-ci} menjawab ketidakpastian akibat ukuran sampel, tetapi tidak menjawab
+    keterbatasan ini sebab pencuplikan ulang tidak dapat menghadirkan penilai kedua.
+    Pelabelan ulang oleh penilai kedua yang tidak bergantung pada penulis merupakan
+    satu-satunya cara untuk menutupnya.
+    \item \textbf{FHIR bukan syarat bagi \emph{observation gate}.} Perolehan presisi yang
+    dilaporkan Subbab~\ref{sec:ablation} berasal dari penggerbangan atas nilai observasi
+    numerik, bukan dari wadah FHIR secara khusus. Gerbang yang sama dapat dibangun kembali dari
+    ekspor tabular Synthea dan menghasilkan keputusan yang sama persis pada seluruh 13.140
+    keputusan yang diperbandingkan (Subbab~\ref{sec:csv-gating}). Pembedaan itu membatasi apa
+    yang boleh diklaim rancangan FHIR-native ini: kelangsungan dan kemudahannya, bukan
+    keterlaksanaannya. Perlu ditambahkan bahwa hasil tersebut berlaku bagi ekspor Synthea, yang
+    menyertakan kunci rujukan \texttt{ENCOUNTER} pada setiap baris observasi; ekspor tabular
+    yang tidak menyertakannya belum tentu bernasib sama.
+    \item \textbf{Satu panduan klinis, satu penyakit.} Hanya panduan AHA/ACC CCD 2023 yang dikodekan
+    dan hanya untuk penyakit jantung koroner kronis. Generalisasi ke panduan klinis atau kondisi lain
+    sangat dimungkinkan mengingat rancangan jembatan konsepnya, tetapi tidak didemonstrasikan.
+    \item \textbf{Gerbang kohort berkonsep tunggal.} Sebagaimana diuraikan pada
+    Subbab~\ref{sec:gate}, gerbang CCD menerima satu konsep UMLS, sedangkan panduan klinis
+    mendefinisikan penyakit jantung koroner kronis secara disjungtif. Enam puluh tujuh pasien
+    ($7{,}1\%$ dari kohort yang didefinisikan secara klinis) yang bukti CCD-nya hanya berupa
+    kode \emph{situation} riwayat infark atau riwayat revaskularisasi akibatnya tidak pernah
+    dicocokkan dengan rekomendasi apa pun. Hal ini membatasi hasil yang dilaporkan pada
+    subhimpunan yang konservatif dan, pada penerapan nyata, akan menyebabkan pasien-pasien
+    tersebut sama sekali tidak menerima keluaran. Memperlebar gerbang menjadi disjungsi konsep
+    merupakan perubahan kecil pada kueri dan menjadi butir pertama penelitian lanjutan.
+    \item \textbf{Tidak ada validasi prospektif atau berbasis luaran.} Keselarasan diukur
+    terhadap \emph{silver standard} yang dihasilkan otomatis dan \emph{gold standard} yang
+    dikurasi manual, bukan terhadap luaran pasien. Tidak ada satu pun hasil di sini yang
+    menetapkan bahwa mengikuti rekomendasi sistem memperbaiki mutu tindakan perawatan klinis.
+    \item \textbf{Perumusan yang stokastik.} Kata-kata dalam ringkasan dihasilkan oleh model
+    bahasa dan berubah antarproses sehingga \emph{faithfulness} diverifikasi per proses
+    alih-alih dibuktikan sekali untuk selamanya. Penelusuran, sebaliknya, bersifat
+    deterministik dan dapat direproduksi.
+    \item \textbf{Cakupan pemeriksaan \emph{faithfulness}.} Pemeriksaan otomatis mencakup 30
+    ringkasan dan menguji butir yang dapat disitasi, kelengkapan rekomendasi, serta satu pola
+    klaim berlebih. \emph{Faithfulness} makna setiap kalimat tidak diuji. Karena itu, klaim
+    yang didukung adalah bahwa ringkasan tidak mengarang rekomendasi maupun sitasi dan tidak
+    menghilangkan rekomendasi, bukan bahwa setiap kalimatnya setia pada fakta. Uji klaim
+    berlebih itu sendiri diperbaiki sesudah keluarannya terlihat
+    (Subbab~\ref{sec:faithfulness}). Tiga puluh ringkasan juga masih terlalu sedikit untuk
+    menaksir laju kesalahan secara presisi.
+    \item \textbf{Telaah klinisi yang terbatas.} Standar rujukan, pemeriksaan deteksi keamanan,
+    dan verifikasi \emph{faithfulness} menguji sistem terhadap \emph{aturan yang diturunkan dari
+    panduan klinis}. Hanya telaah klinisi (Subbab~\ref{sec:clinician}) yang mengujinya
+    terhadap pertimbangan klinisi dan cakupannya terbatas. Penilai~A, satu-satunya SpJP yang
+    menilai lebih dari satu pasien, mencakup 15 dari 20 pasien. Penilai~B, seorang dokter umum,
+    mencakup 10 pasien dan penilai~C hanya pasien~1. Kesepakatan penilai~A dan penilai~B
+    tergolong cukup ($\kappa = 0{,}29$) sehingga proporsi rekomendasi yang dinilai tepat
+    bergantung pada siapa penilainya. Penilai juga hanya membaca kesimpulan dan tabel
+    rekomendasi, bukan rekam medis lengkap. Sebagian penilaian ``Belum tepat'' dan ``Tidak
+    dapat dinilai'' menyebut informasi yang tidak ditampilkan, misalnya fraksi ejeksi, status
+    gagal jantung, risiko perdarahan, dan daftar obat. Kesimpulan yang dibaca penilai pun
+    merupakan terjemahan yang telah disunting penulis. Hasil telaah ini karenanya menunjuk letak
+    kelemahan sistem, tetapi belum menaksir selisih antara keselarasan dengan panduan klinis
+    dan ketepatan klinis secara umum. Telaah ini juga menilai ketepatan rekomendasi, bukan mutu
+    ringkasan. \emph{Reader study} dengan model Van Veen \textit{et al.}~\cite{vanveen2023},
+    yang di dalamnya klinisi menilai ringkasan pada aspek kelengkapan, ketepatan, dan
+    keringkasan dengan kesepakatan antarpenilai dikuantifikasi melalui Cohen's $\kappa$
+    \cite{cohen1960}, masih diserahkan kepada penelitian selanjutnya.
+\end{enumerate}

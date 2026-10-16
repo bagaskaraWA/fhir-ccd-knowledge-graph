@@ -1,0 +1,53 @@
+==============================================================================
+KAPPA WITH UNCERTAINTY -- silver standard vs manual gold, 30 patients
+==============================================================================
+
+-- 1. point estimate -----------------------------------------------------
+cells compared            : 2160   (both 1: 1080, both 0: 1070, silver 1/gold 0: 5, silver 0/gold 1: 5)
+observed agreement p_o    : 0.9954   (2150/2160)
+chance agreement p_e      : 0.5000
+Cohen's kappa             : 0.9907
+
+-- 2. is kappa distorted by label prevalence? -----------------------------
+positive labels, gold     : 1085/2160 = 0.502
+positive labels, silver   : 1085/2160 = 0.502
+prevalence index |a-d|/n  : 0.0046
+bias index |b-c|/n        : 0.0000
+PABAK = 2*p_o - 1         : 0.9907
+Labels are almost exactly balanced and the disagreements symmetric, so chance
+agreement sits near 0.5, kappa and PABAK coincide, and neither prevalence nor
+bias is inflating or deflating kappa.
+
+-- 3. where the disagreements are ---------------------------------------
+disagreements             : 10, on 8 of 30 patients
+   04287b67  1
+   05e41fe3  1
+   1db4196c  1
+   227e76d8  1
+   22f599b6  1
+   2b050f16  2
+   6595b70f  1
+   cbf432fc  2
+chance a resample of 30 patients contains none of them: 9.1e-05
+
+-- 4. 95% intervals, 10000 bootstrap replicates each ---------------------
+resampling unit                        2.5%    97.5%    width
+cells (assumes independence)         0.9843   0.9963   0.0120
+patients (cluster bootstrap)         0.9843   0.9963   0.0120
+design effect (var patients / var cells): 1.04
+
+share of cluster-bootstrap replicates with kappa >= threshold:
+   >= 0.80 : 1.0000
+   >= 0.90 : 1.0000
+   >= 0.95 : 1.0000
+
+-- 5. leave-one-patient-out jackknife --------------------------------------
+kappa without one patient ranges from 0.9904 (dropping 8bb750c8) to 0.9923 (dropping cbf432fc)
+
+-- 6. reading -----------------------------------------------------------------
+With patients as the resampling unit, the 95% interval is 0.984 to 0.996.
+Its lower end is above the conventional 0.80 threshold for almost perfect agreement,
+so 30 patients are enough to support the claim that the silver standard agrees almost
+perfectly with the manual labels. They are not enough to distinguish 0.99 from,
+say, 0.98: that finer claim is not supported and should not be made.
+None of this addresses the single annotator; that remains a limitation.

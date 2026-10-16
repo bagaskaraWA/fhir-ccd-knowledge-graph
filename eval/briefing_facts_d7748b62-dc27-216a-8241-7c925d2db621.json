@@ -1,0 +1,1241 @@
+{
+  "patientId": "d7748b62-dc27-216a-8241-7c925d2db621",
+  "conditions": [
+    {
+      "code": "274531002",
+      "name": "Abnormal findings diagnostic imaging heart+coronary circulat (finding)"
+    },
+    {
+      "code": "401314000",
+      "name": "Acute non-ST segment elevation myocardial infarction (disorder)"
+    },
+    {
+      "code": "195662009",
+      "name": "Acute viral pharyngitis (disorder)"
+    },
+    {
+      "code": "162864005",
+      "name": "Body mass index 30+ - obesity (finding)"
+    },
+    {
+      "code": "230690007",
+      "name": "Cerebrovascular accident (disorder)"
+    },
+    {
+      "code": "431855005",
+      "name": "Chronic kidney disease stage 1 (disorder)"
+    },
+    {
+      "code": "431856006",
+      "name": "Chronic kidney disease stage 2 (disorder)"
+    },
+    {
+      "code": "278860009",
+      "name": "Chronic low back pain (finding)"
+    },
+    {
+      "code": "82423001",
+      "name": "Chronic pain (finding)"
+    },
+    {
+      "code": "127013003",
+      "name": "Disorder of kidney due to diabetes mellitus (disorder)"
+    },
+    {
+      "code": "59621000",
+      "name": "Essential hypertension (disorder)"
+    },
+    {
+      "code": "278588009",
+      "name": "Fractured dental filling (finding)"
+    },
+    {
+      "code": "160903007",
+      "name": "Full-time employment (finding)"
+    },
+    {
+      "code": "18718003",
+      "name": "Gingival disease (disorder)"
+    },
+    {
+      "code": "66383009",
+      "name": "Gingivitis (disorder)"
+    },
+    {
+      "code": "266948004",
+      "name": "Has a criminal record (finding)"
+    },
+    {
+      "code": "399261000",
+      "name": "History of coronary artery bypass grafting (situation)"
+    },
+    {
+      "code": "399211009",
+      "name": "History of myocardial infarction (situation)"
+    },
+    {
+      "code": "427898007",
+      "name": "Infection of tooth (disorder)"
+    },
+    {
+      "code": "414545008",
+      "name": "Ischemic heart disease (disorder)"
+    },
+    {
+      "code": "423315002",
+      "name": "Limited social contact (finding)"
+    },
+    {
+      "code": "278602001",
+      "name": "Loose dental filling (finding)"
+    },
+    {
+      "code": "37320007",
+      "name": "Loss of teeth (disorder)"
+    },
+    {
+      "code": "314529007",
+      "name": "Medication review due (situation)"
+    },
+    {
+      "code": "237602007",
+      "name": "Metabolic syndrome X (disorder)"
+    },
+    {
+      "code": "90781000119102",
+      "name": "Microalbuminuria due to type 2 diabetes mellitus (disorder)"
+    },
+    {
+      "code": "741062008",
+      "name": "Not in labor force (finding)"
+    },
+    {
+      "code": "160904001",
+      "name": "Part-time employment (finding)"
+    },
+    {
+      "code": "714628002",
+      "name": "Prediabetes (finding)"
+    },
+    {
+      "code": "109570002",
+      "name": "Primary dental caries (disorder)"
+    },
+    {
+      "code": "224299000",
+      "name": "Received higher education (finding)"
+    },
+    {
+      "code": "424393004",
+      "name": "Reports of violence in the environment (finding)"
+    },
+    {
+      "code": "422650009",
+      "name": "Social isolation (finding)"
+    },
+    {
+      "code": "73595000",
+      "name": "Stress (finding)"
+    },
+    {
+      "code": "73438004",
+      "name": "Unemployed (finding)"
+    },
+    {
+      "code": "706893006",
+      "name": "Victim of intimate partner abuse (finding)"
+    }
+  ],
+  "medications": [
+    {
+      "code": "866412",
+      "name": "24 HR metoprolol succinate 100 MG Extended Release Oral Tablet"
+    },
+    {
+      "code": "856481",
+      "name": "24 HR propranolol hydrochloride 160 MG Extended Release Oral Capsule"
+    },
+    {
+      "code": "209387",
+      "name": "Acetaminophen 325 MG Oral Tablet [Tylenol]"
+    },
+    {
+      "code": "1804799",
+      "name": "Alteplase 100 MG Injection"
+    },
+    {
+      "code": "309362",
+      "name": "Clopidogrel 75 MG Oral Tablet"
+    },
+    {
+      "code": "310798",
+      "name": "Hydrochlorothiazide 25 MG Oral Tablet"
+    },
+    {
+      "code": "705129",
+      "name": "Nitroglycerin 0.4 MG/ACTUAT Mucosal Spray"
+    },
+    {
+      "code": "312961",
+      "name": "Simvastatin 20 MG Oral Tablet"
+    },
+    {
+      "code": "308136",
+      "name": "amLODIPine 2.5 MG Oral Tablet"
+    },
+    {
+      "code": "243670",
+      "name": "aspirin 81 MG Oral Tablet"
+    },
+    {
+      "code": "106892",
+      "name": "insulin isophane, human 70 UNT/ML / insulin, regular, human 30 UNT/ML Injectable Suspension [Humulin]"
+    },
+    {
+      "code": "314076",
+      "name": "lisinopril 10 MG Oral Tablet"
+    },
+    {
+      "code": "205326",
+      "name": "lisinopril 30 MG Oral Tablet"
+    },
+    {
+      "code": "855812",
+      "name": "prasugrel 10 MG Oral Tablet"
+    },
+    {
+      "code": "904475",
+      "name": "pravastatin sodium 40 MG Oral Tablet"
+    },
+    {
+      "code": "1535362",
+      "name": "sodium fluoride 0.0272 MG/MG Oral Gel"
+    }
+  ],
+  "applicable": [
+    {
+      "recId": "CCD-2023:CR:1:1",
+      "cor": "1",
+      "section": "Cardiac Rehabilitation",
+      "interventionType": "CarePlan",
+      "requiresAlso": [
+        "History of myocardial infarction",
+        "History of coronary artery bypass grafting",
+        "History of percutaneous coronary intervention"
+      ],
+      "extraCount": 3,
+      "recommends": [
+        "Cardiac rehabilitation"
+      ],
+      "citedPmids": [
+        17387127,
+        32100573,
+        32227755,
+        34355130,
+        34587751
+      ]
+    },
+    {
+      "recId": "CCD-2023:BPM:2",
+      "cor": "1",
+      "section": "Blood Pressure Management",
+      "interventionType": "CarePlan",
+      "requiresAlso": [
+        "Essential Hypertension"
+      ],
+      "extraCount": 1,
+      "recommends": [
+        "Lifestyle education regarding hypertension"
+      ],
+      "citedPmids": [
+        26551272,
+        28564682,
+        30919899,
+        31169350,
+        32866419
+      ]
+    },
+    {
+      "recId": "CCD-2023:BPM:3",
+      "cor": "1",
+      "section": "Blood Pressure Management",
+      "interventionType": "Medication",
+      "requiresAlso": [
+        "Essential Hypertension"
+      ],
+      "extraCount": 1,
+      "recommends": [
+        "atenolol",
+        "lisinopril",
+        "ramipril",
+        "carvedilol",
+        "irbesartan",
+        "albuterol",
+        "amlodipine",
+        "quinapril",
+        "valsartan",
+        "nebivolol",
+        "bisoprolol fumarate",
+        "propranolol hydrochloride",
+        "enalapril maleate",
+        "carvedilol phosphate",
+        "metoprolol succinate",
+        "metoprolol tartrate",
+        "labetalol hydrochloride",
+        "benazepril hydrochloride",
+        "losartan potassium",
+        "amlodipine / hydrochlorothiazide / olmesartan Oral Tablet"
+      ],
+      "citedPmids": [
+        10639539,
+        15351192,
+        19454737,
+        26551272,
+        9796841
+      ]
+    },
+    {
+      "recId": "CCD-2023:APT:4",
+      "cor": "2b",
+      "section": "Antiplatelet Therapy and Oral Anticoagulants",
+      "interventionType": "Medication",
+      "requiresAlso": [
+        "History of myocardial infarction"
+      ],
+      "extraCount": 1,
+      "recommends": [
+        "aspirin",
+        "clopidogrel"
+      ],
+      "citedPmids": [
+        25773268,
+        26324537
+      ]
+    },
+    {
+      "recId": "CCD-2023:APT:5",
+      "cor": "2b",
+      "section": "Antiplatelet Therapy and Oral Anticoagulants",
+      "interventionType": "Medication",
+      "requiresAlso": [
+        "History of myocardial infarction"
+      ],
+      "extraCount": 1,
+      "recommends": [
+        "vorapaxar"
+      ],
+      "citedPmids": [
+        22443427,
+        22932716,
+        26338971
+      ]
+    },
+    {
+      "recId": "CCD-2023:APT:6",
+      "cor": "2b",
+      "section": "Antiplatelet Therapy and Oral Anticoagulants",
+      "interventionType": "Medication",
+      "requiresAlso": [
+        "History of coronary artery bypass grafting"
+      ],
+      "extraCount": 1,
+      "recommends": [
+        "aspirin",
+        "clopidogrel"
+      ],
+      "citedPmids": [
+        30072154
+      ]
+    },
+    {
+      "recId": "CCD-2023:BB:3",
+      "cor": "2b",
+      "section": "Beta Blockers",
+      "interventionType": "CarePlan",
+      "requiresAlso": [
+        "History of myocardial infarction"
+      ],
+      "extraCount": 1,
+      "recommends": [
+        "Medication Review"
+      ],
+      "citedPmids": [
+        24927909,
+        25511558,
+        28571635,
+        32542362,
+        33428707,
+        34227397,
+        33877862
+      ]
+    },
+    {
+      "recId": "CCD-2023:NUTRI:1",
+      "cor": "1",
+      "section": "Nutrition, Including Supplements",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Diet education"
+      ],
+      "citedPmids": [
+        23999993,
+        30864165,
+        34255848,
+        9989963
+      ]
+    },
+    {
+      "recId": "CCD-2023:TP:1",
+      "cor": "1",
+      "section": "Tobacco Products",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Tobacco use assessed"
+      ],
+      "citedPmids": [
+        18617085,
+        22695462,
+        28056007
+      ]
+    },
+    {
+      "recId": "CCD-2023:ASU:1",
+      "cor": "1",
+      "section": "Alcohol and Substance Use",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Substance use education"
+      ],
+      "citedPmids": [
+        25986138,
+        28793133,
+        29535062,
+        31976871,
+        21156654
+      ]
+    },
+    {
+      "recId": "CCD-2023:LIPID:1",
+      "cor": "1",
+      "section": "Lipid Management",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "atorvastatin",
+        "rosuvastatin calcium"
+      ],
+      "citedPmids": [
+        15755765,
+        21067804,
+        30712900
+      ]
+    },
+    {
+      "recId": "CCD-2023:LIPID:2",
+      "cor": "1",
+      "section": "Lipid Management",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "simvastatin",
+        "atorvastatin",
+        "rosuvastatin calcium",
+        "pravastatin sodium",
+        "fluvastatin",
+        "pitavastatin"
+      ],
+      "citedPmids": [
+        12114037,
+        21067804,
+        7968073,
+        8801446,
+        8992351,
+        9841303
+      ]
+    },
+    {
+      "recId": "CCD-2023:LIPID:3",
+      "cor": "1",
+      "section": "Lipid Management",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Lipid panel"
+      ],
+      "citedPmids": [
+        21067804,
+        27533947,
+        31952841,
+        34861203
+      ]
+    },
+    {
+      "recId": "CCD-2023:WM:1",
+      "cor": "1",
+      "section": "Weight Management",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Measurement of body mass index"
+      ],
+      "citedPmids": [
+        10511607,
+        16820550,
+        17846390,
+        20038741,
+        20696950,
+        29490333
+      ]
+    },
+    {
+      "recId": "CCD-2023:CR:1:3",
+      "cor": "1",
+      "section": "Cardiac Rehabilitation",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Cardiac rehabilitation"
+      ],
+      "citedPmids": [
+        17387127,
+        26923234,
+        27055757,
+        29472380,
+        32227755,
+        33884107,
+        34355130
+      ]
+    },
+    {
+      "recId": "CCD-2023:PA:1",
+      "cor": "1",
+      "section": "Physical Activity",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Exercise, Aerobic"
+      ],
+      "citedPmids": [
+        15007010,
+        25488550,
+        29654095
+      ]
+    },
+    {
+      "recId": "CCD-2023:PA:2",
+      "cor": "1",
+      "section": "Physical Activity",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Exercise promotion: strength training"
+      ],
+      "citedPmids": [
+        21450617,
+        21896934,
+        34805309
+      ]
+    },
+    {
+      "recId": "CCD-2023:APT:1",
+      "cor": "1",
+      "section": "Antiplatelet Therapy and Oral Anticoagulants",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "aspirin"
+      ],
+      "citedPmids": [
+        11786451,
+        19482214,
+        33999548
+      ]
+    },
+    {
+      "recId": "CCD-2023:APT:2",
+      "cor": "1",
+      "section": "Antiplatelet Therapy and Oral Anticoagulants",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "aspirin",
+        "clopidogrel"
+      ],
+      "citedPmids": [
+        22179532,
+        25236346,
+        25616646,
+        25777667
+      ]
+    },
+    {
+      "recId": "CCD-2023:RAAI:1",
+      "cor": "1",
+      "section": "Renin-Angiotensin-Aldosterone Inhibitors",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "lisinopril",
+        "ramipril",
+        "irbesartan",
+        "amlodipine",
+        "quinapril",
+        "valsartan",
+        "enalapril maleate",
+        "benazepril hydrochloride",
+        "losartan potassium",
+        "amlodipine / hydrochlorothiazide / olmesartan Oral Tablet"
+      ],
+      "citedPmids": [
+        10821360,
+        1386652,
+        1463530,
+        7477219,
+        8104270
+      ]
+    },
+    {
+      "recId": "CCD-2023:IMMU:1",
+      "cor": "1",
+      "section": "Immunizations",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Influenza vaccination"
+      ],
+      "citedPmids": [
+        24150467,
+        25940444,
+        26310262,
+        31444266,
+        32535214,
+        33275134,
+        33719496
+      ]
+    },
+    {
+      "recId": "CCD-2023:IMMU:2",
+      "cor": "1",
+      "section": "Immunizations",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "SARS-CoV-2 vaccination"
+      ],
+      "citedPmids": [
+        33622834,
+        35076665,
+        33587998
+      ]
+    },
+    {
+      "recId": "CCD-2023:MTRA:1",
+      "cor": "1",
+      "section": "Medical Therapy for Relief of Angina",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "atenolol",
+        "nitroglycerin",
+        "carvedilol",
+        "albuterol",
+        "amlodipine",
+        "pregabalin",
+        "nebivolol",
+        "bisoprolol fumarate",
+        "propranolol hydrochloride",
+        "carvedilol phosphate",
+        "metoprolol succinate",
+        "metoprolol tartrate",
+        "labetalol hydrochloride",
+        "verapamil hydrochloride",
+        "amlodipine / hydrochlorothiazide / olmesartan Oral Tablet"
+      ],
+      "citedPmids": [
+        10349897,
+        1672481,
+        2178381
+      ]
+    },
+    {
+      "recId": "CCD-2023:MTRA:2",
+      "cor": "1",
+      "section": "Medical Therapy for Relief of Angina",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "atenolol",
+        "nitroglycerin",
+        "carvedilol",
+        "albuterol",
+        "amlodipine",
+        "pregabalin",
+        "nebivolol",
+        "bisoprolol fumarate",
+        "propranolol hydrochloride",
+        "carvedilol phosphate",
+        "metoprolol succinate",
+        "metoprolol tartrate",
+        "labetalol hydrochloride",
+        "verapamil hydrochloride",
+        "amlodipine / hydrochlorothiazide / olmesartan Oral Tablet"
+      ],
+      "citedPmids": [
+        10349897,
+        24776376,
+        30165445,
+        8557899
+      ]
+    },
+    {
+      "recId": "CCD-2023:MTRA:3",
+      "cor": "1",
+      "section": "Medical Therapy for Relief of Angina",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "ranolazine"
+      ],
+      "citedPmids": [
+        14734593,
+        16875985
+      ]
+    },
+    {
+      "recId": "CCD-2023:MTRA:4",
+      "cor": "1",
+      "section": "Medical Therapy for Relief of Angina",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "nitroglycerin"
+      ],
+      "citedPmids": [
+        1577055,
+        27468079
+      ]
+    },
+    {
+      "recId": "CCD-2023:NUTRI:2",
+      "cor": "2a",
+      "section": "Nutrition, Including Supplements",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Diet education",
+        "Fat-Restricted Diet"
+      ],
+      "citedPmids": [
+        23999993,
+        24355537,
+        30864165,
+        32428300,
+        34255848,
+        9989963
+      ]
+    },
+    {
+      "recId": "CCD-2023:NUTRI:3",
+      "cor": "2a",
+      "section": "Nutrition, Including Supplements",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Low sodium diet"
+      ],
+      "citedPmids": [
+        22110105,
+        23999993,
+        32428300,
+        9989963
+      ]
+    },
+    {
+      "recId": "CCD-2023:NUTRI:4",
+      "cor": "2a",
+      "section": "Nutrition, Including Supplements",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Decreased simple carbohydrate diet"
+      ],
+      "citedPmids": [
+        11136953,
+        23999993,
+        32428300,
+        34255848,
+        9989963
+      ]
+    },
+    {
+      "recId": "CCD-2023:MHC:1",
+      "cor": "2a",
+      "section": "Mental Health Conditions",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Mental health screening assessment"
+      ],
+      "citedPmids": [
+        23759474,
+        31633746,
+        31907104,
+        30698764
+      ]
+    },
+    {
+      "recId": "CCD-2023:MHC:2",
+      "cor": "2a",
+      "section": "Mental Health Conditions",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Mental health care"
+      ],
+      "citedPmids": [
+        28209727,
+        30043065,
+        31907104,
+        30698764
+      ]
+    },
+    {
+      "recId": "CCD-2023:ASU:2",
+      "cor": "2a",
+      "section": "Alcohol and Substance Use",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Management of alcohol intake"
+      ],
+      "citedPmids": [
+        20338495,
+        22076059,
+        35333364
+      ]
+    },
+    {
+      "recId": "CCD-2023:SHA:1",
+      "cor": "2a",
+      "section": "Sexual Health and Activity",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Counseling"
+      ],
+      "citedPmids": [
+        17628195,
+        21427375
+      ]
+    },
+    {
+      "recId": "CCD-2023:SHA:2",
+      "cor": "2a",
+      "section": "Sexual Health and Activity",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Regular exercise (observable entity)",
+        "Cardiac rehabilitation"
+      ],
+      "citedPmids": [
+        8618365
+      ]
+    },
+    {
+      "recId": "CCD-2023:PA:3",
+      "cor": "2a",
+      "section": "Physical Activity",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Lifestyle education"
+      ],
+      "citedPmids": [
+        32563261,
+        32843054,
+        33930434
+      ]
+    },
+    {
+      "recId": "CCD-2023:EE:1",
+      "cor": "2a",
+      "section": "Environmental Exposures",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [],
+      "citedPmids": [
+        16893917,
+        25810496,
+        26613345,
+        27233746,
+        31433918,
+        31492503,
+        32384243
+      ]
+    },
+    {
+      "recId": "CCD-2023:APT:3",
+      "cor": "2a",
+      "section": "Antiplatelet Therapy and Oral Anticoagulants",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "ticagrelor",
+        "prasugrel"
+      ],
+      "citedPmids": [
+        22999717,
+        24177257,
+        28110296,
+        32551860,
+        32795096
+      ]
+    },
+    {
+      "recId": "CCD-2023:APT:15",
+      "cor": "2a",
+      "section": "Antiplatelet Therapy and Oral Anticoagulants",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "aspirin",
+        "rivaroxaban"
+      ],
+      "citedPmids": [
+        28844192,
+        32223318,
+        32436455
+      ]
+    },
+    {
+      "recId": "CCD-2023:APT:16",
+      "cor": "2a",
+      "section": "Antiplatelet Therapy and Oral Anticoagulants",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "omeprazole",
+        "lansoprazole",
+        "pantoprazole",
+        "rabeprazole",
+        "esomeprazole",
+        "dexlansoprazole"
+      ],
+      "citedPmids": [
+        34408652
+      ]
+    },
+    {
+      "recId": "CCD-2023:IMMU:3",
+      "cor": "2a",
+      "section": "Immunizations",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Pneumococcal vaccine"
+      ],
+      "citedPmids": [
+        22739637,
+        32259237,
+        34521082
+      ]
+    },
+    {
+      "recId": "CCD-2023:LIPID:10",
+      "cor": "2b",
+      "section": "Lipid Management",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [],
+      "citedPmids": [
+        26039521,
+        28231942,
+        28768335,
+        28465286
+      ]
+    },
+    {
+      "recId": "CCD-2023:LIPID:11",
+      "cor": "2b",
+      "section": "Lipid Management",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "bempedoic acid",
+        "inclisiran"
+      ],
+      "citedPmids": [
+        30865796,
+        31714986,
+        32187462
+      ]
+    },
+    {
+      "recId": "CCD-2023:EE:2",
+      "cor": "2b",
+      "section": "Environmental Exposures",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [],
+      "citedPmids": [
+        31376629,
+        33301532,
+        34098271
+      ]
+    },
+    {
+      "recId": "CCD-2023:APT:14",
+      "cor": "2b",
+      "section": "Antiplatelet Therapy and Oral Anticoagulants",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "rivaroxaban",
+        "apixaban",
+        "dabigatran",
+        "edoxaban"
+      ],
+      "citedPmids": [
+        27959713,
+        31603196,
+        33250267
+      ]
+    },
+    {
+      "recId": "CCD-2023:COLC:1",
+      "cor": "2b",
+      "section": "Colchicine",
+      "interventionType": "Medication",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "colchicine"
+      ],
+      "citedPmids": [
+        23265346,
+        32865380
+      ]
+    },
+    {
+      "recId": "CCD-2023:MRA:1",
+      "cor": "2b",
+      "section": "Management of Refractory Angina",
+      "interventionType": "CarePlan",
+      "requiresAlso": [],
+      "extraCount": 0,
+      "recommends": [
+        "Enhanced external counterpulsation"
+      ],
+      "citedPmids": [
+        10362181
+      ]
+    },
+    {
+      "recId": "CCD-2023:WM:2",
+      "cor": "1",
+      "section": "Weight Management",
+      "interventionType": "CarePlan",
+      "requiresAlso": [
+        "Body mass index 30+ - obesity",
+        "Body mass index 40+ - severely obese",
+        "Overweight"
+      ],
+      "extraCount": 3,
+      "recommends": [
+        "Weight management program"
+      ],
+      "citedPmids": [
+        18056904,
+        19744231,
+        25369490,
+        30326501
+      ]
+    },
+    {
+      "recId": "CCD-2023:WM:3",
+      "cor": "2a",
+      "section": "Weight Management",
+      "interventionType": "Medication",
+      "requiresAlso": [
+        "Body mass index 30+ - obesity",
+        "Body mass index 40+ - severely obese",
+        "Overweight"
+      ],
+      "extraCount": 3,
+      "recommends": [
+        "semaglutide"
+      ],
+      "citedPmids": [
+        26132939,
+        30122305,
+        33567185,
+        35015037
+      ]
+    }
+  ],
+  "safetyFlags": [
+    {
+      "drug": "24 HR metoprolol succinate 100 MG Extended Release Oral Tablet",
+      "code": "866412",
+      "recId": "CCD-2023:BB:4",
+      "cor": "3-NoBenefit"
+    },
+    {
+      "drug": "24 HR propranolol hydrochloride 160 MG Extended Release Oral Capsule",
+      "code": "856481",
+      "recId": "CCD-2023:BB:4",
+      "cor": "3-NoBenefit"
+    },
+    {
+      "drug": "Clopidogrel 75 MG Oral Tablet",
+      "code": "309362",
+      "recId": "CCD-2023:APT:7",
+      "cor": "3-NoBenefit"
+    },
+    {
+      "drug": "Nitroglycerin 0.4 MG/ACTUAT Mucosal Spray",
+      "code": "705129",
+      "recId": "CCD-2023:SHA:3",
+      "cor": "3-Harm"
+    },
+    {
+      "drug": "prasugrel 10 MG Oral Tablet",
+      "code": "855812",
+      "recId": "CCD-2023:APT:9",
+      "cor": "3-Harm"
+    }
+  ],
+  "literature": [
+    {
+      "condition": "Disorder of kidney due to diabetes mellitus (disorder)",
+      "drug": "canagliflozin 100 MG Oral Tablet",
+      "pmi": 1.249,
+      "articleCount": 4
+    },
+    {
+      "condition": "Metabolic syndrome X (disorder)",
+      "drug": "Simvastatin 10 MG Oral Tablet",
+      "pmi": 0.759,
+      "articleCount": 6
+    },
+    {
+      "condition": "Metabolic syndrome X (disorder)",
+      "drug": "Simvastatin 20 MG Oral Tablet",
+      "pmi": 0.759,
+      "articleCount": 6
+    },
+    {
+      "condition": "Metabolic syndrome X (disorder)",
+      "drug": "simvastatin 40 MG Oral Tablet",
+      "pmi": 0.759,
+      "articleCount": 6
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "irbesartan 75 MG Oral Tablet",
+      "pmi": 0.64,
+      "articleCount": 4
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "irbesartan 150 MG Oral Tablet",
+      "pmi": 0.64,
+      "articleCount": 4
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "ramipril 5 MG Oral Capsule",
+      "pmi": 0.464,
+      "articleCount": 30
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "ramipril 2.5 MG Oral Capsule",
+      "pmi": 0.464,
+      "articleCount": 30
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "ramipril 10 MG Oral Capsule",
+      "pmi": 0.464,
+      "articleCount": 30
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "ticagrelor 90 MG Oral Tablet",
+      "pmi": 0.457,
+      "articleCount": 57
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "clopidogrel 300 MG Oral Tablet",
+      "pmi": 0.397,
+      "articleCount": 125
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "Clopidogrel 75 MG Oral Tablet",
+      "pmi": 0.397,
+      "articleCount": 125
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "aspirin 81 MG Oral Tablet",
+      "pmi": 0.394,
+      "articleCount": 216
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "Aspirin",
+      "pmi": 0.394,
+      "articleCount": 216
+    },
+    {
+      "condition": "Cerebrovascular accident (disorder)",
+      "drug": "aspirin 325 MG Oral Tablet",
+      "pmi": 0.394,
+      "articleCount": 216
+    }
+  ]
+}

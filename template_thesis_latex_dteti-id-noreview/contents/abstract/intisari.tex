@@ -1,0 +1,49 @@
+\begin{singlespace}
+
+\indent Penyakit jantung koroner kronis (CCD) berkontribusi sebagai beban terbesar pada penyakit
+kardiovaskular secara global, namun pelaksanaan sesuai panduan klinis pada praktik rutin masih rendah:
+hanya 1,0\% dari 4.548 pasien pada studi INTERASPIRE yang mencapai pelaksanaan yang optimal.
+Sistem rekomendasi klinis dapat mengatasinya, tetapi harus dilakukan penyatuan rekam
+medis, panduan klinis, dan literatur biomedis secara sekaligus ke dalam satu struktur yang dapat dikueri,
+menjembatani terminologi klinis yang heterogen, serta menghasilkan keluaran dalam bahasa alami
+yang \emph{faithfulness}-nya dapat diverifikasi. Penelitian ini mengembangkan sistem
+rekomendasi klinis CCD yang bersifat FHIR-native dan berbasis \emph{knowledge graph}
+untuk menjawab ketiganya.
+
+Rekam medis sintetis sejumlah 5.490 pasien dibangkitkan menggunakan Synthea, diekspor sebagai
+\emph{bundle} HL7 FHIR~R4, dimuat ke basis data graf Neo4j, lalu disatukan dengan panduan
+AHA/ACC CCD 2023 dan 4.801 abstrak PubMed menggunakan lapisan konsep bersama berbasis UMLS. Karena
+observasi numerik ikut dimuat sebagai data graf, rekomendasi yang disyaratkan pada nilai
+terukur---misalnya fraksi ejeksi ventrikel kiri atau indeks massa tubuh---dapat digerbangi
+menurut nilai pasien yang sebenarnya, yang tidak dapat dilakukan jika berbasis kondisi penyakitnya
+saja. Sistem juga menghasilkan \emph{grounded briefing} yang faktanya ditelusuri secara
+deterministik dari graf dan model bahasa besar hanya merumuskan kalimatnya saja, lalu
+diperiksa secara otomatis. Evaluasi yang mencakup 876 pasien CCD dilakukan terhadap standar rujukan
+otomatis yang independen dari sistem.
+
+Graf yang terbentuk memuat 1.804.379 simpul dan 8.796.425 relasi. Ablasi menunjukkan
+\emph{observation gate} dapat menaikkan $F_1$ pada keselarasan terhadap panduan klinis dari 0,743 menjadi 0,810 melalui
+kenaikan presisi dari 0,612 menjadi 0,684 dengan \emph{recall} yang praktis tidak berubah dan
+seluruh perolehan itu terpusat pada 15 dari 68 rekomendasi yang memang bergerbang. Standar
+rujukan otomatisnya sepakat dengan pelabelan manual terhadap 30 pasien pada 99,5\% sel dengan
+Cohen's $\kappa = 0{,}991$ (interval kepercayaan 95\% 0,984---0,996). Seluruh 30 \emph{briefing} yang dibangkitkan lolos pemeriksaan
+\emph{faithfulness} otomatis, tanpa satu pun rekomendasi maupun sitasi yang dikarang, poin
+wajib yang terlewat, ataupun klaim antikoagulan yang berlebih. Telaah oleh dokter spesialis
+jantung menilai 77,7\% dari 247 rekomendasi bagi 15 pasien tepat, dengan penilaian belum
+tepat terpusat pada terapi antitrombotik.
+
+Pemuatan observasi numerik sebagai data kelas satu karenanya menaikkan presisi keselarasan
+terhadap panduan klinis secara terukur. FHIR menyediakan observasi itu secara paling
+langsung, tetapi ekspor tabular pun dapat mereproduksi gerbang yang sama. Penelusuran yang
+deterministik menjadikan \emph{faithfulness} pada tingkat sitasi dapat diputuskan secara
+mekanis, bukan aproksimatif seperti pada \emph{retrieval augmented generation} (RAG), tetapi
+tidak menjamin bahwa setiap kalimat setia secara makna. Keterbatasannya pun
+dapat diukur: ekspor FHIR tidak memuat tanggal berhenti pengobatan sehingga logika panduan yang
+bergantung pada durasi hanya sebagian yang dapat diterapkan pada saat penelusuran dan seluruh angkanya berasal dari
+rekam medis sintetis.
+
+\vspace{6pt}
+\noindent{Kata kunci} : sistem rekomendasi klinis, \emph{knowledge graph}, HL7 FHIR,
+penyakit jantung koroner kronis, keselarasan panduan
+
+\end{singlespace}

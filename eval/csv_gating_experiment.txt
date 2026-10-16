@@ -1,0 +1,120 @@
+==============================================================================
+CSV-GATING EXPERIMENT -- can the flat export carry the observation gate?
+==============================================================================
+cohort: 876 patients
+
+-- 1. container ------------------------------------------------------------
+LOINC 85354-9 (blood-pressure panel) rows in the export : 0
+systolic/diastolic rows re-paired by (ENCOUNTER, DATE)   : 17177 pairs
+rows left unpaired by that key                           : 0
+
+-- 2. feature agreement, CSV path vs FHIR-bundle path ----------------------
+feature          absent CSV absent FHIR   disagree
+lvef_min                670        670        199
+ldl_max                 191        191        618
+bmi_max                 249        249        556
+tg_max                  191        191        617
+sbp                     249        249          0
+dbp                     249        249          0
+hf                        -          -          0
+htn                       -          -          0
+dm                        -          -          0
+ckd                       -          -          0
+hypertg                   -          -          0
+obesity_cond              -          -          0
+overweight_cond           -          -          0
+severe_obesity            -          -          0
+smoker_recent             -          -          0
+bmi_ge25                  -          -          0
+bmi_ge40                  -          -          0
+
+  lvef_min -- first 5 disagreements (pid, csv, fhir):
+    00cd190e-8991-6e30-c5b2-a6ef9e07740d  csv=33.0  fhir=32.98
+    03642220-ce09-93c4-a245-ba9a938cea5f  csv=45.6  fhir=45.615
+    03b03863-a8ad-aadf-2909-17e22608f1a3  csv=46.9  fhir=46.875
+    03babb0d-8fca-4cca-73a3-c7cde5e45979  csv=46.3  fhir=46.33
+    03debb32-bd50-ce27-4828-f4c46c8381d2  csv=42.7  fhir=42.666
+  ldl_max -- first 5 disagreements (pid, csv, fhir):
+    00cd190e-8991-6e30-c5b2-a6ef9e07740d  csv=134.3  fhir=134.28
+    01dc6d0f-e251-16f2-a97b-13660332e887  csv=78.8  fhir=78.77
+    02c33b17-28c9-c032-ee75-583d2cd802f4  csv=125.8  fhir=125.75
+    02e22cdf-5868-6f4b-7536-9e56ac1548ff  csv=163.0  fhir=162.97
+    030ac3af-86e5-7ed2-fc56-5e8cc6d9619c  csv=175.4  fhir=175.37
+  bmi_max -- first 5 disagreements (pid, csv, fhir):
+    00cd190e-8991-6e30-c5b2-a6ef9e07740d  csv=28.0  fhir=27.96
+    02c33b17-28c9-c032-ee75-583d2cd802f4  csv=27.5  fhir=27.53
+    03642220-ce09-93c4-a245-ba9a938cea5f  csv=29.8  fhir=29.79
+    03b03863-a8ad-aadf-2909-17e22608f1a3  csv=30.2  fhir=30.16
+    03debb32-bd50-ce27-4828-f4c46c8381d2  csv=27.1  fhir=27.14
+  tg_max -- first 5 disagreements (pid, csv, fhir):
+    00cd190e-8991-6e30-c5b2-a6ef9e07740d  csv=144.5  fhir=144.54
+    01dc6d0f-e251-16f2-a97b-13660332e887  csv=132.3  fhir=132.34
+    02c33b17-28c9-c032-ee75-583d2cd802f4  csv=136.9  fhir=136.94
+    030ac3af-86e5-7ed2-fc56-5e8cc6d9619c  csv=195.2  fhir=195.19
+    0333a5c9-4abc-e246-512e-82a4791741fe  csv=497.3  fhir=497.29
+
+-- 3. gate decisions, CSV path vs FHIR-bundle path -------------------------
+recId                     csv=1   fhir=1    flips   agree%
+BB:1                         97       97        0   100.0%
+BB:2                        191      191        0   100.0%
+BPM:1                        60       60        0   100.0%
+LIPID:9                       0        0        0   100.0%
+RAAI:1                      447      447        0   100.0%
+RAAI:2                       54       54        0   100.0%
+SGLT2:4                      15       15        0   100.0%
+SGLT2:6                      22       22        0   100.0%
+TP:2                          0        0        0   100.0%
+TP:3:1                        0        0        0   100.0%
+TP:3:2                        0        0        0   100.0%
+TP:4                          0        0        0   100.0%
+TP:5                          0        0        0   100.0%
+WM:2                        617      617        0   100.0%
+WM:3                        617      617        0   100.0%
+
+decisions compared : 13140  (876 patients x 15 gated recommendations)
+decisions that flip: 0
+
+-- 4. concordance of the gated recommendations vs silver_oracle ------------
+CSV gate    P=1.000  R=1.000  F1=1.000   tp=2120 fp=0 fn=0
+FHIR gate   P=1.000  R=1.000  F1=1.000   tp=2120 fp=0 fn=0
+
+(ARM 1 of eval/concordance_by_class.txt reports these 15 recommendations as
+ value-gated tp=849 fp=0 fn=0 plus both tp=1271 fp=0 fn=0, i.e. tp=2120.)
+
+-- 5. what the export costs: numeric precision -----------------------------
+values differing between the two paths : 1990
+largest difference                     : 0.0500
+The export writes observation values to one decimal place; the bundle keeps the
+full value. Every difference above is that rounding, and nothing else.
+
+-- 6. how close that rounding came to changing a decision ------------------
+A rounded value can only change a gate decision if it crosses a threshold.
+feature      thresh within .05   min margin
+lvef_min         40          1       0.0010
+lvef_min         50          0       0.0800
+bmi_max          25          0       0.4300
+bmi_max          40          1       0.0000
+ldl_max         100          0       0.1000
+tg_max          150          2       0.0300
+tg_max          499          0       0.0700
+sbp             120         16       0.0000
+sbp             129          4       0.0000
+dbp              80         14       0.0000
+
+values that land on the far side of a boundary after rounding : 3
+  a3c8fe25-4e1b-833d-919d-10f24fdbf50e  lvef_min: fhir=39.999 csv=40.0  vs boundary 40
+  0d96cd06-e273-9de3-100d-ff860221cfdc  tg_max: fhir=149.970 csv=150.0  vs boundary 150
+  34afd486-299b-ad1f-bd73-1bd8113445f4  tg_max: fhir=149.960 csv=150.0  vs boundary 150
+
+This probe tests `value >= boundary`, which is stricter than the gate needs, so
+read it as exposure rather than as error. The LVEF case is not exposure at all:
+the predicates that use LVEF test `<= 40` and `> 40`, and 39.999 and 40.0 answer
+those identically. The two triglyceride cases are real exposure -- the clause
+`150 <= tg` flips to true -- but LIPID:9 also requires LDL < 100, which fails for
+both patients (130.1 and 148.6), so no recommendation changed. Section 3 is the
+authoritative count: 0 of 13140 decisions.
+
+-- 7. the cohort gate, from conditions.csv ---------------------------------
+SNOMED 414545008 (Ischemic heart disease) in conditions.csv : 876 patients
+identical to the graph's gate cohort                       : True
+

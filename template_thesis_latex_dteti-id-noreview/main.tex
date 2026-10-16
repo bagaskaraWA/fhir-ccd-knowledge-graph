@@ -1,0 +1,1010 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Filename: main.tex
+%%%  ---
+%%%  Template for Bachelor Thesis at DTETI UGM   		
+%%%  Created using thesisdtetiugm.cls
+%%%  --- 
+%%%  Original Written by Canggih Puspo Wibowo
+%%%  [canggihpw@gmail.com]
+%%%
+%%% Developed by Dr.-Ing. Yohan Fajar Sidik [DTETI FT UGM]
+%%% [yohanfajarsidik@ugm.ac.id]
+%%% Github repo: https://github.com/Dr-Sidik/template_thesis_latex_dteti
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Use option "bahasa" or "english" 
+%%    to change the basic language used
+%% User option "bachelor", "master", or "doctoral"
+%% 	  to change the degree
+% \documentclass[<bachelor/master/doctoral>,<bahasa/english>]{thesisdtetiugm}
+%% VERSI BAHASA INDONESIA. Kelas dimuat dalam mode `bahasa' sehingga label otomatis
+%% (BAB, Gambar, Tabel, DAFTAR PUSTAKA) tampil dalam bahasa Indonesia. Halaman
+%% ABSTRACT tetap berbahasa Inggris karena \chapterabstract menetapkan judulnya
+%% secara langsung, sesuai ketentuan template.
+\documentclass[bachelor,bahasa]{thesisdtetiugm}
+%\documentclass[bachelor,english]{thesisdtetiugm}
+%======================================
+% Information Input
+%======================================
+% Input author's name and ID number
+\author{Bagaskara Waskita Ahmad}{22/497184/TK/54481}
+% Input the thesis' title
+%% Kapitalisasi mengikuti EYD V, Huruf Kapital butir 21: setiap kata berhuruf awal
+%% kapital kecuali kata tugas yang tidak berada di posisi awal (untuk, dan).
+%% Catatan: kelas menata judul dalam huruf kapital seluruhnya pada halaman judul,
+%% sehingga miring pada "Knowledge Graph" hanya tampak di teks berjalan.
+\title{Pengembangan Sistem Rekomendasi Klinis untuk Penyakit Jantung Koroner
+Kronis Menggunakan Knowledge Graph Berbasis Rekam Medis FHIR, Panduan Klinis, dan
+Literatur Biomedis}
+% Program and the head of the program
+\program{Teknik Biomedis}{Syukron Abu Ishaq Alfarozi, S.T., Ph.D.}{111199205202101102}
+% Name of department head and NIP
+\departmenthead{Prof. Ir. Hanung Adi Nugroho, S.T., M.Eng., Ph.D., IPM., SMIEEE.}{197802242002121001}
+\major{Teknik Biomedis}
+\yearsubmit{2026}
+\examdate{3 September 2026}
+% Name of thesis supervisors/promotors
+\addsupervisor{Teguh Bharata Adji, S.T., M.T., M.Eng., Ph.D.}{NIP 196909201995121001}
+\addsupervisor{}{}
+%\addsupervisor{<<Supervisor 3>>}{<<NIP>>}
+% Name of examiners
+%\addexaminer{<<Examiner 1>>}{<<NIP 1>>}
+%\addexaminer{<<Examiner 2>>}{<<NIP 2>>}
+%\addexaminer{<<Examiner 3>>}{<<NIP 3>>}
+%\addexaminer{<<Examiner 4>>}{<<NIP 4>>}
+%\addexaminer{<<Examiner 5>>}{<<NIP 5>>}
+%\addexaminer{<<Examiner 6>>}{<<NIP 6>>}
+%\addexaminer{<<Examiner 7>>}{<<NIP 7>>}
+%\addexaminer{<<Examiner 8>>}{<<NIP 8>>}
+%\addexaminer{<<Examiner 9>>}{<<NIP 9>>}
+
+%======================================
+
+% correct bad hyphenation here [example]
+\babelhyphenation[bahasa]{ab-la-si}
+\babelhyphenation[bahasa]{a-bla-tion}
+\babelhyphenation[bahasa]{ab-strak}
+\babelhyphenation[bahasa]{a-da-lah}
+\babelhyphenation[bahasa]{ad-min-is-tra-tion}
+\babelhyphenation[bahasa]{aero-space}
+\babelhyphenation[bahasa]{agree-ment}
+\babelhyphenation[bahasa]{akan}
+\babelhyphenation[bahasa]{akibat-nya}
+\babelhyphenation[bahasa]{a-la-mi}
+\babelhyphenation[bahasa]{alternatif-nya}
+\babelhyphenation[bahasa]{am-bang}
+\babelhyphenation[bahasa]{ambang-nya}
+\babelhyphenation[bahasa]{ang-ka}
+\babelhyphenation[bahasa]{angka-nya}
+\babelhyphenation[bahasa]{anotasi-nya}
+\babelhyphenation[bahasa]{an-ta-ra}
+\babelhyphenation[bahasa]{an-tar-entitas}
+\babelhyphenation[bahasa]{an-ti-hi-per-ten-si}
+\babelhyphenation[bahasa]{an-ti-pla-te-let}
+\babelhyphenation[bahasa]{a-pa-kah}
+\babelhyphenation[bahasa]{a-prok-si-ma-tif}
+\babelhyphenation[bahasa]{ar-ti-fi-cial}
+\babelhyphenation[bahasa]{a-si-met-ri}
+\babelhyphenation[bahasa]{asimetri-nya}
+\babelhyphenation[bahasa]{as-pek}
+\babelhyphenation[bahasa]{as-so-ci-a-tion}
+\babelhyphenation[bahasa]{a-tor-vas-ta-tin}
+\babelhyphenation[bahasa]{atur-an}
+\babelhyphenation[bahasa]{au-to-ma-ted}
+
+\babelhyphenation[bahasa]{backboneelement}
+\babelhyphenation[bahasa]{bagi-an}
+\babelhyphenation[bahasa]{ba-ha-sa}
+\babelhyphenation[bahasa]{ban-tu}
+\babelhyphenation[bahasa]{ba-nyak}
+\babelhyphenation[bahasa]{banyak-nya}
+\babelhyphenation[bahasa]{baris-nya}
+\babelhyphenation[bahasa]{baru}
+\babelhyphenation[bahasa]{ba-sis}
+\babelhyphenation[bahasa]{ba-tas}
+\babelhyphenation[bahasa]{ba-wah}
+\babelhyphenation[bahasa]{be-ban}
+\babelhyphenation[bahasa]{be-berapa}
+\babelhyphenation[bahasa]{be-gi-tu}
+\babelhyphenation[bahasa]{ber-anotasi}
+\babelhyphenation[bahasa]{be-rat}
+\babelhyphenation[bahasa]{be-rupa}
+\babelhyphenation[bahasa]{ber-banding}
+\babelhyphenation[bahasa]{ber-basis}
+\babelhyphenation[bahasa]{ber-beda}
+\babelhyphenation[bahasa]{ber-dasar-kan}
+\babelhyphenation[bahasa]{ber-dekat-an}
+\babelhyphenation[bahasa]{ber-gantung}
+\babelhyphenation[bahasa]{ber-gerbang}
+\babelhyphenation[bahasa]{ber-halusinasi}
+\babelhyphenation[bahasa]{ber-henti}
+\babelhyphenation[bahasa]{berkas-nya}
+\babelhyphenation[bahasa]{ber-jangkar}
+\babelhyphenation[bahasa]{ber-kas}
+\babelhyphenation[bahasa]{ber-kode}
+\babelhyphenation[bahasa]{ber-laku}
+\babelhyphenation[bahasa]{ber-landas}
+\babelhyphenation[bahasa]{ber-lawan-an}
+\babelhyphenation[bahasa]{ber-lebih-an}
+\babelhyphenation[bahasa]{ber-pasang-an}
+\babelhyphenation[bahasa]{ber-predikat}
+\babelhyphenation[bahasa]{ber-sama}
+\babelhyphenation[bahasa]{ber-sama-an}
+\babelhyphenation[bahasa]{ber-saudara}
+\babelhyphenation[bahasa]{ber-sifat}
+\babelhyphenation[bahasa]{ber-target}
+\babelhyphenation[bahasa]{ber-tuju-an}
+\babelhyphenation[bahasa]{ber-tumpu}
+\babelhyphenation[bahasa]{ber-ubah}
+\babelhyphenation[bahasa]{beta}
+\babelhyphenation[bahasa]{bi-a-ya}
+\babelhyphenation[bahasa]{bio-medical}
+\babelhyphenation[bahasa]{bio-medis}
+\babelhyphenation[bahasa]{breadth}
+\babelhyphenation[bahasa]{bri-ta-ni-a}
+\babelhyphenation[bahasa]{brie-fings}
+\babelhyphenation[bahasa]{bu-kan}
+\babelhyphenation[bahasa]{bu-lan}
+\babelhyphenation[bahasa]{bundle}
+\babelhyphenation[bahasa]{bypass}
+
+\babelhyphenation[bahasa]{ca-bang}
+\babelhyphenation[bahasa]{ca-cah}
+\babelhyphenation[bahasa]{cacah-nya}
+\babelhyphenation[bahasa]{call-submodule}
+\babelhyphenation[bahasa]{clo-pi-dog-rel}
+\babelhyphenation[bahasa]{completeness}
+\babelhyphenation[bahasa]{con-fer-ence}
+\babelhyphenation[bahasa]{con-text}
+\babelhyphenation[bahasa]{contoh-nya}
+\babelhyphenation[bahasa]{con-tra-in-di-cates}
+\babelhyphenation[bahasa]{cor-pus}
+
+\babelhyphenation[bahasa]{daf-tar}
+\babelhyphenation[bahasa]{dam-pak}
+\babelhyphenation[bahasa]{da-lam}
+\babelhyphenation[bahasa]{dalam-nya}
+\babelhyphenation[bahasa]{da-pat}
+\babelhyphenation[bahasa]{dari}
+\babelhyphenation[bahasa]{dari-nya}
+\babelhyphenation[bahasa]{da-rah}
+\babelhyphenation[bahasa]{da-ri-pa-da}
+\babelhyphenation[bahasa]{data}
+\babelhyphenation[bahasa]{da-tang}
+\babelhyphenation[bahasa]{demi}
+\babelhyphenation[bahasa]{de-ngan}
+\babelhyphenation[bahasa]{depth}
+\babelhyphenation[bahasa]{de-sign}
+\babelhyphenation[bahasa]{de-tek-si}
+\babelhyphenation[bahasa]{de-ter-mi-nis-tik}
+\babelhyphenation[bahasa]{des-krip-tif}
+\babelhyphenation[bahasa]{di-ag-no-sis}
+\babelhyphenation[bahasa]{di-anggap}
+\babelhyphenation[bahasa]{di-angkat}
+\babelhyphenation[bahasa]{di-anotasi}
+\babelhyphenation[bahasa]{di-asumsi-kan}
+\babelhyphenation[bahasa]{di-atribut-kan}
+\babelhyphenation[bahasa]{di-bahas}
+\babelhyphenation[bahasa]{di-banding-kan}
+\babelhyphenation[bahasa]{di-bangkit-kan}
+\babelhyphenation[bahasa]{di-bangun}
+\babelhyphenation[bahasa]{di-ber-laku-kan}
+\babelhyphenation[bahasa]{di-beri-kan}
+\babelhyphenation[bahasa]{di-cocok-kan}
+\babelhyphenation[bahasa]{di-definisi-kan}
+\babelhyphenation[bahasa]{di-dukung}
+\babelhyphenation[bahasa]{di-eksekusi}
+\babelhyphenation[bahasa]{di-ekspor}
+\babelhyphenation[bahasa]{di-evaluasi}
+\babelhyphenation[bahasa]{di-gambar-kan}
+\babelhyphenation[bahasa]{di-gerbang-i}
+\babelhyphenation[bahasa]{di-guna-kan}
+\babelhyphenation[bahasa]{di-harap-kan}
+\babelhyphenation[bahasa]{di-hasil-kan}
+\babelhyphenation[bahasa]{di-hid-ro-pi-ri-din}
+\babelhyphenation[bahasa]{di-hilang-kan}
+\babelhyphenation[bahasa]{di-hitung}
+\babelhyphenation[bahasa]{di-hubung-kan}
+\babelhyphenation[bahasa]{di-hubung-kan-nya}
+\babelhyphenation[bahasa]{di-implementasi-kan}
+\babelhyphenation[bahasa]{di-jembatan-i}
+\babelhyphenation[bahasa]{di-kait-kan}
+\babelhyphenation[bahasa]{di-karang}
+\babelhyphenation[bahasa]{di-kecuali-kan}
+\babelhyphenation[bahasa]{di-kelola}
+\babelhyphenation[bahasa]{di-keluar-kan}
+\babelhyphenation[bahasa]{di-kirim}
+\babelhyphenation[bahasa]{di-klaim}
+\babelhyphenation[bahasa]{di-kode-kan}
+\babelhyphenation[bahasa]{di-komputasi}
+\babelhyphenation[bahasa]{di-konversi}
+\babelhyphenation[bahasa]{di-kuantifikasi}
+\babelhyphenation[bahasa]{di-label-i}
+\babelhyphenation[bahasa]{di-lacak}
+\babelhyphenation[bahasa]{di-laku-kan}
+\babelhyphenation[bahasa]{di-lapor-kan}
+\babelhyphenation[bahasa]{di-mekanis-kan}
+\babelhyphenation[bahasa]{di-mungkin-kan}
+\babelhyphenation[bahasa]{di-nyata-kan}
+\babelhyphenation[bahasa]{di-pakai}
+\babelhyphenation[bahasa]{di-pasti-kan}
+\babelhyphenation[bahasa]{di-pendek-kan}
+\babelhyphenation[bahasa]{di-periksa}
+\babelhyphenation[bahasa]{di-per-baik-i}
+\babelhyphenation[bahasa]{di-per-kaya}
+\babelhyphenation[bahasa]{di-per-kenal-kan}
+\babelhyphenation[bahasa]{di-per-kira-kan}
+\babelhyphenation[bahasa]{di-per-lihat-kan}
+\babelhyphenation[bahasa]{di-perlu-kan}
+\babelhyphenation[bahasa]{di-per-tahan-kan}
+\babelhyphenation[bahasa]{di-per-temu-kan}
+\babelhyphenation[bahasa]{di-putus-kan}
+\babelhyphenation[bahasa]{di-rakit}
+\babelhyphenation[bahasa]{di-rekomendasi-kan}
+\babelhyphenation[bahasa]{di-resolusi}
+\babelhyphenation[bahasa]{di-saji-kan}
+\babelhyphenation[bahasa]{di-satu-kan}
+\babelhyphenation[bahasa]{di-sease}
+\babelhyphenation[bahasa]{di-serta-kan}
+\babelhyphenation[bahasa]{di-susul}
+\babelhyphenation[bahasa]{di-tambang}
+\babelhyphenation[bahasa]{di-telusur-i}
+\babelhyphenation[bahasa]{di-terap-kan}
+\babelhyphenation[bahasa]{di-terbit-kan}
+\babelhyphenation[bahasa]{di-timbul-kan}
+\babelhyphenation[bahasa]{di-tindak-lanjut-i}
+\babelhyphenation[bahasa]{di-tuju-kan}
+\babelhyphenation[bahasa]{di-tulis-kan}
+\babelhyphenation[bahasa]{di-tunjuk-kan}
+\babelhyphenation[bahasa]{di-uji}
+\babelhyphenation[bahasa]{di-verifikasi}
+\babelhyphenation[bahasa]{di-wujud-kan}
+\babelhyphenation[bahasa]{dok-ter}
+\babelhyphenation[bahasa]{dukung-an}
+
+\babelhyphenation[bahasa]{eks-por}
+\babelhyphenation[bahasa]{eks-trin-sik}
+\babelhyphenation[bahasa]{e-lek-tro-nik}
+\babelhyphenation[bahasa]{em-bed-ding}
+\babelhyphenation[bahasa]{em-pat}
+\babelhyphenation[bahasa]{en-coun-ter}
+\babelhyphenation[bahasa]{en-ti-tas}
+\babelhyphenation[bahasa]{e-va-lu-a-si}
+\babelhyphenation[bahasa]{evaluasi-nya}
+\babelhyphenation[bahasa]{events}
+
+\babelhyphenation[bahasa]{faithful}
+\babelhyphenation[bahasa]{faithfulness}
+\babelhyphenation[bahasa]{fak-ta}
+\babelhyphenation[bahasa]{fakta-nya}
+\babelhyphenation[bahasa]{fi-si-o-lo-gis}
+\babelhyphenation[bahasa]{for-ma-lis-me}
+\babelhyphenation[bahasa]{for-mat}
+\babelhyphenation[bahasa]{fung-si-o-nal}
+\babelhyphenation[bahasa]{fornasari}
+
+\babelhyphenation[bahasa]{gangemi}
+\babelhyphenation[bahasa]{gabung-an}
+\babelhyphenation[bahasa]{gate}
+\babelhyphenation[bahasa]{gen-er-a-tion}
+\babelhyphenation[bahasa]{generator}
+\babelhyphenation[bahasa]{ger-bang}
+\babelhyphenation[bahasa]{glo-bal}
+\babelhyphenation[bahasa]{gold}
+\babelhyphenation[bahasa]{graph}
+\babelhyphenation[bahasa]{GraphRAG}
+\babelhyphenation[bahasa]{grounded}
+\babelhyphenation[bahasa]{grounding}
+\babelhyphenation[bahasa]{guna}
+\babelhyphenation[bahasa]{giordano}
+\babelhyphenation[bahasa]{moosazadeh}
+
+\babelhyphenation[bahasa]{ha-lu-si-na-si}
+\babelhyphenation[bahasa]{ha-nya}
+\babelhyphenation[bahasa]{hari}
+\babelhyphenation[bahasa]{ha-rus}
+\babelhyphenation[bahasa]{hasil-nya}
+\babelhyphenation[bahasa]{health}
+\babelhyphenation[bahasa]{healthcare}
+\babelhyphenation[bahasa]{himpun-an}
+\babelhyphenation[bahasa]{hi-per-ten-si}
+\babelhyphenation[bahasa]{his-to-ry}
+\babelhyphenation[bahasa]{hubung-an}
+\babelhyphenation[bahasa]{hubung-an-nya}
+
+\babelhyphenation[bahasa]{i-den-ti-fi-ka-si}
+\babelhyphenation[bahasa]{i-den-tik}
+\babelhyphenation[bahasa]{im-ple-men-ta-si}
+\babelhyphenation[bahasa]{implementasi-nya}
+\babelhyphenation[bahasa]{in-creased}
+\babelhyphenation[bahasa]{in-de-pen-den}
+\babelhyphenation[bahasa]{infarction}
+\babelhyphenation[bahasa]{in-for-ma-ti-ka}
+\babelhyphenation[bahasa]{in-line}
+\babelhyphenation[bahasa]{in-ter-o-pe-ra-bi-li-tas}
+\babelhyphenation[bahasa]{in-ter-pret-a-ble}
+\babelhyphenation[bahasa]{in-ter-val}
+\babelhyphenation[bahasa]{ischemic}
+\babelhyphenation[bahasa]{is-ti-lah}
+\babelhyphenation[bahasa]{i-te-ra-tif}
+
+\babelhyphenation[bahasa]{ja-mak}
+\babelhyphenation[bahasa]{ja-rang}
+\babelhyphenation[bahasa]{jan-tung}
+\babelhyphenation[bahasa]{java}
+\babelhyphenation[bahasa]{jawaban-nya}
+\babelhyphenation[bahasa]{je-las}
+\babelhyphenation[bahasa]{jembatan-nya}
+\babelhyphenation[bahasa]{je-nis}
+\babelhyphenation[bahasa]{judged}
+\babelhyphenation[bahasa]{juga}
+\babelhyphenation[bahasa]{JAMIA}
+
+\babelhyphenation[bahasa]{kan-di-dat}
+\babelhyphenation[bahasa]{kar-di-na-li-tas}
+\babelhyphenation[bahasa]{kar-di-o-vas-ku-lar}
+\babelhyphenation[bahasa]{kar-ya}
+\babelhyphenation[bahasa]{ka-re-na}
+\babelhyphenation[bahasa]{ka-te-go-ri}
+\babelhyphenation[bahasa]{karena-nya}
+\babelhyphenation[bahasa]{ke-absah-an}
+\babelhyphenation[bahasa]{ke-ada-an}
+\babelhyphenation[bahasa]{ke-aman-an}
+\babelhyphenation[bahasa]{ke-andal-an}
+\babelhyphenation[bahasa]{ke-anggota-an}
+\babelhyphenation[bahasa]{ke-bebas-an}
+\babelhyphenation[bahasa]{ke-cocok-an}
+\babelhyphenation[bahasa]{ke-dua}
+\babelhyphenation[bahasa]{ke-dua-nya}
+\babelhyphenation[bahasa]{ke-harus-an}
+\babelhyphenation[bahasa]{ke-hilang-an}
+\babelhyphenation[bahasa]{ke-kini-an}
+\babelhyphenation[bahasa]{ke-las}
+\babelhyphenation[bahasa]{ke-lima}
+\babelhyphenation[bahasa]{ke-li-ru}
+\babelhyphenation[bahasa]{keluar-an}
+\babelhyphenation[bahasa]{keluar-an-nya}
+\babelhyphenation[bahasa]{ke-mati-an}
+\babelhyphenation[bahasa]{ke-muncul-an}
+\babelhyphenation[bahasa]{ke-mungkin-an}
+\babelhyphenation[bahasa]{ke-pa-da}
+\babelhyphenation[bahasa]{ke-percaya-an}
+\babelhyphenation[bahasa]{ke-putus-an}
+\babelhyphenation[bahasa]{ke-putus-an-nya}
+\babelhyphenation[bahasa]{ke-ringkas-an}
+\babelhyphenation[bahasa]{ke-ringkas-an-nya}
+\babelhyphenation[bahasa]{ke-se-laras-an}
+\babelhyphenation[bahasa]{ke-seluruh-an}
+\babelhyphenation[bahasa]{ke-sepakat-an}
+\babelhyphenation[bahasa]{ke-setia-an}
+\babelhyphenation[bahasa]{ke-tak-ber-gantung-an}
+\babelhyphenation[bahasa]{ke-ter-alih-an}
+\babelhyphenation[bahasa]{ke-ter-batas-an}
+\babelhyphenation[bahasa]{ke-ter-batas-an-nya}
+\babelhyphenation[bahasa]{ke-ter-hubung-an-nya}
+\babelhyphenation[bahasa]{ke-ti-dak-mampu-an-nya}
+\babelhyphenation[bahasa]{ke-tiga}
+\babelhyphenation[bahasa]{klaim}
+\babelhyphenation[bahasa]{klau-sa}
+\babelhyphenation[bahasa]{kli-nis}
+\babelhyphenation[bahasa]{kli-ni-si}
+\babelhyphenation[bahasa]{knowl-edge}
+\babelhyphenation[bahasa]{kode}
+\babelhyphenation[bahasa]{kode-nya}
+\babelhyphenation[bahasa]{ko-hort}
+\babelhyphenation[bahasa]{ko-les-te-rol}
+\babelhyphenation[bahasa]{ko-lom}
+\babelhyphenation[bahasa]{ko-mu-ni-ka-si}
+\babelhyphenation[bahasa]{kon-di-si}
+\babelhyphenation[bahasa]{kon-se-ku-en-si}
+\babelhyphenation[bahasa]{kon-sen-sus}
+\babelhyphenation[bahasa]{kon-sep}
+\babelhyphenation[bahasa]{konsep-nya}
+\babelhyphenation[bahasa]{kon-sis-ten}
+\babelhyphenation[bahasa]{kon-sis-ten-si}
+\babelhyphenation[bahasa]{kon-ti-nu}
+\babelhyphenation[bahasa]{kon-tra-in-di-ka-si}
+\babelhyphenation[bahasa]{kon-tri-bu-si}
+\babelhyphenation[bahasa]{ko-ro-ner}
+\babelhyphenation[bahasa]{koroner-nya}
+\babelhyphenation[bahasa]{kor-pus}
+\babelhyphenation[bahasa]{ko-sa-ka-ta}
+\babelhyphenation[bahasa]{kosakata-nya}
+\babelhyphenation[bahasa]{kro-nis}
+\babelhyphenation[bahasa]{kro-ni-si-tas}
+\babelhyphenation[bahasa]{kronisitas-nya}
+\babelhyphenation[bahasa]{ku-a-li-fi-ka-si}
+\babelhyphenation[bahasa]{ku-a-li-tas}
+\babelhyphenation[bahasa]{ku-e-ri}
+\babelhyphenation[bahasa]{kumpul-an}
+\babelhyphenation[bahasa]{kunjung-an}
+
+\babelhyphenation[bahasa]{la-bel}
+\babelhyphenation[bahasa]{la-bo-ra-to-ri-um}
+\babelhyphenation[bahasa]{laboratorium-nya}
+\babelhyphenation[bahasa]{lain}
+\babelhyphenation[bahasa]{lain-nya}
+\babelhyphenation[bahasa]{lama}
+\babelhyphenation[bahasa]{lampir-an}
+\babelhyphenation[bahasa]{lang-sung}
+\babelhyphenation[bahasa]{lan-guage}
+\babelhyphenation[bahasa]{lapis-an}
+\babelhyphenation[bahasa]{le-bih}
+\babelhyphenation[bahasa]{le-kat}
+\babelhyphenation[bahasa]{li-bra-ry}
+\babelhyphenation[bahasa]{lin-tas}
+\babelhyphenation[bahasa]{lintas-an}
+\babelhyphenation[bahasa]{li-te-ra-tur}
+\babelhyphenation[bahasa]{lo-gi-ka}
+\babelhyphenation[bahasa]{loinc}
+\babelhyphenation[bahasa]{LOINC}
+\babelhyphenation[bahasa]{luas}
+
+\babelhyphenation[bahasa]{mace}
+\babelhyphenation[bahasa]{makro-nya}
+\babelhyphenation[bahasa]{man-age-ment}
+\babelhyphenation[bahasa]{ma-nu-al}
+\babelhyphenation[bahasa]{ma-nu-si-a}
+\babelhyphenation[bahasa]{ma-u-pun}
+\babelhyphenation[bahasa]{mas-sa}
+\babelhyphenation[bahasa]{MedCAT}
+\babelhyphenation[bahasa]{me-dis}
+\babelhyphenation[bahasa]{me-ka-nis-me}
+\babelhyphenation[bahasa]{me-label-i}
+\babelhyphenation[bahasa]{me-lain-kan}
+\babelhyphenation[bahasa]{me-lalu-i}
+\babelhyphenation[bahasa]{me-lampau-i}
+\babelhyphenation[bahasa]{me-lapor-kan}
+\babelhyphenation[bahasa]{me-lekat-kan}
+\babelhyphenation[bahasa]{me-lewat-i}
+\babelhyphenation[bahasa]{me-lokal-kan}
+\babelhyphenation[bahasa]{me-madu-kan}
+\babelhyphenation[bahasa]{me-makai}
+\babelhyphenation[bahasa]{me-makan}
+\babelhyphenation[bahasa]{me-mang}
+\babelhyphenation[bahasa]{me-mapar-kan}
+\babelhyphenation[bahasa]{me-mapar-kan-nya}
+\babelhyphenation[bahasa]{me-masang-kan}
+\babelhyphenation[bahasa]{mem-baca}
+\babelhyphenation[bahasa]{mem-baca-nya}
+\babelhyphenation[bahasa]{mem-banding-kan}
+\babelhyphenation[bahasa]{mem-bangkit-kan}
+\babelhyphenation[bahasa]{mem-bawa}
+\babelhyphenation[bahasa]{mem-bawa-nya}
+\babelhyphenation[bahasa]{mem-beda-kan}
+\babelhyphenation[bahasa]{mem-beri-kan}
+\babelhyphenation[bahasa]{mem-biar-kan}
+\babelhyphenation[bahasa]{mem-buang}
+\babelhyphenation[bahasa]{mem-buat}
+\babelhyphenation[bahasa]{me-menuh-i}
+\babelhyphenation[bahasa]{me-merlu-kan}
+\babelhyphenation[bahasa]{me-meta-kan-nya}
+\babelhyphenation[bahasa]{mem-formal-kan}
+\babelhyphenation[bahasa]{me-milik-i}
+\babelhyphenation[bahasa]{me-model-kan}
+\babelhyphenation[bahasa]{mem-per-kenal-kan-nya}
+\babelhyphenation[bahasa]{mem-per-laku-kan}
+\babelhyphenation[bahasa]{mem-per-lebar}
+\babelhyphenation[bahasa]{mem-per-sempit-nya}
+\babelhyphenation[bahasa]{mem-per-tahan-kan}
+\babelhyphenation[bahasa]{me-mulih-kan-nya}
+\babelhyphenation[bahasa]{me-mungkin-kan}
+\babelhyphenation[bahasa]{me-nama-i}
+\babelhyphenation[bahasa]{me-nambah-kan}
+\babelhyphenation[bahasa]{me-nampil-kan}
+\babelhyphenation[bahasa]{me-nanda-i}
+\babelhyphenation[bahasa]{me-nanda-i-nya}
+\babelhyphenation[bahasa]{me-nanggung}
+\babelhyphenation[bahasa]{me-nangkap}
+\babelhyphenation[bahasa]{men-cakup}
+\babelhyphenation[bahasa]{men-cantum-kan}
+\babelhyphenation[bahasa]{men-cocok-kan}
+\babelhyphenation[bahasa]{men-dasar-i}
+\babelhyphenation[bahasa]{men-definisi-kan}
+\babelhyphenation[bahasa]{men-definisi-kan-nya}
+\babelhyphenation[bahasa]{men-tah}
+\babelhyphenation[bahasa]{me-negas-kan}
+\babelhyphenation[bahasa]{me-nentu-kan}
+\babelhyphenation[bahasa]{me-nerap-kan}
+\babelhyphenation[bahasa]{me-netap-kan}
+\babelhyphenation[bahasa]{meng-aju-kan}
+\babelhyphenation[bahasa]{meng-aktif-kan}
+\babelhyphenation[bahasa]{meng-atas-i}
+\babelhyphenation[bahasa]{meng-atas-i-nya}
+\babelhyphenation[bahasa]{me-ngelompok}
+\babelhyphenation[bahasa]{me-ngena-i}
+\babelhyphenation[bahasa]{meng-evaluasi}
+\babelhyphenation[bahasa]{meng-evaluasi-nya}
+\babelhyphenation[bahasa]{meng-ganti-kan}
+\babelhyphenation[bahasa]{meng-guna-kan}
+\babelhyphenation[bahasa]{meng-hasil-kan}
+\babelhyphenation[bahasa]{meng-hitung}
+\babelhyphenation[bahasa]{meng-hubung-kan}
+\babelhyphenation[bahasa]{meng-identifikasi}
+\babelhyphenation[bahasa]{meng-integrasi-kan}
+\babelhyphenation[bahasa]{meng-iris-nya}
+\babelhyphenation[bahasa]{me-ngode-kan}
+\babelhyphenation[bahasa]{me-ngonsumsi}
+\babelhyphenation[bahasa]{me-ngorban-kan}
+\babelhyphenation[bahasa]{meng-ubah}
+\babelhyphenation[bahasa]{me-nilai}
+\babelhyphenation[bahasa]{me-ninggal}
+\babelhyphenation[bahasa]{me-ningkat-kan}
+\babelhyphenation[bahasa]{men-jadi}
+\babelhyphenation[bahasa]{men-jadi-kan}
+\babelhyphenation[bahasa]{men-jangkau}
+\babelhyphenation[bahasa]{men-jelas-kan}
+\babelhyphenation[bahasa]{men-jembatan-i}
+\babelhyphenation[bahasa]{men-justifikasi}
+\babelhyphenation[bahasa]{men-syarat-kan}
+\babelhyphenation[bahasa]{men-syarat-kan-nya}
+\babelhyphenation[bahasa]{me-nulis-kan}
+\babelhyphenation[bahasa]{me-nulis-kan-nya}
+\babelhyphenation[bahasa]{me-nunjuk-kan}
+\babelhyphenation[bahasa]{me-nuntut}
+\babelhyphenation[bahasa]{me-nurun-kan}
+\babelhyphenation[bahasa]{me-nurut}
+\babelhyphenation[bahasa]{me-nutup}
+\babelhyphenation[bahasa]{me-nyangkut}
+\babelhyphenation[bahasa]{me-nyaring-nya}
+\babelhyphenation[bahasa]{me-nyata-kan}
+\babelhyphenation[bahasa]{me-nyatu-kan}
+\babelhyphenation[bahasa]{me-nyebab-kan}
+\babelhyphenation[bahasa]{me-nyebut}
+\babelhyphenation[bahasa]{me-nyebut-kan}
+\babelhyphenation[bahasa]{me-nyedia-kan}
+\babelhyphenation[bahasa]{me-nye-lidik-i}
+\babelhyphenation[bahasa]{me-nyentuh}
+\babelhyphenation[bahasa]{me-nyerta-i-nya}
+\babelhyphenation[bahasa]{me-nyimpan}
+\babelhyphenation[bahasa]{me-nyimpan-nya}
+\babelhyphenation[bahasa]{me-nyisih-kan}
+\babelhyphenation[bahasa]{me-nyusun}
+\babelhyphenation[bahasa]{me-rangkum}
+\babelhyphenation[bahasa]{me-re-ka}
+\babelhyphenation[bahasa]{me-reproduksi}
+\babelhyphenation[bahasa]{me-rokok}
+\babelhyphenation[bahasa]{me-rumus-kan}
+\babelhyphenation[bahasa]{me-rupa-kan}
+\babelhyphenation[bahasa]{mes-ki}
+\babelhyphenation[bahasa]{meta-da-ta}
+\babelhyphenation[bahasa]{meta-thesaurus}
+\babelhyphenation[bahasa]{meth-od-ol-o-gy}
+\babelhyphenation[bahasa]{me-wujud-kan}
+\babelhyphenation[bahasa]{mik-ro}
+\babelhyphenation[bahasa]{mi-lik}
+\babelhyphenation[bahasa]{misal-nya}
+\babelhyphenation[bahasa]{mo-del}
+\babelhyphenation[bahasa]{myocardial}
+\babelhyphenation[bahasa]{meng-ucap-kan}
+\babelhyphenation[bahasa]{mu-lai}
+
+\babelhyphenation[bahasa]{name-space}
+\babelhyphenation[bahasa]{neg-a-tive}
+\babelhyphenation[bahasa]{ni-lai}
+\babelhyphenation[bahasa]{non-jangkar}
+\babelhyphenation[bahasa]{non-kontraindikasi}
+\babelhyphenation[bahasa]{non-pe-waris-an}
+\babelhyphenation[bahasa]{nu-me-rik}
+
+\babelhyphenation[bahasa]{ob-ser-va-si}
+\babelhyphenation[bahasa]{observasi-nya}
+\babelhyphenation[bahasa]{observation}
+\babelhyphenation[bahasa]{observational}
+\babelhyphenation[bahasa]{OHDSI}
+\babelhyphenation[bahasa]{on-to-lo-gi}
+\babelhyphenation[bahasa]{op-ti-mal}
+\babelhyphenation[bahasa]{o-to-ma-tis}
+
+\babelhyphenation[bahasa]{pada}
+\babelhyphenation[bahasa]{pa-kai}
+\babelhyphenation[bahasa]{pa-ling}
+\babelhyphenation[bahasa]{pandu-an}
+\babelhyphenation[bahasa]{pandu-an-nya}
+\babelhyphenation[bahasa]{pasang-an}
+\babelhyphenation[bahasa]{pasca-re-vas-ku-la-ri-sa-si}
+\babelhyphenation[bahasa]{pa-si-en}
+\babelhyphenation[bahasa]{pasien-nya}
+\babelhyphenation[bahasa]{patients}
+\babelhyphenation[bahasa]{peffers}
+\babelhyphenation[bahasa]{pem-bagi-nya}
+\babelhyphenation[bahasa]{pem-bangkit}
+\babelhyphenation[bahasa]{pem-bangkit-an}
+\babelhyphenation[bahasa]{pem-bangun-an-nya}
+\babelhyphenation[bahasa]{pem-buku-an}
+\babelhyphenation[bahasa]{pe-label-an}
+\babelhyphenation[bahasa]{pe-meriksa-an}
+\babelhyphenation[bahasa]{pe-meriksa-an-nya}
+\babelhyphenation[bahasa]{pe-meringkat-an}
+\babelhyphenation[bahasa]{pe-meta-an}
+\babelhyphenation[bahasa]{pe-milih-an}
+\babelhyphenation[bahasa]{pe-mindai-an}
+\babelhyphenation[bahasa]{pe-misah-an}
+\babelhyphenation[bahasa]{pe-mroses-an}
+\babelhyphenation[bahasa]{pe-nalar-an}
+\babelhyphenation[bahasa]{pen-citra-an}
+\babelhyphenation[bahasa]{pen-cocok-an}
+\babelhyphenation[bahasa]{pen-dapat}
+\babelhyphenation[bahasa]{pen-dek}
+\babelhyphenation[bahasa]{pen-dukung}
+\babelhyphenation[bahasa]{pe-neliti-an}
+\babelhyphenation[bahasa]{pe-nelusur-an}
+\babelhyphenation[bahasa]{pe-nelusur-an-nya}
+\babelhyphenation[bahasa]{pe-netap-an}
+\babelhyphenation[bahasa]{pe-ngelola-an}
+\babelhyphenation[bahasa]{pe-nge-tahu-an}
+\babelhyphenation[bahasa]{peng-erti-an}
+\babelhyphenation[bahasa]{peng-gabung-an}
+\babelhyphenation[bahasa]{peng-gerbang-an}
+\babelhyphenation[bahasa]{peng-guna-an}
+\babelhyphenation[bahasa]{peng-uji-an}
+\babelhyphenation[bahasa]{peng-ukur-an}
+\babelhyphenation[bahasa]{pe-nilai}
+\babelhyphenation[bahasa]{pe-nilai-an}
+\babelhyphenation[bahasa]{pe-nilai-an-nya}
+\babelhyphenation[bahasa]{pen-jembatan-an}
+\babelhyphenation[bahasa]{pe-nurun-an}
+\babelhyphenation[bahasa]{pe-nutup-an}
+\babelhyphenation[bahasa]{pe-nyakit}
+\babelhyphenation[bahasa]{pe-nyalin-an}
+\babelhyphenation[bahasa]{pe-nyebab}
+\babelhyphenation[bahasa]{pe-nyebab-nya}
+\babelhyphenation[bahasa]{pe-nyekat}
+\babelhyphenation[bahasa]{per-banding-an}
+\babelhyphenation[bahasa]{per-darah-an}
+\babelhyphenation[bahasa]{pe-resep-an}
+\babelhyphenation[bahasa]{pe-ri-o-de}
+\babelhyphenation[bahasa]{per-ka-kas}
+\babelhyphenation[bahasa]{per-lu}
+\babelhyphenation[bahasa]{per-nah}
+\babelhyphenation[bahasa]{per-nyata-an}
+\babelhyphenation[bahasa]{per-se-tuju-an}
+\babelhyphenation[bahasa]{per-soal-an}
+\babelhyphenation[bahasa]{per-ta-ma}
+\babelhyphenation[bahasa]{per-tanya-an}
+\babelhyphenation[bahasa]{per-timbang-an}
+\babelhyphenation[bahasa]{per-tukar-an}
+\babelhyphenation[bahasa]{per-ubah-an}
+\babelhyphenation[bahasa]{po-pu-la-si}
+\babelhyphenation[bahasa]{populasi-nya}
+\babelhyphenation[bahasa]{pos-i-tive}
+\babelhyphenation[bahasa]{potong-an}
+\babelhyphenation[bahasa]{pra-sya-rat}
+\babelhyphenation[bahasa]{pre-di-kat}
+\babelhyphenation[bahasa]{pre-si-si}
+\babelhyphenation[bahasa]{pro-duk-si}
+\babelhyphenation[bahasa]{prompt}
+\babelhyphenation[bahasa]{prompting}
+\babelhyphenation[bahasa]{pro-per-ti}
+\babelhyphenation[bahasa]{pro-por-si}
+\babelhyphenation[bahasa]{property}
+\babelhyphenation[bahasa]{pro-ses}
+
+\babelhyphenation[bahasa]{rancang-an}
+\babelhyphenation[bahasa]{rangkai-an}
+\babelhyphenation[bahasa]{recall}
+\babelhyphenation[bahasa]{rec-om-men-da-tion}
+\babelhyphenation[bahasa]{re-kam}
+\babelhyphenation[bahasa]{re-ko-men-da-si}
+\babelhyphenation[bahasa]{rekomendasi-nya}
+\babelhyphenation[bahasa]{re-kon-si-li-a-si}
+\babelhyphenation[bahasa]{re-pre-sen-ta-si}
+\babelhyphenation[bahasa]{re-so-lu-si}
+\babelhyphenation[bahasa]{re-source}
+\babelhyphenation[bahasa]{richness}
+\babelhyphenation[bahasa]{ringkas-an}
+\babelhyphenation[bahasa]{ringkas-an-nya}
+\babelhyphenation[bahasa]{ri-wa-yat}
+\babelhyphenation[bahasa]{rujuk-an}
+\babelhyphenation[bahasa]{RxNorm}
+
+\babelhyphenation[bahasa]{sama}
+\babelhyphenation[bahasa]{sandar-an-nya}
+\babelhyphenation[bahasa]{sasar-an}
+\babelhyphenation[bahasa]{sasar-an-nya}
+\babelhyphenation[bahasa]{satu}
+\babelhyphenation[bahasa]{satu-an}
+\babelhyphenation[bahasa]{sci-ence}
+\babelhyphenation[bahasa]{scispaCy}
+\babelhyphenation[bahasa]{se-bagai}
+\babelhyphenation[bahasa]{se-bagi-an}
+\babelhyphenation[bahasa]{se-balik-nya}
+\babelhyphenation[bahasa]{se-banyak}
+\babelhyphenation[bahasa]{se-belum}
+\babelhyphenation[bahasa]{se-benar-nya}
+\babelhyphenation[bahasa]{se-berapa}
+\babelhyphenation[bahasa]{se-buah}
+\babelhyphenation[bahasa]{sebut-an}
+\babelhyphenation[bahasa]{se-cara}
+\babelhyphenation[bahasa]{sedang-kan}
+\babelhyphenation[bahasa]{seed}
+\babelhyphenation[bahasa]{se-hing-ga}
+\babelhyphenation[bahasa]{se-kadar}
+\babelhyphenation[bahasa]{se-ka-li-gus}
+\babelhyphenation[bahasa]{se-kitar-nya}
+\babelhyphenation[bahasa]{se-la-in}
+\babelhyphenation[bahasa]{se-laku}
+\babelhyphenation[bahasa]{se-lama}
+\babelhyphenation[bahasa]{se-lanjut-nya}
+\babelhyphenation[bahasa]{selisih-nya}
+\babelhyphenation[bahasa]{se-lu-ruh}
+\babelhyphenation[bahasa]{seluruh-nya}
+\babelhyphenation[bahasa]{se-macam}
+\babelhyphenation[bahasa]{se-man-tic}
+\babelhyphenation[bahasa]{se-mata}
+\babelhyphenation[bahasa]{se-men-ta-ra}
+\babelhyphenation[bahasa]{se-mesti-nya}
+\babelhyphenation[bahasa]{sem-pit}
+\babelhyphenation[bahasa]{sen-di-ri}
+\babelhyphenation[bahasa]{sendiri-an}
+\babelhyphenation[bahasa]{se-penuh-nya}
+\babelhyphenation[bahasa]{se-per-ti}
+\babelhyphenation[bahasa]{ser-ta}
+\babelhyphenation[bahasa]{se-sungguh-nya}
+\babelhyphenation[bahasa]{se-tiap}
+\babelhyphenation[bahasa]{si-fat}
+\babelhyphenation[bahasa]{sim-pul}
+\babelhyphenation[bahasa]{si-mu-la-si}
+\babelhyphenation[bahasa]{sin-drom}
+\babelhyphenation[bahasa]{sisi}
+\babelhyphenation[bahasa]{sis-tem}
+\babelhyphenation[bahasa]{si-ta-si}
+\babelhyphenation[bahasa]{skalar-nya}
+\babelhyphenation[bahasa]{skrip-si}
+\babelhyphenation[bahasa]{snomed}
+\babelhyphenation[bahasa]{SNOMED}
+\babelhyphenation[bahasa]{stan-dar}
+\babelhyphenation[bahasa]{stan-dard}
+\babelhyphenation[bahasa]{stan-dar-dized}
+\babelhyphenation[bahasa]{sta-di-um}
+\babelhyphenation[bahasa]{sta-tin}
+\babelhyphenation[bahasa]{struk-tu-ral}
+\babelhyphenation[bahasa]{stu-di}
+\babelhyphenation[bahasa]{sub-bab}
+\babelhyphenation[bahasa]{sub-himpun-an}
+\babelhyphenation[bahasa]{synthea}
+
+\babelhyphenation[bahasa]{ta-bel}
+\babelhyphenation[bahasa]{ta-bu-lar}
+\babelhyphenation[bahasa]{tam-pak}
+\babelhyphenation[bahasa]{tan-da}
+\babelhyphenation[bahasa]{tang-gal}
+\babelhyphenation[bahasa]{tan-pa}
+\babelhyphenation[bahasa]{tanpa-nya}
+\babelhyphenation[bahasa]{tar-get}
+\babelhyphenation[bahasa]{target-nya}
+\babelhyphenation[bahasa]{tata}
+\babelhyphenation[bahasa]{tekan-an}
+\babelhyphenation[bahasa]{tek-no-lo-gi}
+\babelhyphenation[bahasa]{tem-pat}
+\babelhyphenation[bahasa]{temu-an}
+\babelhyphenation[bahasa]{ten-tang}
+\babelhyphenation[bahasa]{te-percaya}
+\babelhyphenation[bahasa]{te-ra-pi}
+\babelhyphenation[bahasa]{ter-amat-i}
+\babelhyphenation[bahasa]{ter-batas}
+\babelhyphenation[bahasa]{ter-berat}
+\babelhyphenation[bahasa]{ter-dahulu}
+\babelhyphenation[bahasa]{ter-datar-kan}
+\babelhyphenation[bahasa]{ter-diri}
+\babelhyphenation[bahasa]{ter-dokumentasi}
+\babelhyphenation[bahasa]{te-representasi}
+\babelhyphenation[bahasa]{ter-evaluasi}
+\babelhyphenation[bahasa]{ter-gerbang}
+\babelhyphenation[bahasa]{ter-hadap}
+\babelhyphenation[bahasa]{ter-hubung}
+\babelhyphenation[bahasa]{ter-integrasi}
+\babelhyphenation[bahasa]{ter-isi}
+\babelhyphenation[bahasa]{ter-letak}
+\babelhyphenation[bahasa]{ter-lewat}
+\babelhyphenation[bahasa]{ter-lokalisasi}
+\babelhyphenation[bahasa]{ter-masuk}
+\babelhyphenation[bahasa]{ter-mi-no-lo-gi}
+\babelhyphenation[bahasa]{ter-nyata}
+\babelhyphenation[bahasa]{ter-pakai}
+\babelhyphenation[bahasa]{ter-pelihara}
+\babelhyphenation[bahasa]{ter-peta-kan}
+\babelhyphenation[bahasa]{ter-pilah}
+\babelhyphenation[bahasa]{ter-sebut}
+\babelhyphenation[bahasa]{ter-sedia}
+\babelhyphenation[bahasa]{ter-sendiri}
+\babelhyphenation[bahasa]{ter-struktur}
+\babelhyphenation[bahasa]{ter-tanggal}
+\babelhyphenation[bahasa]{ter-tangkap}
+\babelhyphenation[bahasa]{ter-tentu}
+\babelhyphenation[bahasa]{te-tap}
+\babelhyphenation[bahasa]{te-ta-pi}
+\babelhyphenation[bahasa]{ti-dak}
+\babelhyphenation[bahasa]{tidak-lah}
+\babelhyphenation[bahasa]{tipe}
+\babelhyphenation[bahasa]{tipe-nya}
+\babelhyphenation[bahasa]{to-ken}
+\babelhyphenation[bahasa]{tri-gli-se-ri-da}
+\babelhyphenation[bahasa]{turun-an}
+
+\babelhyphenation[bahasa]{ukur-an}
+\babelhyphenation[bahasa]{ukur-an-nya}
+\babelhyphenation[bahasa]{UMLS}
+\babelhyphenation[bahasa]{umum-nya}
+\babelhyphenation[bahasa]{ungrounded}
+\babelhyphenation[bahasa]{un-tuk}
+\babelhyphenation[bahasa]{u-ta-ma}
+\babelhyphenation[bahasa]{utama-nya}
+
+\babelhyphenation[bahasa]{vak-sin}
+\babelhyphenation[bahasa]{va-li-da-si}
+\babelhyphenation[bahasa]{va-ri-an}
+\babelhyphenation[bahasa]{ve-ri-fi-ka-si}
+\babelhyphenation[bahasa]{ver-sus}
+\babelhyphenation[bahasa]{vocabularies}
+
+\babelhyphenation[bahasa]{wellness}
+\babelhyphenation[bahasa]{width}
+\babelhyphenation[bahasa]{writt-en}
+
+\babelhyphenation[bahasa]{ya-i-tu}
+%% Uncomment block of code below to disable hyphenation
+%\tolerance=1
+%\emergencystretch=\maxdimen
+%\hyphenpenalty=10000
+%\hbadness=10000
+
+% Last-resort stretch for paragraphs that would otherwise overflow the measure.
+% Applied only on the final pass, so well-behaved paragraphs are unaffected.
+\emergencystretch=3em
+
+% ---- Draft cross-check flags (applies to every chapter) ----
+% \crosscheck{...} renders a red, bold [CROSSCHECK: ...] note in the PDF, marking
+% content a human must verify before submission (numbers, versions, claims).
+% To HIDE every flag for the final version, replace the line below with:
+%     \newcommand{\crosscheck}[1]{}
+\newcommand{\crosscheck}[1]{#1}
+
+% ---- Abstract-only provenance marker ----
+% \fromabstract{...} marks a figure or capability claim about ANOTHER author's work that
+% was taken from the paper's ABSTRACT and has NOT been confirmed against the full text.
+% Renders the value followed by a red superscript dagger, so the prose stays readable.
+% To HIDE every marker for the final version, replace the line below with:
+%     \newcommand{\fromabstract}[1]{#1}
+\newcommand{\fromabstract}[1]{#1}
+
+\begin{document}
+%======================================
+% Create cover etc
+%======================================
+
+%---- COVER ----
+%\printcover{sample/logougm.png}{Pendadaran/Tesis/Ringkasan Tesis*}
+\printcover{sample/logougm.png}{Bachelor}
+% *Choose one
+
+%---- ENDORSEMENT PAGE ----
+% Select endorsement page type. If you want to use your own PDF file,  
+% 	use \printendorsementpdf, or if you want to use JPG file, use 
+% 	\printendorsementjpg. Otherwise, use \printendorsement.
+% 	Choose one only. Comment out unused command(s).
+%
+\cleardoublepage \phantomsection
+\printendorsement
+%\printendorsementpdf
+%\printendorsementjpg{sample/scanned-endorsement.jpg}
+
+%---- DEDICATION PAGE ----
+\cleardoublepage \phantomsection
+%% Signed scan of the plagiarism-free declaration. The class has no PDF form of
+%% this page (only \chapterstatement for a .tex and \chapterstatementjpg for an
+%% image), so the include is written out here, mirroring \printendorsementpdf.
+%% The page-counter pair makes the TOC record the page the scan lands on.
+\addtocounter{page}{1}
+\addcontentsline{toc}{chapter}{\statementname}
+\includepdf[page={1}]{contents/statement/bebasplagiasi.pdf}
+\addtocounter{page}{-1}
+%% To go back to the typeset page, comment the four lines above and uncomment:
+%\chapterstatement{contents/statement/statement}
+
+\cleardoublepage \phantomsection
+\chapterdedication{contents/dedication/dedication}
+
+%---- STATEMENT PAGE ----
+% Select statement page type. If you want to use your own JPG file,  
+%	use \chapterstatementjpg{<your *.jpg file path>}. Otherwise, 
+%	use \chapterstatement{contents/statement/statement}.
+%	Choose one only. Comment out unused command(s).
+%
+
+
+%---- PREFACE PAGE ----
+\cleardoublepage \phantomsection
+\chapterpreface{contents/preface/preface}
+
+%======================================
+% Create Table of Contents, List of Figures, List of Tables
+% <Do not change this part>
+%======================================
+\cleardoublepage \phantomsection
+\thetoc
+\onehalfspacing
+\tableofcontents
+\singlespacing
+\cleardoublepage \phantomsection
+\thelot
+\listoftables
+\cleardoublepage \phantomsection
+\thelof
+\listoffigures
+
+%======================================
+
+%---- NOMENCLATURE PAGE ----
+\cleardoublepage \phantomsection
+%% \chapternomenclature expanded with \addcontentsline BEFORE \input: the
+%% macro records the page the list ENDS on, which is wrong once the list
+%% spans more than one page.
+\chapter*{\nomenclaturename}
+\addcontentsline{toc}{chapter}{\nomenclaturename}
+\input{contents/nomenclature/nomenclature}
+
+%---- INTISARI PAGE----
+\cleardoublepage \phantomsection
+\chapterintisari{contents/abstract/intisari}
+
+%---- ABSTRACT PAGE----
+\cleardoublepage \phantomsection
+\chapterabstract{contents/abstract/abstract}
+
+
+%======================================
+
+
+
+%======================================
+%  MAIN TEXT
+%======================================
+\startmain
+% You can change 
+%    the filename and location of the files inputted
+\cleardoublepage \phantomsection
+\include{contents/chapter-1/chapter-1}
+\cleardoublepage \phantomsection
+\include{contents/chapter-2/chapter-2}
+\cleardoublepage \phantomsection
+\include{contents/chapter-3/chapter-3}
+\cleardoublepage \phantomsection
+\include{contents/chapter-4/chapter-4}
+\cleardoublepage \phantomsection
+\include{contents/chapter-5/chapter-5}
+
+%======================================
+
+%======================================
+%  References
+%======================================
+\cleardoublepage \phantomsection
+\thereferences
+% You can change 
+%    the filename and location of the files inputted
+\bibliography{references}
+
+%======================================
+
+%======================================
+%  Appendix
+%======================================
+% You can change 
+%    the filename and location of the files inputted
+%    use \chapterappendix for the first page of the appendix
+%    use \chapterappendixadd for the next page
+
+\appendix
+\appendixtables
+\appendixfigures
+
+\cleardoublepage \phantomsection
+\chapterappendix{contents/appendix/appendix-code}
+
+
+
+
+%======================================
+
+\end{document}

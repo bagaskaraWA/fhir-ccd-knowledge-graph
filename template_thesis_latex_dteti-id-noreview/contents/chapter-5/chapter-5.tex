@@ -1,0 +1,167 @@
+\chapter{Kesimpulan dan Saran}
+
+\section{Kesimpulan}
+
+Skripsi ini berawal dari membangun sistem rekomendasi klinis untuk penyakit
+jantung koroner kronis yang bersifat FHIR-native dan berbasis \emph{knowledge graph}. Pengukuran kemudian digunakan untuk mengetahui apa yang sesungguhnya diperoleh dari rancangan FHIR-native
+tersebut. Sistem berhasil dibangun dan ketiga tujuan penelitian yang dinyatakan pada Bab~I kini
+dapat dijawab dari hasil-hasil Bab~IV.
+
+\begin{enumerate}
+    \item \textbf{Alurnya terwujud dan terevaluasi secara menyeluruh.} \emph{Bundle} HL7
+    FHIR~R4 dari 5.490 pasien dimuat ke dalam graf properti Neo4j dan disatukan dengan
+    panduan AHA/ACC CCD 2023 beserta korpus literatur yang di-\emph{seed} dari referensi
+    panduan klinis tersebut melalui jembatan konsep UMLS sehingga terbentuk graf berisi 1.804.379
+    simpul dan 8.796.425 relasi dengan 25 label, 51 tipe relasi, serta 26 sistem kode
+    (Subbab~\ref{sec:kg-results}). Cacah simpul \texttt{:Patient}-nya sama dengan jumlah
+    pasien yang dilaporkan Synthea pada folder pembangkitan sehingga pemuatan idempoten tersebut tidak membuang
+    maupun menggandakan satu pun rekam medis. Terhadap standar rujukan yang dibangkitkan
+    melalui jalur data yang terpisah dari sistem, keselarasan panduan klinis terhadap kohort
+    evaluasi 876
+    pasien mencapai $F_1 = 0{,}810$ (Subbab~\ref{sec:ablation}); bila 15 rekomendasi yang
+    predikatnya dipakai bersama oleh kedua sisi disingkirkan, 53 rekomendasi yang tersisa
+    mencatat $F_1 = 0{,}797$ (Subbab~\ref{sec:shared-predicate}). Angka
+    tersebut bertumpu pada rujukan yang tervalidasi pada 30
+    pasien yang dilabeli manual, dengan standar otomatisnya sepakat pada 99,5\%
+    sel (2.150 dari 2.160) dengan Cohen's
+    $\kappa = 0{,}991$ (interval kepercayaan 95\% 0,984---0,996, dengan pasien sebagai satuan
+    pencuplikan ulang; Subbab~\ref{sec:kappa-ci}). Ketiga puluh pasien cukup untuk mendukung
+    klaim kesepakatan hampir sempurna, tetapi pelabelnya tunggal
+    (Subbab~\ref{sec:limitations}). Telaah klinisi menambahkan penilaian yang tidak dapat
+    diberikan standar rujukan: seorang SpJP menilai 77,7\% dari 247 rekomendasi bagi 15 pasien
+    tepat (Subbab~\ref{sec:clinician}). Di luar rekomendasi antitrombotik dan penyekat beta,
+    hampir seluruh rekomendasi dinilai tepat. Penilaian yang belum tepat dan ketidaksepakatan
+    antarpenilai ($\kappa = 0{,}29$) terpusat pada rekomendasi antitrombotik, yang pada
+    panduannya bergantung pada waktu sejak sindrom koroner akut, risiko perdarahan, dan
+    indikasi antikoagulan. Dengan demikian, tujuan~1 tercapai.
+
+    \item \textbf{\emph{Observation gate} meningkatkan keselarasan panduan klinis dan ablasinya
+    melokalkan peningkatan itu secara persis.} Penggerbangan rekomendasi bergantung-observasi
+    menurut nilai terukur pasien menaikkan $F_1$ dari 0,743 menjadi
+    0,810, yaitu kenaikan $+0{,}067$ yang diperoleh melalui presisi
+    (0,612 menjadi 0,684) dengan \emph{recall} yang praktis
+    tidak berubah (Subbab~\ref{sec:ablation}). Klasifikasi pada
+    Subbab~\ref{sec:disc-class} mengajukan prediksi yang dapat difalsifikasi mengenai di mana
+    perolehan itu semestinya berada dan prediksi tersebut terpenuhi dengan tepat: 53 dari 68
+    rekomendasi identik pada kedua lengan hingga ke cacah \emph{true positive}, \emph{false
+    positive}, dan \emph{false negative}-nya; keseluruhan selisihnya berasal dari 15
+    rekomendasi yang memang bergerbang. Hasil kedua yang kurang kentara adalah bahwa
+    penggerbangan bukan satu mekanisme, melainkan dua. Pada lima rekomendasi \emph{tergerbang-nilai}, penggerbangan bekerja pada presisi, yang naik
+    dari 0,194 menjadi 1,000 karena rekomendasi itu tidak lagi menyala bagi setiap anggota
+    kohort. Pada sepuluh rekomendasi kelas \emph{keduanya}, penggerbangan justru bekerja
+    terutama pada \emph{recall}, yang naik dari 0,006 menjadi 1,000. Penyebabnya, target
+    kondisi terkode milik rekomendasi itu jarang cocok bila berdiri sendiri sehingga
+    predikat numeriknyalah yang mengenali pasien yang dikenai rekomendasi tersebut
+    (Subbab~\ref{sec:ablation-class}). Karena itu, menceritakan ablasi ini
+    semata-mata sebagai peningkatan presisi---sebagaimana terlihat oleh angka agregatnya---
+    keliru bagi dua pertiga rekomendasi yang terpengaruh. Satu kualifikasi melekat pada keseluruhan ablasi ini. Kelima belas rekomendasi yang
+    tergerbang itu justru merupakan rekomendasi yang predikatnya dipakai bersama oleh sistem
+    dan standar rujukannya. Karena itu, ablasi ini mengukur kesetiaan implementasi, bukan
+    keabsahan klinis ambangnya (Subbab~\ref{sec:shared-predicate}). Tujuan~2 tercapai.
+
+    \item \textbf{\emph{Faithfulness} pada tingkat sitasi dapat diputuskan secara mekanis,
+    tetapi \emph{faithfulness} makna tidak terjamin.}
+    \emph{Grounded briefing} menelusuri setiap faktanya secara deterministik dari graf,
+    menyertakan pengenal rekomendasi, kelas rekomendasi, dan PMID pada tiap fakta, serta
+    membatasi model bahasa hanya pada perumusan kalimat. Seluruh 30 ringkasan yang dibangkitkan
+    lolos pemeriksaan otomatis: nol rekomendasi atau PMID yang dikarang, nol rekomendasi yang
+    terlewat, dan nol klaim antikoagulan yang berlebih (Subbab~\ref{sec:faithfulness}).
+    Bagian yang struktural dari hasil itu adalah bahwa model berada di hilir penelusuran tanpa
+    jalan kembali ke graf sehingga rekomendasi di luar hasil penelusuran pasti karangan dan
+    pasti terdeteksi. Pemeriksaan butir yang dapat disitasi karenanya dapat diputuskan, sesuatu
+    yang tidak dapat ditawarkan \emph{retrieval-augmented generation} berbasis kemiripan.
+    Penelusuran yang deterministik tidak menjamin \emph{faithfulness} makna: model masih dapat
+    merumuskan fakta yang benar secara keliru dan pemeriksaan ini hanya menangkap satu pola
+    kekeliruan semacam itu. Pola itu pun diperbaiki sesudah keluarannya terlihat. Tujuan~3
+    tercapai dalam batas tersebut.
+\end{enumerate}
+
+Di luar ketiga tujuan tersebut, muncul satu temuan yang tidak diantisipasi sejak awal dan
+berdampak pada setiap penerapan berbasis FHIR. Dua proyeksi dari rekam medis sintetis yang
+sama ternyata tidak sebanding kekayaannya. Ekspor FHIR mempertahankan status pengobatan yang
+kategoris, tetapi membuang tanggal berhenti, sedangkan ekspor CSV mempertahankan tanggal
+berhenti, tetapi tidak membawa status. Tidak ada satu pun di antaranya yang merupakan
+subhimpunan yang lain. Aturan NSAID kronis bergantung pada berapa lama sebuah
+obat dikonsumsi sehingga hanya dua dari empat cabang aturannya yang dapat dihitung dari graf
+(Subbab~\ref{sec:chronicity}). Akibatnya, varian keamanan
+tergerbang-kronisitas mencapai presisi 0,909 pada \emph{recall}
+0,526 dan yang terlewatkan merupakan pasien yang kekronisannya hanya
+terbentuk melalui satu periode penggunaan yang panjang
+(Subbab~\ref{sec:safety-detection}). Sistem yang hanya mengonsumsi FHIR wajib
+mengantisipasi jenis kehilangan informasi ini di setiap tempat panduan klinisnya yang bergantung pada
+durasi paparan.
+
+Asimetri tersebut berlaku pula pada arah sebaliknya dan hal itu menyempitkan satu klaim yang
+semula dinyatakan penelitian ini. Perolehan presisi \emph{observation gate} diatributkan kepada
+rancangan FHIR-native sejak Bab~I, tetapi atribusi itu semula dinyatakan tanpa diuji. Ketika
+gerbang yang sama dibangun kembali dengan hanya membaca ekspor tabular, tidak satu pun dari
+13.140 keputusan yang diperbandingkan berubah dan kohortnya pun terpilih sama persis
+(Subbab~\ref{sec:csv-gating}). Perolehannya sendiri nyata dan tidak berubah. Sumbernya yang
+keliru dinyatakan: yang menghasilkannya adalah pemuatan nilai observasi numerik sebagai data
+kelas satu dan FHIR merupakan cara yang paling langsung untuk memperolehnya, bukan satu-satunya
+cara. Kesimpulan ini diperoleh dengan menguji klaim sendiri alih-alih mempertahankannya dan
+temuan negatif seperti ini justru perlu dilaporkan karena atribusi semacam itu lazim dinyatakan
+tanpa pengujian pada penelitian sejenis.
+
+\section{Saran}
+
+Saran-saran berikut mengikuti keterbatasan yang diuraikan pada Subbab~\ref{sec:limitations},
+diurutkan menurut seberapa besar masing-masing akan mengubah hasil penelitian.
+
+\begin{enumerate}
+    \item \textbf{Melebarkan gerbang kohort menjadi disjungsi konsep.} Gerbang CCD hanya
+    menerima satu konsep UMLS, sedangkan panduan klinisnya mendefinisikan penyakit jantung koroner
+    kronis secara disjungtif. Terdapat 67 pasien---$7{,}1\%$ dari kohort
+    yang didefinisikan secara klinis---yang bukti CCD-nya semata berupa kode
+    \emph{situation} infark terdahulu atau revaskularisasi terdahulu karenanya tidak pernah
+    dicocokkan dengan satu pun rekomendasi dan pada penerapan nyata mereka tidak akan
+    menerima keluaran apa pun (Subbab~\ref{sec:gate}). Perubahan ini kecil, hanya menyentuh
+    satu kueri, dan merupakan perolehan cakupan terbesar yang tersedia.
+
+    \item \textbf{Memperluas telaah klinisi dan menyelenggarakan studi evaluasi \emph{briefing}.}
+    Telaah klinisi pada penelitian ini hanya mencakup 15 pasien bagi satu SpJP dan kesepakatan
+    antarpenilainya tergolong cukup (Subbab~\ref{sec:clinician}). Telaah lanjutan sebaiknya
+    melibatkan beberapa SpJP yang menilai seluruh pasien. Hasil telaah juga menunjuk perbaikan
+    pada sistemnya. Kesimpulan \emph{briefing} perlu menyebutkan obat yang ditandai serta
+    informasi yang menjadi dasar rekomendasi antitrombotik dan penyekat beta, misalnya waktu
+    sejak sindrom koroner akut, fraksi ejeksi, dan status gagal jantung. Bila informasi itu
+    tidak dapat dipastikan dari rekam medis, seperti risiko perdarahan, kesimpulan perlu
+    menyatakannya. Ketiadaan informasi itulah yang paling sering menghalangi penilaian. Selain itu,
+    \emph{faithfulness} merupakan sifat hubungan ringkasan dengan rekam medis, bukan sifat
+    kebergunaannya bagi pembaca. Studi dengan pola Van~Veen \textit{et al.}~\cite{vanveen2023},
+    yang di dalamnya klinisi menilai ringkasan atas kelengkapan, kebenaran, dan keringkasannya
+    dengan keandalan antarpenilai diukur melalui Cohen's $\kappa$ \cite{cohen1960}, akan
+    menutup kesenjangan tersebut. Studi itu sekaligus mengangkat evaluasi \emph{faithfulness}
+    dari pemeriksaan otomatis atas butir yang dapat disitasi menjadi penilaian
+    \emph{faithfulness} makna oleh pembaca manusia.
+
+    \item \textbf{Mengulang evaluasi atas rekam medis nyata.} Pasien Synthea dibangkitkan
+    dari model perkembangan penyakit sehingga pola komorbiditas dan lintasan
+    laboratoriumnya konsisten secara internal, tetapi tidak diambil dari populasi nyata. Hasil
+    yang dilaporkan di sini memastikan bahwa alurnya benar secara internal, tetapi hasil itu belum
+    memastikan bahwa capaian keselarasan yang sama akan diperoleh pada rekam medis yang lebih
+    berderau, lebih jarang, dan disertai teks tak terstruktur. Rekam medis nyata juga membawa
+    gejala dan keluhan jantung yang tidak dimuat Synthea sehingga enam rekomendasi yang
+    bergantung pada angina baru dapat diuji di sana (Subbab~\ref{sec:limitations}).
+
+    \item \textbf{Memulihkan logika panduan klinis yang bergantung pada durasi.} Profil FHIR yang
+    membawa periode penyerahan atau periode dosis, ataupun pemasangan graf dengan sumber
+    tambahan, akan membuat keempat cabang aturan penggunaan kronis dapat dihitung sekaligus
+    menghapus batas atas \emph{recall} yang terukur pada
+    Subbab~\ref{sec:safety-detection}.
+
+    \item \textbf{Memberi lapisan keamanan dengan representasi yang lebih kaya.} Pencocokan tergerbang-populasi memiliki presisi sempurna, tetapi hanya memulihkan sebagian
+    kecil kontraindikasi, yaitu yang kondisi populasinya dapat digerbangi secara struktural.
+    Kontraindikasi yang terlewat adalah yang didefinisikan lewat negasi dan yang bersifat
+    konjungtif. Keduanya tidak dapat diungkapkan oleh skema datar
+    (Subbab~\ref{sec:safety-detection}). Merepresentasikan keduanya secara eksplisit,
+    alih-alih memilih antara penandaan berlebih dan pemulihan yang kurang, merupakan jalan
+    keluar dari pertukaran tersebut.
+
+    \item \textbf{Memindahkan rancangan ini ke panduan klinis atau penyakit yang lain.} Hanya
+    panduan AHA/ACC CCD 2023 yang dikodekan dan hanya untuk penyakit jantung koroner
+    kronis. Rancangan jembatan konsepnya membuat generalisasi masuk akal karena tidak ada
+    bagian lapisan kueri yang khas kardiologi, tetapi penelitian ini belum membuktikan kemampuan tersebut.
+    Mengodekan panduan klinis kedua lalu menjalankan ulang evaluasi yang sama akan
+    membuktikannya.
+\end{enumerate}

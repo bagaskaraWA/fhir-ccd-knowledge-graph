@@ -1,0 +1,497 @@
+\chapter{Literature Review and Theoretical Foundation}
+
+%% English draft. \crosscheck{...} flags content requiring human verification.
+%% All \cite{...} keys resolve to references.bib.
+%%
+%% The Related Work section below was built from a literature search. Every claim about
+%% another author's system has since been checked against that source's full text, and the
+%% \fromabstract{} daggers were discharged accordingly. Three claims did not survive the
+%% check and were rewritten: ke2025 (the hallucination-free run was GPT-4 over
+%% international guidelines alone, not all ten models), degroot2024 (the "real EHR data"
+%% sample is one patient) and kraljevic2021 (the 8.8B tokens are one hospital's
+%% self-supervised training corpus, not a three-hospital validation set). Two \crosscheck
+%% blocks (Sections 2.1.2 and 2.1.4) still flag findings that QUALIFY the novelty claim
+%% made in Chapters I and IV; zhou2022 and ali2026 both hold up exactly as described, so
+%% those two chapters still need revising before submission.
+
+\section{Related Work}
+
+This section reviews prior work by theme and locates the gap this thesis addresses.
+
+\subsection{Guideline-based clinical decision support}
+Computerised decision support is an established route to narrowing the gap between
+guidelines and practice, and its effect size is now well quantified. A meta-analysis \cite{kwan2020} of 122 trials covering 1{,}203{,}053 patients found that
+decision support increased the proportion of patients receiving recommended care by 5.8\%
+(95\%~CI 4.0--7.6), with substantial heterogeneity ($I^2 = 76\%$). Improvements in clinical
+endpoints were far smaller, at a median of only 0.3\%. The value of such systems is therefore real but modest, and concentrated in process rather
+than outcome measures. The same pattern appears in perioperative settings, where adherence
+improved and some safety outcomes improved with it, but postoperative mortality did not
+\cite{cai2024}.
+
+The dominant implementation tradition is that of \emph{computer-in\-ter\-pret\-able guidelines}
+(CIGs), in which guideline logic is encoded in a dedicated formalism---Arden Syntax,
+GLIF, PROforma, Asbru, EON and later GLARE and SAGE---and executed by an engine against
+patient data \cite{declercq2004,declercq2008,oliveira2014}. No single formalism has been
+adopted as a standard \cite{declercq2008}, and Oliveira \textit{et al.}
+identify the interoperability between a guideline execution engine and the clinical data
+model as a persistent obstacle \cite{oliveira2014}---precisely the seam
+this thesis addresses by matching guideline concepts to coded EHR data through a shared
+concept space.
+
+Empirically, that seam has remained open. A systematic review of rule-based decision
+support screened 1{,}731 papers and found only 15 reporting
+any evaluation of clinical outcomes; among those, only two integrated with
+an EHR system, six used ontologies, and three used a recognised healthcare technology
+standard \cite{papadopoulos2022}. Reported barriers across this literature
+are consistent: opacity of encoded rules, alert fatigue, poor workflow fit, and weak
+evaluation methodology \cite{papadopoulos2022,bosetti2025,silva2022}.
+Two observations follow for this thesis. First, EHR integration is the exception rather
+than the rule, which is what makes a FHIR-native design a contribution rather than an
+implementation detail. Second, the scarcity of rigorous evaluation makes the
+concordance-against-an-independent-reference design of Chapter~III a methodological
+contribution in its own right.
+
+\subsection{Knowledge graphs for clinical decision support}
+\label{sec:rw-kg}
+Knowledge graphs integrate heterogeneous clinical knowledge and patient data into a
+queryable structure, and the healthcare literature on them is now substantial enough to
+have been reviewed several times \cite{abusalih2023,cui_h2023,budhdeo2023}. A scoping
+review of 255 articles reports median graph sizes of
+46{,}983 nodes (IQR 6{,}415--460{,}948) and
+906{,}737 edges (IQR 66{,}272--9{,}894{,}909), and concludes
+that translation of knowledge graphs into clinical practice remains a
+challenge \cite{budhdeo2023}. The graph reported in Chapter~IV sits above that median on
+both counts, in the upper part of the reported interquartile range.
+
+Prior systems divide along an axis of what they connect. On one side are \emph{patient}
+graphs: Xiao \textit{et al.} expose an OMOP repository as a FHIR RDF knowledge graph and
+validate it by query equivalence against the source database, but
+encode no clinical guideline and therefore issue no recommendations
+\cite{xiao2022}; Shang \textit{et al.} build an EHR-oriented graph for collaborative
+reasoning across institutions, applied to identifying overlooked chronic kidney disease
+\cite{shang2024}. On the other are \emph{knowledge} graphs: Cui
+\textit{et al.} build a cardiovascular medication guideline graph in Neo4j but
+attach no patient records \cite{cui2025}. Earlier FHIR-based decision aids
+such as that of Semenov \textit{et al.} pair a FHIR interoperability layer with a
+graph-structured knowledge base, but operate as production-rule systems over
+a narrow laboratory panel rather than over longitudinal records \cite{semenov2018}.
+Seneviratne \textit{et al.} are closer in spirit to the present work, modelling guideline
+provenance and study cohorts so that recommendations can carry their evidence
+\cite{seneviratne2023}.
+
+A more mundane body of work must also be named here, because it bounds what this thesis may
+claim. The mapping from FHIR to a property graph---resources become nodes, references become
+edges---is mechanical and well understood, and exists as commodity tooling: browser-based
+bundle viewers render an uploaded bundle as an interactive node--edge graph without asking any
+modelling decision of the user \cite{tenasol_viewer}. The transformation itself is therefore
+not claimed as a contribution of this work. What such tools do \emph{not} do marks the
+boundary. They operate on one bundle at a time and do not persist it, so no cross-patient
+question can be posed. They render each coding inline within the resource carrying it rather
+than hoisting codings into shared nodes, so no two patients are joined through a common code.
+They reconcile nothing between SNOMED~CT, RxNorm and LOINC. And they contain no knowledge that
+did not arrive inside the bundle, so there is no guideline or literature layer to reason
+against. A viewer is moreover required to be \emph{faithful} to its input, inspection being its
+purpose. The graph built in Chapter~III, by contrast, is deliberately lossy: it discards
+billing and provenance resources and all but nine LOINC observation codes. The reason is
+that it is built to answer one clinical question rather than to represent a document.
+
+One published system spans both sides of that axis, and it bounds what this thesis may
+claim. Zhou \textit{et al.} construct a hypertension-medication knowledge graph from the
+Chinese hypertension guideline and evaluate it against 124 health records
+collected from a single chief physician at one hospital, reporting recall
+91\%, hit@3 83\% and MRR 77\% on a single-drug-class recommendation task \cite{zhou2022}.
+A guideline layer, patient records and a recommendation evaluation therefore already
+coexist in one system, and that combination is \emph{not} claimed as novel here. What
+separates the present work is scope and evaluation rather than architecture, and the
+margin is narrower than their abstract suggests. Their graph spans every antihypertensive
+drug class and carries the guideline's compelling level into its scoring rules. Neither
+multi-class coverage nor recommendation strength therefore distinguishes the present work.
+The breadth of the guideline encoded does: it spans antiplatelet, lipid, blood-pressure,
+beta-blocker, renin--angiotensin--aldosterone, lifestyle and contraindication-safety
+recommendations rather than drug therapy for a single condition. Numeric physiological
+values likewise enter their reasoning path: physical attributes are one of the four entity
+types in their graph, and an indication may be qualified by a threshold, as in their own
+example of a dihydropyridine calcium-channel blocker indicated for stable angina and
+hypertension at a heart rate below 75~bpm. What separates the two is how those values
+arrive---keyed by a clinician into a patient-entry form for 124 records there, and here as
+FHIR \emph{resource} instances carrying their own units and code systems, at cohort scale
+and without manual transcription. Their evaluation reports ranking metrics over a candidate
+list, whereas concordance here is measured against a CRS-independent reference
+standard and a manually labelled gold standard. Finally, their system fuses two sources; a
+literature layer is fused here as a third.
+
+\subsection{Terminology integration}
+Matching coded patient data to guideline concepts requires reconciling several
+vocabularies---SNOMED~CT, RxNorm and LOINC---for which the UMLS Metathesaurus is the
+standard bridging resource \cite{umls}. Mapping is not lossless: a comparison of
+ATC-to-RxNorm mappings found 1{,}949 null mappings in UMLS against
+916 in the OHDSI Standardized Vocabularies, though UMLS achieved higher
+coverage (96.5\% versus 91\%) on a single-patient EHR sample, a difference that
+traced to two multi-ingredient ATC classes \cite{degroot2024}. Any concept-bridge
+design therefore carries a residual mapping-failure rate that should be measured
+rather than assumed.
+
+For linking free text to concepts, MedCAT provides UMLS and SNOMED~CT concept
+extraction, self-supervised over approximately 8.8 billion tokens of one hospital's
+records and validated at three London hospitals, with reported transferability
+$F_1 > 0.94$ between sites \cite{kraljevic2021}. This work
+uses scispaCy \cite{scispacy} instead, for reasons of task fit rather than of quality.
+MedCAT's advantage is contextual disambiguation learned self-supervised from a corpus of
+clinical narrative. Neither condition holds here. The bridging task of
+Section~\ref{sec:kg-construction} runs over isolated code display strings---\texttt{Chronic
+ischemic heart disease (disorder)}---which carry no surrounding sentence for such a model to
+read. The FHIR export is moreover coded rather than narrative, so there is no corpus on
+which to train one. The scispaCy library also exposes its knowledge base as a queryable alias index rather than
+only as an annotator over text. That is what permits the exact-alias pass and the
+semantic-type filter used here. Nor does the library hold any learned state, so a given
+string yields the same concept on every run. This thesis depends on that property when it
+claims that retrieval is deterministic. For free-text clinical notes, where abbreviations must be resolved from
+their context, MedCAT would be the better instrument.
+
+\subsection{Large language models, retrieval-augmented generation, and faithfulness}
+Large language models generate fluent clinical text but hallucinate; retrieval-augmented
+generation (RAG) mitigates this by conditioning generation on retrieved evidence
+\cite{rag_lewis2020}. A systematic review of RAG in healthcare finds a range of
+architectures in use but reports a lack of standardised evaluation
+frameworks for RAG-based applications and that most studies do not address ethical
+considerations \cite{amugongo2025}. That absence is what makes the
+mechanical faithfulness check of Chapter~III worth reporting as a contribution.
+
+Guideline-specific RAG systems now report strong results. A RAG system over the UK NICE
+guidelines raised faithfulness---whether an answer is supported by the
+source text---by 64.7 percentage points to 99.5\%
+\cite{lewis2025}. A framework for hepatological guideline interpretation
+improved accuracy from 43\% to 99\% through guideline reformatting and
+prompt engineering \cite{kresevic2024}. An LLM-RAG evaluation across
+ten models and 3{,}234 responses reported no hallucinations for its best
+configuration, GPT-4 over international guidelines, which also outperformed
+human-generated answers; hallucination rates across the other models ranged up to
+48.6\% \cite{ke2025}.
+
+Related work also pairs knowledge graphs with language models for explainability
+\cite{park2025}, so the graph-plus-LLM combination is an active rather than an
+unexplored area.
+
+\subsection{Synthetic clinical data and FHIR-based research}
+Synthea simulates patient lifespans through modular disease models and exports HL7 FHIR
+bundles, making reproducible clinical-informatics research possible without privacy risk \cite{walonoski2017}. It has since been extended with imaging, genomic and note data
+linked by FHIR \cite{walonoski2022}. Its validity has been examined
+directly: comparing clinical quality measures computed on a 1.2-million-patient
+Massachusetts cohort against publicly reported rates, Chen \textit{et al.} conclude that
+Synthea is reliable in modelling demographics and the probability of
+services being offered, but that its capabilities to model heterogeneous
+health outcomes post services are limited and that it does not model
+deviations in care \cite{chen2019}. Notably, they report that
+no Synthea residents had their blood pressure controlled after a
+hypertension diagnosis, against a Massachusetts rate of 74.5\%
+\cite{chen2019}.
+
+\subsection{Terminology and framing over time}
+Searching this literature requires two vocabularies. Work published before roughly 2015
+describes the same architecture in Semantic Web terms: OWL ontologies, description-logic
+reasoners, RDF triples and proof engines. Examples are the ontology-driven preoperative
+decision support of Bouamrane \textit{et al.} \cite{bouamrane2011} and the
+guideline-execution framework of Hussain \textit{et al.} \cite{hussain2007}. The latter
+already combined a domain ontology, a guideline ontology and a patient ontology, and
+generated justification trees to expose the inference trace. Post-2020 work describes the same problem
+using property-graph vocabulary---knowledge graph, Neo4j, Cypher, GraphRAG. The
+architecture proposed in this thesis is therefore a modern-idiom instance of a
+well-established design, and a search restricted to ``knowledge graph'' will silently miss
+a decade of directly relevant precedent.
+
+\subsection{Summary and research gap}
+Prior work addresses these themes largely in isolation. Rule-based and CIG systems encode
+guideline logic but seldom integrate with a standards-based EHR
+\cite{papadopoulos2022}. Patient-side clinical graphs are rigorously
+constructed but carry no guideline layer \cite{xiao2022}. Guideline-side graphs carry no
+patient records \cite{cui2025}. One system does carry both, evaluating a guideline-derived
+medication graph against real records \cite{zhou2022}, but for a single condition's drug
+therapy and by ranking metrics rather than against a reference standard.
+Graph-grounded language models demonstrably reduce
+hallucination \cite{ali2026} but are evaluated on question-answering accuracy---sixty
+questions in a single disease area, scored against reference answers drawn from the
+literature---rather than on concordance with a guideline over a patient cohort. The contribution of this thesis is therefore narrower and more precise than ``joining
+patient data to guidelines''. First, it builds a FHIR-native graph in which \emph{structured
+observations} are available to gate recommendations. Second, that graph is evaluated for
+guideline concordance against a CRS-independent reference standard. Third, it comes with a
+grounded briefing whose citation-level faithfulness can be checked mechanically, because
+retrieval is deterministic and provenance-bearing.
+
+
+\section{Theoretical Foundation}
+
+\subsection{Chronic coronary disease and the 2023 AHA/ACC guideline}
+Chronic coronary disease (CCD) denotes the stable phase of coronary artery disease requiring
+long-term secondary prevention.
+
+\subsubsection*{A note on terminology: SIHD and CCD}
+The two terms used in this thesis are related but not interchangeable, and the distinction
+matters because the data and the guideline come from either side of it. Until 2023 the
+condition was addressed under the heading \emph{stable ischemic heart disease} (SIHD),
+denoting patients with established coronary disease who are not in an acute phase. The 2023
+AHA/ACC guideline \cite{virani2023} replaced that framing with \emph{chronic coronary
+disease}, a deliberately broader entity: alongside stable angina it explicitly encompasses
+patients who are more than one year past an acute coronary syndrome, patients after
+revascularization, patients with ischemic cardiomyopathy, and patients whose coronary
+disease is documented without current symptoms. SIHD is therefore best read as a
+\emph{subset} of CCD---every SIHD patient falls under CCD, but not every CCD patient would
+have been called SIHD.
+
+This asymmetry is visible in the present work. The synthetic corpus is generated with the
+Synthea module named \texttt{stable\_ischemic\_heart\_disease}, whose vocabulary predates the
+2023 renaming, whereas the encoded guideline is the CCD guideline. The module therefore
+supplies patients drawn from the narrower, older category, while the recommendations are
+written for the wider one. Two consequences follow. Cohort membership is not decided by which
+generator module produced a patient but by the coded diagnosis actually present in the record
+(Section~\ref{sec:gate}), so a patient from the general-population run who develops the
+qualifying diagnosis is included on the same footing. And because CCD is the broader
+category, recommendations addressed to parts of CCD outside the classical SIHD picture---for
+example those keyed to a recent acute coronary syndrome---are exercised less often by this
+corpus than they would be in a real CCD population.
+The 2023 AHA/ACC CCD
+guideline \cite{virani2023} organises its recommendations by \emph{Class of Recommendation}
+(COR) and by \emph{Level of Evidence}. The COR is Class~1 (strong), Class~2a (moderate),
+Class~2b (weak), or Class~3, the last being subdivided into 3-No-Benefit and 3-Harm,
+i.e.\ contraindications. In this
+work the COR determines the semantics of a recommendation edge: a Class-3 recommendation
+becomes a contraindication, and Class~1/2a/2b recommendations become positive
+recommendations.
+
+\subsection{HL7 FHIR}
+Fast Healthcare Interoperability Resources (FHIR) \cite{fhir_r4} is an HL7 standard for
+exchanging healthcare data as modular \emph{resources} (for example \texttt{Patient},
+\texttt{Condition}, \texttt{Observation}, \texttt{MedicationRequest}, and
+\texttt{Procedure}). Resources reference one another, and clinical meaning is carried by
+\texttt{CodeableConcept}/\texttt{Coding} elements, each pairing a code \texttt{system} URI
+with a \texttt{code}. Crucially for this work, numeric results are first-class
+\texttt{Observation} resources with a \texttt{valueQuantity}, so laboratory values and vital
+signs are available as structured data. The release used throughout this thesis is FHIR~R4;
+Section~\ref{sec:data-source} records how that was established from the exported instances.
+
+Because the remainder of the thesis reasons directly over this structure, an abridged
+example is given in Listing~\ref{lst:fhir}. It is taken verbatim from a generated bundle,
+with unused elements elided.
+
+\begin{lstlisting}[caption={Abridged FHIR R4 resources from a generated patient bundle:
+a coded diagnosis and a numeric laboratory result.},label={lst:fhir},
+basicstyle=\ttfamily\scriptsize,breaklines=true,frame=single,captionpos=b]
+{ "resourceType": "Condition",
+  "id": "22f599b6-...-8e66-1f64bdc5c863",
+  "code": {                              // WHAT the finding is
+    "coding": [ { "system":  "http://snomed.info/sct",
+                  "code":    "414545008",
+                  "display": "Ischemic heart disease (disorder)" } ],
+    "text": "Ischemic heart disease (disorder)" },
+  "subject": { "reference": "urn:uuid:22f599b6-...-e586-..." },   // WHOSE it is
+  "onsetDateTime": "2013-05-24T09:14:31+07:00" }
+
+{ "resourceType": "Observation",
+  "status": "final",
+  "code": {                              // WHICH measurement
+    "coding": [ { "system":  "http://loinc.org",
+                  "code":    "18262-6",
+                  "display": "Cholesterol in LDL [Mass/volume] ..." } ] },
+  "subject": { "reference": "urn:uuid:22f599b6-...-e586-..." },
+  "valueQuantity": {                     // THE NUMBER -- machine-comparable
+    "value": 91.35, "unit": "mg/dL",
+    "system": "http://unitsofmeasure.org", "code": "mg/dL" } }
+\end{lstlisting}
+
+Three properties of this structure carry the design of the whole system. First, resources
+are \emph{linked by reference}: a \texttt{Condition} does not contain its patient, it points
+at one, which is why the graph model of Chapter~III turns references into edges. Second, clinical meaning is carried \emph{not by the field name but by the coding}. The same
+\texttt{code} element holds a SNOMED~CT concept here and would hold an RxNorm or LOINC
+concept elsewhere. That is why every coding is hoisted onto a shared node and bridged to a
+common concept space. Third, and decisively for this thesis, a laboratory result is not a
+sentence but a \texttt{valueQuantity} with a number, a unit, and a unit system. A flattened
+tabular export carries those numbers too, but strips the structure they arrive in: a
+multi-component reading is split across rows that must be rejoined before a threshold can be
+evaluated. The FHIR resource keeps the value, its unit and its panel membership together,
+which is what makes it possible to decide a recommendation that depends on a threshold rather
+than merely on the presence of a diagnosis (Section~\ref{sec:flattening}).
+
+\subsection{Clinical terminologies and the UMLS}
+Different resource types are coded in different vocabularies: SNOMED~CT for clinical findings
+and procedures \cite{snomedct}, RxNorm for medications \cite{rxnorm}, and LOINC for
+laboratory and vital-sign observations \cite{loinc}. The Unified Medical Language System
+(UMLS) Metathesaurus \cite{umls} integrates these and many other vocabularies and assigns
+each concept a Concept Unique Identifier (CUI), which provides the common concept space into
+which every EHR code and guideline target is mapped in this thesis.
+
+\subsection{Knowledge graphs and property-graph databases}
+A knowledge graph represents entities as nodes and their relationships as labelled edges. In
+a property-graph database such as Neo4j \cite{neo4j}, nodes and edges may carry key--value
+properties, and data are queried with the declarative Cypher language \cite{cypher} using
+pattern matching. Property graphs are well suited to fusing heterogeneous sources because new
+node and edge types can be added incrementally and multi-hop relationships can be traversed
+directly.
+
+\subsection{Clinical natural language processing: NER and entity linking}
+Extracting structured information from unstructured biomedical text requires named-entity
+recognition (NER), which identifies spans of clinical interest, and entity linking, which
+maps those spans to a knowledge base such as the UMLS. The scispaCy toolkit \cite{scispacy}
+provides biomedical NLP models and UMLS/MeSH entity linkers used in this work to process the
+literature corpus and to assist terminology bridging; the model used here is
+\texttt{en\_core\_sci\_md}, whose vectors are trained over OntoNotes~5, Common Crawl and
+GENIA~1.0.
+
+\subsection{Association strength: pointwise mutual information}
+Pointwise mutual information (PMI) quantifies how much more often two events---here, a drug
+and a condition---co-occur than would be expected if they were independent \cite{pmi}.
+For two concepts $x$ and $y$ it is defined as
+
+\begin{equation}
+\mathit{PMI}(x, y) \;=\; \log \frac{P(x, y)}{P(x)\,P(y)} .
+\label{eq:pmi}
+\end{equation}
+
+The probabilities are estimated by document frequency over the abstract corpus. Writing $N$
+for the number of abstracts, $\mathit{df}(x)$ for the number mentioning concept $x$, and
+$c(x,y)$ for the number mentioning both, the estimator substituted into
+Equation~\ref{eq:pmi} is
+
+\begin{equation}
+\mathit{PMI}(x, y)
+\;=\; \log_{10} \frac{c(x,y)/N}{\bigl(\mathit{df}(x)/N\bigr)\bigl(\mathit{df}(y)/N\bigr)}
+\;=\; \log_{10} \frac{c(x,y)\;N}{\mathit{df}(x)\,\mathit{df}(y)} .
+\label{eq:pmi-df}
+\end{equation}
+
+Base~10 is used, so a value of $1$ denotes a pair co-occurring ten times more often than
+independence would predict and a value of $0$ denotes exact independence; negative values
+denote co-occurrence rarer than chance. The right-hand form of Equation~\ref{eq:pmi-df} is
+the one computed: two of the three factors of $N$ cancel, leaving a single $N$ in the
+numerator, so the implementation materialises the corpus size once alongside the three
+counts.
+
+PMI is used to rank drug--condition associations mined from the literature. It is applied
+with a minimum article-count floor: because $c(x,y)$ appears in the numerator, a pair
+occurring in a single abstract can attain a high score purely by both concepts being rare,
+so pairs below the floor are discarded rather than ranked. The floor is three articles: a
+drug--condition pair must be co-mentioned in at least three distinct abstracts before it is
+eligible for ranking. It is applied when the briefing is assembled rather than when the
+co-occurrence edges are built, so the literature layer retains every pair it observed and
+the floor can be varied without re-materialising the graph.
+
+\subsection{Retrieval-augmented generation and grounded summarisation}
+Retrieval-augmented generation (RAG) \cite{rag_lewis2020} conditions a language model's output
+on retrieved context; classical RAG retrieves unstructured passages via dense (vector)
+similarity, yielding \emph{approximate} context. This thesis instead uses a deterministic
+knowledge-graph retriever, so the retrieved facts are exact and carry provenance, and the
+language model performs \emph{grounded summarisation}---re-phrasing the facts without adding
+information. Faithfulness denotes the property that every statement in the output is supported
+by the retrieved facts; its violation is termed hallucination.
+
+\subsection{Agreement measurement: Cohen's kappa}
+Cohen's $\kappa$ \cite{cohen1960} measures the agreement between two raters (or between an
+automated method and a gold standard) corrected for the agreement expected by chance. Values
+above~0.8 are conventionally interpreted as near-perfect agreement, and values of 0.21--0.40
+as fair agreement \cite{landis1977}. Kappa is
+also affected by category prevalence and by bias between raters, so indicators of both should
+be reported alongside it \cite{byrt1993}. It is used in this work to
+validate the automated reference oracle against manual labels, and to measure agreement
+between clinicians in the review of recommendation appropriateness.
+
+\subsection{Synthetic patient data: Synthea}
+Synthea \cite{synthea} is an open-source generator of synthetic but statistically realistic
+patient records, produced by simulating disease progression through modular models and
+exportable as HL7 FHIR bundles and CSV files. Because the data are synthetic, they carry no
+protected health information and support fully reproducible research.
+
+\section{Comparative Analysis of Methods}
+
+The design choices of this thesis are justified by comparison with the alternatives. A purely
+\emph{rule-based} CDSS can encode guideline logic but integrates poorly with heterogeneous
+coded EHR data and is brittle to maintain; a \emph{knowledge-graph} approach with UMLS
+bridging instead matches coded patient data to guideline concepts through a shared concept
+space and traverses multi-source relationships directly. For the natural-language output, a
+\emph{pure-LLM} summariser risks hallucination and a \emph{vector-RAG} summariser grounds only
+on approximately retrieved passages; a \emph{deterministic knowledge-graph retrieval} followed
+by LLM phrasing yields exact, provenance-bearing facts. Its output can therefore be checked
+against a closed set of facts, which is essential in a clinical setting. Such a check does not
+yet cover the semantic faithfulness of every sentence. Finally, evaluating on
+\emph{FHIR-native} structured observations keeps each value bound to its unit, its unit system
+and its panel, so an observation-dependent recommendation can be gated on what was measured
+without first reassembling it from a flattened export---the mechanism by which precision is
+improved. Table~\ref{tab:method-comparison} summarises this comparison.
+
+\begin{table}[h]
+\centering
+\caption{Design alternatives for CCD decision support, compared on the criteria that
+motivate this thesis. The relational row is included because it is the closest alternative
+to the design adopted here, and is discussed separately below.}
+\label{tab:method-comparison}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{2.0cm}p{2.28cm}p{2.28cm}p{2.28cm}p{2.28cm}p{2.28cm}}
+\hline
+\textbf{Approach} & \textbf{Coded EHR integration} & \textbf{Terminology bridging} &
+\textbf{Numeric observation gating} & \textbf{Multi-source fusion} &
+\textbf{Output faithfulness} \\
+\hline
+Rule-based CDSS / CIG &
+Rare in practice: 2 of 15 evaluated systems \cite{papadopoulos2022} &
+Hand-coded per rule &
+Expressible, but hand-coded per rule &
+Guideline only &
+Not applicable (no NL output) \\
+Relational EHR store with SQL &
+Native &
+Requires explicit mapping tables &
+Native &
+New schema and migration per source &
+Not applicable (no NL output) \\
+Vector-RAG over guideline text &
+Text only; codes not used &
+Embedding similarity &
+Not represented &
+Corpus-level, not entity-level &
+Approximate; grounded on retrieved passages \\
+Pure-LLM prompting &
+Prompt text only &
+Implicit and unverifiable &
+Not represented &
+None &
+Unconstrained; hallucination risk \\
+\textbf{This work} &
+FHIR-native, structured &
+UMLS shared concept space &
+Gated on measured values &
+EHR, guideline and literature in one graph &
+Deterministic retrieval; automatically verified \\
+\hline
+\end{tabular}
+\end{table}
+
+One row of Table~\ref{tab:method-comparison} deserves separate comment, because it is the
+alternative closest to the design adopted here. A relational store over the same FHIR data would also hold numeric observations natively.
+The same canonical inference path could be expressed there as an equivalent multi-way join.
+The choice of a property graph is therefore one of \emph{representation fit} rather than of
+raw capability. The claim made here is not that the relational alternative is incapable. Three considerations nonetheless favour the graph.
+First, FHIR defines well over a hundred resource types \cite{fhir_r4}. A faithful relational
+schema needs a table per type and a migration for each newly ingested type. The dual-label
+\texttt{:Resource:}\textit{Type} design of Chapter~III, by contrast, admits any resource
+type through a single loader path. Second, the three fused sources---a patient record, a set
+of conditional recommendations, and a literature co-occurrence network---share little
+structure. A further layer can also be attached to a graph without disturbing the existing
+ones. Third,
+and most relevant to RQ3, a traversal written as a chain of clinical relationships is
+auditable as a chain of clinical reasoning, which matters for a system whose output must carry
+provenance. The contributions claimed in this thesis---the concept bridge, the observation
+gates, and deterministic retrieval---rest above this choice rather than depending on it.
+
+\section{Research Questions}
+
+Each problem stated in Chapter~I is turned into a question that can be answered
+empirically. The research questions below therefore correspond one-to-one to those
+problems, and map to the research objectives:
+
+\begin{enumerate}
+    \item[RQ1.] How can a unified FHIR-native knowledge graph fusing EHR, guideline, and
+    literature be constructed for CCD, with clinical terminologies bridged into a common
+    concept space? (maps to RO1)
+    \item[RQ2.] Does loading structured observations improve the recommendation system's
+    guideline concordance relative to a condition/text-only baseline? (maps to RO2)
+    \item[RQ3.] How faithful is the LLM-generated grounded briefing, and to what extent can
+    deterministic knowledge-graph retrieval guarantee that faithfulness? (maps to RO3)
+\end{enumerate}
